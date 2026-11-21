@@ -631,7 +631,7 @@ function renderList() {
       const nxI = eps.findIndex(e => epMs(s, e) > now), ref = nxI < 0 ? Math.max(eps.length - 1, 0) : nxI;
       body = `<div class="srx"><div class="in">
         <div class="trow"><button class="tarr" data-win="${s.id}|-1" aria-label="Раньше" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-          <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - 2)}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
+          <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
         <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div></div></div>`;

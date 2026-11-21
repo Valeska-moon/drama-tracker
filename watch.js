@@ -9,7 +9,7 @@ const SHOWS_FILE = process.env.SHOWS_FILE || path.join(__dirname, 'shows.json');
 const TOKEN = process.env.TELEGRAM_TOKEN, CHAT = process.env.TELEGRAM_CHAT_ID;
 
 // «Ao to Midori (2026)» -> «ao-to-midori»
-const slug = (s) => String(s || '').toLowerCase().replace(/\(\d{4}\)/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const slug = (s) => String(s || '').toLowerCase().replace(/[’‘`'"]/g, '').replace(/\(\d{4}\)/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 async function tg(text) {
   console.log('Telegram:', text.replace(/\n/g, ' | '));
@@ -42,7 +42,8 @@ function parseEpisodes(html) {
 function matches(urlName, showSlug) {
   if (!showSlug) return false;
   const base = urlName.replace(/-(?:19|20)\d{2}(?:-[a-z]{1,2})?$/, '');
-  return base === showSlug || urlName === showSlug;
+  const flat = (x) => x.replace(/[^a-z0-9]/g, ''); // без дефисов: «its-just-business» = «it-s-just-business»
+  return flat(base) === flat(showSlug) || flat(urlName) === flat(showSlug);
 }
 
 async function main() {

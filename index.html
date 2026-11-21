@@ -244,6 +244,12 @@
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
   .srcols span { white-space: nowrap; }
   @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 62px; min-height: 76px; } }
+  .acard .alinks { min-height: 16px; margin: 6px 0 2px; }
+  .alinks { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; }
+  a.sl { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 500; color: rgba(255,194,224,.75); text-decoration: none; }
+  a.sl:hover { color: var(--pink); text-decoration: underline; }
+  a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+  .row .n .alinks { margin-top: 4px; }
   .flg { display: inline-block; vertical-align: middle; border-radius: 50%; flex: none; }
   .srp .lf { display: none; }
   .cline { display: none; }
@@ -452,6 +458,12 @@
       <div><label>В день премьеры</label><input type="number" id="batch" min="1" value="1" inputmode="numeric"></div>
       <div><label>В обычный день</label><input type="number" id="perday" min="1" value="1" inputmode="numeric"></div>
     </div>
+    <details><summary>Ссылки на сериал</summary>
+      <label>MKVDrama (страница сериала)</label>
+      <input type="url" id="mkvUrl" placeholder="https://mkvdrama.net/..." inputmode="url" autocomplete="off">
+      <label>MyAsianTV, если нужна не автоматическая</label>
+      <input type="url" id="matvUrl" placeholder="Обычно не нужно: бот находит сам" inputmode="url" autocomplete="off">
+    </details>
     <details><summary>Перерыв или перенос серии</summary>
       <label>Пропущенные даты выхода (по одной в строке, ГГГГ-ММ-ДД). Остальные серии сдвинутся.</label>
       <textarea id="skip" rows="2"></textarea>
@@ -514,6 +526,11 @@ const COUNTRIES = {
 let autoC = {};
 const countryOf = (s) => (s.country === 'none' ? '' : (s.country || autoC[s.id] || ''));
 const flagSvg = (c, size, cls = '') => (COUNTRIES[c] ? `<svg class="flg ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" role="img" aria-label="${COUNTRIES[c][0]}">${COUNTRIES[c][1]}</svg>` : '');
+let autoL = {};
+const okUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
+const matvUrl = (s) => okUrl(s.matvUrl) || okUrl(autoL[s.id]);
+const mkvUrl = (s) => okUrl(s.mkvUrl);
+const linkBtns = (s, cls = 'sl') => [[matvUrl(s), 'MyAsianTV'], [mkvUrl(s), 'MKVDrama']].filter(l => l[0]).map(l => `<a class="${cls}" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]}<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`).join('');
 const cname = (s) => (COUNTRIES[countryOf(s)] || [''])[0];
 const mainName = (s) => (s.ruMain && s.ruTitle ? s.ruTitle : s.title);
 const subName = (s) => (s.ruTitle ? (s.ruMain ? s.title : s.ruTitle) : '');
@@ -604,7 +621,7 @@ const rowHtml = (x, withBtns = true) => {
   const eps = x.group || [x], n = eps.map(g => g.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : `${n[0]}`;
   const upc = eps.find(g => upcomingNow(g)) || x;
   return `<div class="row">${thumb(x.s, lab)}
-  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}${n.length > 1 ? `серии ${lab}` : `серия ${lab}`} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
+  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}${n.length > 1 ? `серии ${lab}` : `серия ${lab}`} из ${x.s.totalEpisodes}</small>${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
 };
 const groupDay = (list) => { const out = []; list.forEach(x => { const g = out.find(o => o.s.id === x.s.id); if (g) g.group.push(x); else out.push({ ...x, group: [x] }); }); return out; };
 function agArrows() {
@@ -627,7 +644,7 @@ function renderUpcoming() {
     return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
     return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span>${flagSvg(countryOf(g.s), 26, 'af')}<b>${lab}</b></div>
-      <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
+      <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div><div class="alinks">${linkBtns(g.s)}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
   const chev = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   $('upcoming').innerHTML = `<div class="agwrap"><button type="button" class="agarr l" data-ag="-1" aria-label="Назад" hidden>${chev('M15 5l-7 7 7 7')}</button><div class="agenda">${cards}</div><button type="button" class="agarr r" data-ag="1" aria-label="Дальше" hidden>${chev('M9 5l7 7-7 7')}</button></div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
   agArrows();
@@ -717,7 +734,7 @@ function renderList() {
           <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-        <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div></div></div>`;
+        <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button>${[[matvUrl(s), 'MyAsianTV'], [mkvUrl(s), 'MKVDrama']].filter(l => l[0]).map(l => `<a class="btn small ghost" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]} ↗</a>`).join('')}</div></div></div>`;
     }
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
@@ -763,7 +780,7 @@ function readForm() {
   });
   return {
     id: editing || 's' + Date.now().toString(36),
-    country: $('country').value, title: $('title').value.trim(), ruTitle: $('ruTitle').value.trim(), ruMain: $('ruMain').checked && !!$('ruTitle').value.trim(), siteName: $('site').value.trim(),
+    country: $('country').value, mkvUrl: $('mkvUrl').value.trim(), matvUrl: $('matvUrl').value.trim(), title: $('title').value.trim(), ruTitle: $('ruTitle').value.trim(), ruMain: $('ruMain').checked && !!$('ruTitle').value.trim(), siteName: $('site').value.trim(),
     startDate: $('start').value, time: $('time').value || '20:00', totalEpisodes: +$('total').value || 0,
     weekdays: [...document.querySelectorAll('#days input:checked')].map(i => +i.value),
     premiereBatch: +$('batch').value || 1, perDay: +$('perday').value || 1,
@@ -876,7 +893,7 @@ $('lq').addEventListener('input', (ev) => { lq = ev.target.value; renderList(); 
 $('lf').addEventListener('click', (ev) => { const b = ev.target.closest('[data-f]'); if (b) { lf = b.dataset.f; renderList(); } });
 function startEdit(id) {
   const s = shows.find(x => x.id === id); resetForm(); editing = id;
-  $('country').value = s.country || ''; $('title').value = s.title; $('ruTitle').value = s.ruTitle || ''; $('ruMain').checked = !!s.ruMain; $('site').value = s.siteName || '';
+  $('country').value = s.country || ''; $('mkvUrl').value = s.mkvUrl || ''; $('matvUrl').value = s.matvUrl || ''; $('title').value = s.title; $('ruTitle').value = s.ruTitle || ''; $('ruMain').checked = !!s.ruMain; $('site').value = s.siteName || '';
   $('start').value = s.startDate; $('time').value = s.time; $('total').value = s.totalEpisodes;
   $('batch').value = s.premiereBatch || 1; $('perday').value = s.perDay || 1;
   document.querySelectorAll('#days input').forEach(i => i.checked = (s.weekdays || []).includes(+i.value));
@@ -972,7 +989,7 @@ checkUpdate();
 (async function init() {
   renderSub();
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
-  try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
+  try { const r = await fetch('state.json?' + Date.now()); if (r.ok) { const j = await r.json(); autoC = j.countries || {}; autoL = j.links || {}; } } catch {}
   const draft = ls.get('draft');
   if (draft) {
     try {

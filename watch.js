@@ -184,7 +184,8 @@ async function main() {
     const f = await findShowPage(t.slug);
     info[t.s.id] = f ? { on: true, url: f.url, ...parseShowPage(f.html, t.slug) } : { on: false };
   }
-  state.countries = state.countries || {};
+  state.countries = state.countries || {}; state.links = state.links || {};
+  for (const t of tracked) { const i = info[t.s.id]; if (i && i.on && i.url) state.links[t.s.id] = i.url; }
   for (const t of tracked) { const i = info[t.s.id]; if (i && i.country && CCODE[i.country]) state.countries[t.s.id] = CCODE[i.country]; }
   const nums = (o) => Object.keys(o).map(Number).sort((a, b) => a - b);
   const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'], MONRU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];

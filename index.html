@@ -109,9 +109,13 @@
   .cell.today .d { color: var(--pink); }
   .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); }
   .cell .d { font-size: 12.5px; font-weight: 600; line-height: 1; }
-  .minis { display: flex; flex-wrap: wrap; gap: 3px; }
-  .mini { width: 26px; height: 26px; border-radius: 8px; background-size: cover; background-position: center; display: grid; place-items: center; font: 700 11px var(--display); color: var(--deep); }
-  .mini.past { opacity: .4; }
+  .minis { width: 100%; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); gap: 4px; }
+  .tile { position: relative; aspect-ratio: 3 / 4; border-radius: 10px; background-size: cover; background-position: center; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); display: block; }
+  .tile.past { opacity: .4; }
+  .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 22px var(--display); color: var(--deep); opacity: .55; }
+  .tile b { position: absolute; right: 4px; bottom: 4px; min-width: 20px; padding: 2px 5px; border-radius: 7px; background: var(--pink); color: var(--deep);
+    font: 700 11px/1.2 var(--display); text-align: center; white-space: nowrap; }
   .more { font-size: 11px; color: var(--ash); align-self: center; }
   .daypanel { margin-top: 18px; }
   .cv { flex: none; position: relative; width: 46px; height: 62px; border-radius: 14px; background-size: cover; background-position: center; border: 1px solid var(--line); }
@@ -184,7 +188,7 @@
   @media (max-width: 520px) {
     .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
     .top .btn { padding: 9px 14px; font-size: 14px; }
-    .cell { min-height: 64px; padding: 5px; gap: 4px; border-radius: 13px; } .mini { width: 20px; height: 20px; border-radius: 6px; font-size: 9.5px; } .cal { gap: 4px; }
+        .cell { min-height: 64px; padding: 4px; gap: 4px; border-radius: 13px; } .tile { border-radius: 7px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 14px; } .cal { gap: 4px; }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -410,12 +414,15 @@ function renderCal() {
   let cells = ['пн','вт','ср','чт','пт','сб','вс'].map(w => `<div class="wd">${w}</div>`).join('');
   for (let i = startRow * 7; i < total; i++) {
     const d = new Date(Date.UTC(calY, calM, 1 - lead + i)), ds = fmtDate(d), list = by[ds] || [];
-    const vis = list.length > 4 ? list.slice(0, 3) : list;
-    const minis = vis.map(x => { const cv = coverSrc(x.s);
-      return `<span class="mini${x.ms < now ? ' past' : ''}" style="${cv ? bgi(cv) : 'background:' + showColor(x.s)}">${cv ? '' : x.e.n}</span>`; }).join('')
-      + (list.length > 4 ? `<span class="more">+${list.length - 3}</span>` : '');
+    // одна плитка на сериал: если в день выходит несколько серий, на плитке номера «5–7»
+    const groups = []; list.forEach(x => { let g = groups.find(g => g.s.id === x.s.id); if (!g) groups.push(g = { s: x.s, eps: [] }); g.eps.push(x); });
+    const rng = (a) => { const n = a.map(x => x.e.n).sort((p, q) => p - q); return n.length === 1 ? n[0] : n.every((v, k) => k === 0 || v === n[k - 1] + 1) ? n[0] + '–' + n[n.length - 1] : n.join(','); };
+    const gv = groups.length > 4 ? groups.slice(0, 3) : groups;
+    const minis = gv.map(g => { const cv = coverSrc(g.s), past = g.eps.every(x => x.ms < now);
+      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(g.s.title)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
+      + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
-    cells += `<button type="button" class="cell${d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis">${minis}</span></button>`;
+    cells += `<button type="button" class="cell${d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
   }
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`

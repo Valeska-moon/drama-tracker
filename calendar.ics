@@ -440,10 +440,11 @@ UID:smwqopgtl-ep1@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261103T153000Z
 DTEND:20261103T163000Z
-SUMMARY:The Last Lock of Love — серия 1/10
+SUMMARY:Последний замок любви — серия 1/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 1
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -452,10 +453,11 @@ UID:smwqopgtl-ep2@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261110T153000Z
 DTEND:20261110T163000Z
-SUMMARY:The Last Lock of Love — серия 2/10
+SUMMARY:Последний замок любви — серия 2/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 2
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -464,10 +466,11 @@ UID:smwqopgtl-ep3@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261117T153000Z
 DTEND:20261117T163000Z
-SUMMARY:The Last Lock of Love — серия 3/10
+SUMMARY:Последний замок любви — серия 3/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 3
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -476,10 +479,11 @@ UID:smwqopgtl-ep4@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261124T153000Z
 DTEND:20261124T163000Z
-SUMMARY:The Last Lock of Love — серия 4/10
+SUMMARY:Последний замок любви — серия 4/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 4
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -488,10 +492,11 @@ UID:smwqopgtl-ep5@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261201T153000Z
 DTEND:20261201T163000Z
-SUMMARY:The Last Lock of Love — серия 5/10
+SUMMARY:Последний замок любви — серия 5/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 5
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -500,10 +505,11 @@ UID:smwqopgtl-ep6@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261208T153000Z
 DTEND:20261208T163000Z
-SUMMARY:The Last Lock of Love — серия 6/10
+SUMMARY:Последний замок любви — серия 6/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 6
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -512,10 +518,11 @@ UID:smwqopgtl-ep7@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261215T153000Z
 DTEND:20261215T163000Z
-SUMMARY:The Last Lock of Love — серия 7/10
+SUMMARY:Последний замок любви — серия 7/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 7
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -524,10 +531,11 @@ UID:smwqopgtl-ep8@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261222T153000Z
 DTEND:20261222T163000Z
-SUMMARY:The Last Lock of Love — серия 8/10
+SUMMARY:Последний замок любви — серия 8/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 8
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -536,10 +544,11 @@ UID:smwqopgtl-ep9@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261229T153000Z
 DTEND:20261229T163000Z
-SUMMARY:The Last Lock of Love — серия 9/10
+SUMMARY:Последний замок любви — серия 9/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 9
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -548,10 +557,11 @@ UID:smwqopgtl-ep10@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270105T153000Z
 DTEND:20270105T163000Z
-SUMMARY:The Last Lock of Love — серия 10/10
+SUMMARY:Последний замок любви — серия 10/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Last Lock of Love\, серия 10
+DESCRIPTION:Через час: Последний замок любви\, 
+ серия 10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0222">
+<meta name="build" content="20261122-0227">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -310,7 +310,10 @@
   .days input:focus-visible + span { outline: 2px solid var(--pink); outline-offset: 2px; }
   details summary { cursor: pointer; color: var(--pink); margin-top: 14px; }
   .dlg .chip { background: var(--glass2); color: var(--bone); }
-  .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; max-height: 120px; overflow: auto; }
+  .pvt { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin: 6px 0 4px; }
+  .pvt .tl { flex: none; }
+  .pvt .tl em span { display: block; } .pvt .tl em u { display: none; }
+  .pvwrap { margin-top: 6px; }
   .dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
   #dlg[open] { display: flex; flex-direction: column; overflow: hidden; }
   .dlg { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 0; }
@@ -442,40 +445,38 @@
     </div>
     <label>Название</label>
     <input type="text" id="title" required>
-    <label>Русское название, если нужно</label>
-    <input type="text" id="ruTitle" placeholder="Например: Запах кармы">
+    <label>Русское название</label>
+    <input type="text" id="ruTitle" placeholder="Необязательно, например: Запах кармы">
     <label class="chk"><input type="checkbox" id="ruMain"> Показывать русское название главным</label>
-    <p class="hint">Русское название работает в поиске. Если сделать его главным, английское будет написано под ним бледным шрифтом.</p>
-    <label>Страна</label>
-    <select id="country"></select>
-    <label>Название на MyAsianTV, если отличается</label>
-    <input type="text" id="site" placeholder="Например: Ao to Midori">
-    <p class="hint">По этому названию бот ищет серии на сайте. Если сериал записан по-русски, впишите английское название.</p>
     <div class="two">
       <div><label>Дата премьеры</label><input type="date" id="start" required></div>
       <div><label>Время (по Минску)</label><input type="time" id="time" value="20:00" required></div>
     </div>
     <label>Дни недели, когда выходят серии</label>
     <div class="days" id="days"></div>
+    <p class="hint">Если ничего не выбрано, серии выходят в день премьеры.</p>
     <div class="three">
       <div><label>Всего серий</label><input type="number" id="total" min="1" max="200" inputmode="numeric" required></div>
-      <div><label>В день премьеры</label><input type="number" id="batch" min="1" value="1" inputmode="numeric"></div>
+      <div><label>В премьеру</label><input type="number" id="batch" min="1" value="1" inputmode="numeric"></div>
       <div><label>В обычный день</label><input type="number" id="perday" min="1" value="1" inputmode="numeric"></div>
     </div>
-    <details><summary>Ссылки на сериал</summary>
-      <label>MKVDrama (страница сериала)</label>
+    <div class="pvwrap" id="pvwrap" hidden>
+      <label>Расписание серий</label>
+      <div class="pvt" id="preview"></div>
+      <p class="hint">Серия не выйдет или выйдет в другой день? Откройте её в «Ближайших» и нажмите «Не выйдет» или «Перенести».</p>
+    </div>
+    <details><summary>Дополнительно</summary>
+      <label>Страна</label>
+      <select id="country"></select>
+      <label>Название на MyAsianTV, если отличается</label>
+      <input type="text" id="site" placeholder="Например: Ao to Midori">
+      <p class="hint">По нему бот ищет серии. Если основное название русское, впишите английское.</p>
+      <label>Ссылка на MKVDrama</label>
       <input type="url" id="mkvUrl" placeholder="https://mkvdrama.net/..." inputmode="url" autocomplete="off">
-      <label>MyAsianTV, если нужна не автоматическая</label>
-      <input type="url" id="matvUrl" placeholder="Обычно не нужно: бот находит сам" inputmode="url" autocomplete="off">
+      <label>Ссылка на MyAsianTV</label>
+      <input type="url" id="matvUrl" placeholder="Обычно не нужна: бот находит сам" inputmode="url" autocomplete="off">
     </details>
-    <details><summary>Перерыв или перенос серии</summary>
-      <label>Пропущенные даты выхода (по одной в строке, ГГГГ-ММ-ДД). Остальные серии сдвинутся.</label>
-      <textarea id="skip" rows="2"></textarea>
-      <label>Другая дата или время для конкретной серии («5 2026-12-04» или «5 2026-12-04 21:30»)</label>
-      <textarea id="ovr" rows="2"></textarea>
-    </details>
-    <p class="hint">Если дни недели не выбраны, серии выходят в тот же день, что и премьера.</p>
-    <div class="preview" id="preview"></div>
+    <textarea id="skip" hidden></textarea><textarea id="ovr" hidden></textarea>
     </div>
     <div class="dlg-foot">
       <button class="btn ghost" type="button" id="cancel">Отмена</button>
@@ -799,9 +800,10 @@ function readForm() {
   };
 }
 function renderPreview() {
-  const s = readForm(), t = todayStr();
-  $('preview').innerHTML = s.startDate && s.totalEpisodes
-    ? generateEpisodes(s).map(e => `<span class="chip ${e.date < t ? 'past' : ''}">${e.n}: ${short(e.date)}${e.time ? ' ' + e.time : ''}</span>`).join('') : '';
+  const s = readForm(), t = todayStr(), ok = s.startDate && s.totalEpisodes;
+  const eps = ok ? generateEpisodes(s) : [], nx = eps.findIndex(e => e.date >= t);
+  $('pvwrap').hidden = !ok;
+  $('preview').innerHTML = eps.map((e, i) => `<div class="tl ${nx < 0 || i < nx ? 'past' : i === nx ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('');
 }
 ['title','start','time','total','batch','perday','skip','ovr'].forEach(i => $(i).addEventListener('input', renderPreview));
 $('days').addEventListener('change', renderPreview);

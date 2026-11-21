@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.12
+// @version      1.13
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -49,6 +49,7 @@
     if (!found.size) els.forEach(el => { if (!el.closest('#bl-watch')) scan(el.textContent || ''); });
     return found;
   }
+  const ser = n => n + ((n % 10 === 1 && n % 100 !== 11) ? ' серия' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? ' серии' : ' серий');
   const maxEp = s => (s.size ? Math.max(...s) : null);
 
   // ---- сигнал ----
@@ -104,8 +105,8 @@
     const st = GM_getValue(KEY, null);
     const eps = episodes(), cur = maxEp(eps);
     if (!st) {
-      box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b id="bl-cur">${cur ? 'серия ' + cur : 'ищу серии…'}</b></div>
-        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.12</span></div>
+      box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b id="bl-cur">${cur ? ser(cur) : 'ищу серии…'}</b></div>
+        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.13</span></div>
         <div id="bl-cfg" style="display:none;margin-top:8px">
           <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
@@ -123,7 +124,7 @@
         if (!document.getElementById('bl-cur')) { clearInterval(poll); return; }
         const c = maxEp(episodes());
         const el = document.getElementById('bl-cur');
-        el.textContent = c ? 'серия ' + c : (Date.now() - T0 > 8000 ? 'серии не найдены' : 'ищу серии…');
+        el.textContent = c ? ser(c) : (Date.now() - T0 > 8000 ? 'серии не найдены' : 'ищу серии…');
       }, 1000);
       return;
     }
@@ -142,7 +143,7 @@
     let seen = cur;
     const draw = left => {
       box.innerHTML = `<div style="margin-bottom:6px">👀 Слежу за новой серией<br>
-        <span style="opacity:.75">сейчас на странице: ${seen ? 'серия ' + seen : '—'} · следим ${mins} мин<br>обновление через ${Math.max(0, Math.ceil(left))} с</span></div>${btn('bl-stop', 'Остановить')}`;
+        <span style="opacity:.75">сейчас на странице: ${seen ? ser(seen) : '—'} · следим ${mins} мин<br>обновление через ${Math.max(0, Math.ceil(left))} с</span></div>${btn('bl-stop', 'Остановить')}`;
       box.querySelector('#bl-stop').onclick = () => { GM_deleteValue(KEY); location.reload(); };
     };
     draw((deadline - Date.now()) / 1000);

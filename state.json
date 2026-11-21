@@ -1,4 +1,21 @@
 {
-  "seen": {},
-  "started": true
+  "seen": {
+    "the-scent-of-karma-2026|4|английские субтитры": "2026-11-21T18:09:44.180Z",
+    "the-scent-of-karma-2026|3|английские субтитры": "2026-11-21T18:09:44.180Z",
+    "the-scent-of-karma-2026|2|английские субтитры": "2026-11-21T18:09:44.180Z",
+    "the-scent-of-karma-2026|1|английские субтитры": "2026-11-21T18:09:44.180Z"
+  },
+  "started": true,
+  "shows": {
+    "smwqoeznv": true,
+    "smwqoisuc": true,
+    "smwqonc4m": false,
+    "smwqopgtl": true,
+    "smwqorxej": true,
+    "smwqp3byh": true,
+    "smwqp6vy0": false,
+    "smwqp9ciq": true
+  },
+  "mkv": {},
+  "mkvDown": true
 }

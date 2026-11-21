@@ -570,10 +570,11 @@ UID:smwqorxej-ep1@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261111T130000Z
 DTEND:20261111T140000Z
-SUMMARY:My Secret Boyfriends — серия 1/12
+SUMMARY:Мои тайные парни — серия 1/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 1
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -582,10 +583,11 @@ UID:smwqorxej-ep2@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261118T130000Z
 DTEND:20261118T140000Z
-SUMMARY:My Secret Boyfriends — серия 2/12
+SUMMARY:Мои тайные парни — серия 2/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 2
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -594,10 +596,11 @@ UID:smwqorxej-ep3@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261125T130000Z
 DTEND:20261125T140000Z
-SUMMARY:My Secret Boyfriends — серия 3/12
+SUMMARY:Мои тайные парни — серия 3/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 3
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -606,10 +609,11 @@ UID:smwqorxej-ep4@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261202T130000Z
 DTEND:20261202T140000Z
-SUMMARY:My Secret Boyfriends — серия 4/12
+SUMMARY:Мои тайные парни — серия 4/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 4
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -618,10 +622,11 @@ UID:smwqorxej-ep5@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261209T130000Z
 DTEND:20261209T140000Z
-SUMMARY:My Secret Boyfriends — серия 5/12
+SUMMARY:Мои тайные парни — серия 5/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 5
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -630,10 +635,11 @@ UID:smwqorxej-ep6@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261216T130000Z
 DTEND:20261216T140000Z
-SUMMARY:My Secret Boyfriends — серия 6/12
+SUMMARY:Мои тайные парни — серия 6/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 6
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -642,10 +648,11 @@ UID:smwqorxej-ep7@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261223T130000Z
 DTEND:20261223T140000Z
-SUMMARY:My Secret Boyfriends — серия 7/12
+SUMMARY:Мои тайные парни — серия 7/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 7
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -654,10 +661,11 @@ UID:smwqorxej-ep8@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261230T130000Z
 DTEND:20261230T140000Z
-SUMMARY:My Secret Boyfriends — серия 8/12
+SUMMARY:Мои тайные парни — серия 8/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 8
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -666,10 +674,11 @@ UID:smwqorxej-ep9@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270106T130000Z
 DTEND:20270106T140000Z
-SUMMARY:My Secret Boyfriends — серия 9/12
+SUMMARY:Мои тайные парни — серия 9/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 9
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -678,10 +687,11 @@ UID:smwqorxej-ep10@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270113T130000Z
 DTEND:20270113T140000Z
-SUMMARY:My Secret Boyfriends — серия 10/12
+SUMMARY:Мои тайные парни — серия 10/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 10
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -690,10 +700,11 @@ UID:smwqorxej-ep11@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270120T130000Z
 DTEND:20270120T140000Z
-SUMMARY:My Secret Boyfriends — серия 11/12
+SUMMARY:Мои тайные парни — серия 11/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 11
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  11
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -702,10 +713,11 @@ UID:smwqorxej-ep12@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270127T130000Z
 DTEND:20270127T140000Z
-SUMMARY:My Secret Boyfriends — серия 12/12
+SUMMARY:Мои тайные парни — серия 12/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: My Secret Boyfriends\, серия 12
+DESCRIPTION:Через час: Мои тайные парни\, серия
+  12
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

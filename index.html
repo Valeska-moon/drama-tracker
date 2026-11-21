@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261121-2343">
+<meta name="build" content="20261121-2347">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -355,6 +355,9 @@
     border-radius: 999px; padding: 10px 10px 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
     box-shadow: 0 12px 44px rgba(0,0,0,.6); font-weight: 500; }
   .savebar[hidden] { display: none; }
+  .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px; background: rgba(26,15,23,.92); border: 1px solid var(--line); backdrop-filter: blur(8px); font-size: 14px; color: var(--bone); box-shadow: 0 8px 28px rgba(0,0,0,.5); text-align: center; }
+  .toast.ok { border-color: var(--pink); color: var(--pale); }
+  .toast[hidden] { display: none; }
   .savebar .btn.main { background: var(--deep); color: var(--pink); border-color: var(--deep); }
   .savebar span.ok { color: #0b5a30; } .savebar span.bad { color: #9a1c1c; }
   footer { color: var(--ash); font-size: 14px; }
@@ -410,6 +413,7 @@
   </footer>
 </main>
 
+<div class="toast" id="toast" hidden role="status"></div>
 <div class="savebar" id="savebar" hidden>
   <span id="status">Есть несохранённые изменения</span>
   <button class="btn main" id="pushBtn" type="button">Сохранить и обновить календарь</button>
@@ -894,11 +898,21 @@ $('f').addEventListener('submit', (ev) => {
 
 // ---------- сохранение ----------
 function setStatus(t, cls) { $('status').innerHTML = cls ? `<span class="${cls}">${esc(t)}</span>` : esc(t); }
+let saveTimer = null, saving = false, again = false, toastT = null;
+const autoOn = () => !!(ls.get('ghRepo') && ls.get('ghToken'));
+function toast(t, cls, ms) {
+  const el = $('toast'); el.textContent = t; el.className = 'toast ' + (cls || ''); el.hidden = false;
+  clearTimeout(toastT); if (ms) toastT = setTimeout(() => { el.hidden = true; }, ms);
+}
 function markDirty() {
   dirty = true; ls.set('draft', JSON.stringify({ shows }));
-  $('savebar').hidden = false; setStatus('Есть несохранённые изменения');
+  if (autoOn()) {
+    $('savebar').hidden = true; toast('Сохраняю…');
+    clearTimeout(saveTimer); saveTimer = setTimeout(() => doSave(true), 1200);
+  } else { $('savebar').hidden = false; setStatus('Есть несохранённые изменения'); }
 }
-window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && dirty && autoOn()) { clearTimeout(saveTimer); doSave(true); } });
+window.addEventListener('beforeunload', (e) => { if (dirty && !autoOn()) { e.preventDefault(); e.returnValue = ''; } });
 $('ghSave').onclick = () => { ls.set('ghRepo', $('ghRepo').value.trim()); ls.set('ghToken', $('ghToken').value.trim()); $('cfgStatus').textContent = 'Настройки запомнены.'; };
 $('subShow').onclick = () => { ls.set('subDone', ''); renderSub(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 $('dl').onclick = () => {
@@ -906,10 +920,13 @@ $('dl').onclick = () => {
   a.href = URL.createObjectURL(new Blob([JSON.stringify({ shows }, (k, v) => (k[0] === '_' ? undefined : v), 2)], { type: 'application/json' }));
   a.download = 'shows.json'; a.click();
 };
-$('pushBtn').onclick = async () => {
+$('pushBtn').onclick = () => doSave(false);
+async function doSave(auto) {
   const repo = ls.get('ghRepo'), token = ls.get('ghToken');
   if (!repo || !token) { $('savebar').hidden = false; return setStatus('Сначала заполните настройки сохранения внизу страницы.', 'bad'); }
-  setStatus('Сохраняю…');
+  if (saving) { again = true; return; }
+  saving = true; again = false;
+  if (!auto) setStatus('Сохраняю…');
   try {
     const h = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
     const putB64 = async (path, b64) => {
@@ -925,15 +942,20 @@ $('pushBtn').onclick = async () => {
     await putFile('calendar.ics', DramaLib.buildICS(shows));
     shows.forEach(s => delete s._coverNew);
     dirty = false; ls.set('draft', '');
-    setStatus('Сохранено. Календарь обновится в течение пары минут.', 'ok');
-    setTimeout(() => { if (!dirty) $('savebar').hidden = true; }, 6000);
-  } catch (e) { setStatus('Не удалось сохранить: ' + e.message, 'bad'); }
-};
+    if (auto) toast('Сохранено, календарь обновится через пару минут', 'ok', 3500);
+    else { setStatus('Сохранено. Календарь обновится в течение пары минут.', 'ok'); setTimeout(() => { if (!dirty) $('savebar').hidden = true; }, 6000); }
+  } catch (e) {
+    $('savebar').hidden = false; setStatus('Не удалось сохранить: ' + e.message + '. Нажмите, чтобы повторить.', 'bad'); $('toast').hidden = true;
+  } finally {
+    saving = false;
+    if (again && dirty) { clearTimeout(saveTimer); saveTimer = setTimeout(() => doSave(true), 600); }
+  }
+}
 
 // ---------- автообновление: если на сайте новая версия, перезагружаем страницу ----------
 async function checkUpdate() {
   try {
-    if ($('dlg').open || $('mv').open) return;
+    if ($('dlg').open || $('mv').open || dirty) return;
     const cur = document.querySelector('meta[name=build]').content;
     const r = await fetch(location.pathname + '?chk=' + Date.now(), { cache: 'no-store' });
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.7
+// @version      1.8
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -40,6 +40,12 @@
       el.childNodes.forEach(n => { if (n.nodeType === 3) own += n.nodeValue; });
       scan(own);
     });
+    if (!found.size) {
+      // запасной путь: видимый текст страницы построчно (не зависит от разметки)
+      const panel = document.getElementById('bl-watch'); if (panel) panel.style.display = 'none';
+      (document.body.innerText || '').split(/\n+/).forEach(scan);
+      if (panel) panel.style.display = '';
+    }
     if (!found.size) els.forEach(el => { if (!el.closest('#bl-watch')) scan(el.textContent || ''); });
     return found;
   }

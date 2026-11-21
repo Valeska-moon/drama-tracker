@@ -129,6 +129,7 @@ async function checkMkv(tracked, state) {
 }
 
 const COUNTRY = { thai: 'Таиланд', korean: 'Корея', chinese: 'Китай', japanese: 'Япония', taiwanese: 'Тайвань', 'hong kong': 'Гонконг' };
+const CCODE = { 'Таиланд': 'TH', 'Корея': 'KR', 'Китай': 'CN', 'Япония': 'JP', 'Тайвань': 'TW', 'Гонконг': 'HK' };
 // Страница сериала: серии с плашкой SUB уже вышли с английскими субтитрами, с плашкой NEXT только анонсированы (видео ещё нет).
 function parseShowPage(html, sl) {
   const sub = {}, next = {};
@@ -183,6 +184,8 @@ async function main() {
     const f = await findShowPage(t.slug);
     info[t.s.id] = f ? { on: true, url: f.url, ...parseShowPage(f.html, t.slug) } : { on: false };
   }
+  state.countries = state.countries || {};
+  for (const t of tracked) { const i = info[t.s.id]; if (i && i.country && CCODE[i.country]) state.countries[t.s.id] = CCODE[i.country]; }
   const nums = (o) => Object.keys(o).map(Number).sort((a, b) => a - b);
   const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'], MONRU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   const dateRu = (d) => { const m = String(d).match(/^([A-Za-z]{3})\.? (\d{1,2}), (\d{4})$/), i = m ? MON.indexOf(m[1].toLowerCase()) : -1; return i >= 0 ? `${+m[2]} ${MONRU[i]} ${m[3]}` : (d || 'дата не указана'); };

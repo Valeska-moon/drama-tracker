@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
+<meta name="build" content="20261121-2339">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -242,6 +243,14 @@
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
   .srcols span { white-space: nowrap; }
   @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 62px; min-height: 76px; } }
+  .flg { display: inline-block; vertical-align: middle; border-radius: 50%; flex: none; }
+  .srp .lf { display: none; }
+  .cline { display: none; }
+  .srcols .cn { display: inline-flex; align-items: center; gap: 6px; }
+  .apic .af { position: absolute; right: 8px; top: 8px; border: 1.5px solid rgba(10,8,9,.7); }
+  .tile .tf { position: absolute; left: 3px; bottom: 3px; width: 15px; height: 15px; border: 1px solid rgba(10,8,9,.65); }
+  .row .n small .sm { margin-right: 6px; margin-top: -2px; }
+  select { width: 100%; font: inherit; font-size: 15px; color: var(--bone); background: var(--glass); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; color-scheme: dark; }
   .srcols span + span { margin-left: 12px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,.22); }
   .sr .bar { height: 5px; margin: 10px 0 6px; }
   .sr .prog { font-size: 13px; }
@@ -282,6 +291,8 @@
     border-radius: 14px; padding: 10px 14px; color-scheme: dark; }
   input:focus, textarea:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,138,196,.2); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two > div, .three > div { min-width: 0; }
+  input[type=date], input[type=time] { min-width: 0; max-width: 100%; }
   .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .three label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
@@ -304,6 +315,19 @@
   .dlg-foot { flex: none; margin: 0; padding: 14px 26px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #130e12; }
   body:has(dialog[open]) { overflow: hidden; }
   @media (max-width: 640px) {
+    .srp .lf { display: block; position: absolute; left: 4px; top: 4px; border: 1.5px solid rgba(10,8,9,.7); }
+    .srcols .cn { display: none; }
+    .srcols .cn + span { margin-left: 0; padding-left: 0; border-left: 0; }
+    .srcols { font-size: 12px; } .srcols span + span { margin-left: 8px; padding-left: 8px; }
+    .cline { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ash); margin-bottom: 12px; }
+    .dlgbody { overflow-x: hidden; touch-action: pan-y; }
+    .two > div, .three > div { min-width: 0; }
+    input[type=date], input[type=time] { display: block; min-width: 0; max-width: 100%; width: 100%; -webkit-appearance: none; appearance: none; text-align: left; }
+    input::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
+    select { -webkit-appearance: none; appearance: none; }
+    select { font-size: 16px; min-height: 44px; }
+    .tile .tf { width: 11px; height: 11px; left: 2px; bottom: 2px; }
+    .apic .af { width: 24px; height: 24px; }
     dialog { width: 100vw; max-width: 100vw; max-height: 94dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; border-bottom: 0; }
     #dlg[open] { height: 94dvh; }
     .dlghead { padding: 16px 16px 4px; }
@@ -407,6 +431,8 @@
     <input type="text" id="ruTitle" placeholder="Например: Запах кармы">
     <label class="chk"><input type="checkbox" id="ruMain"> Показывать русское название главным</label>
     <p class="hint">Русское название работает в поиске. Если сделать его главным, английское будет написано под ним бледным шрифтом.</p>
+    <label>Страна</label>
+    <select id="country"></select>
     <label>Название на MyAsianTV, если отличается</label>
     <input type="text" id="site" placeholder="Например: Ao to Midori">
     <p class="hint">По этому названию бот ищет серии на сайте. Если сериал записан по-русски, впишите английское название.</p>
@@ -472,6 +498,18 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 const plural = (n, f) => f[(n % 10 === 1 && n % 100 !== 11) ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
 const PAL = ['#ff8ac4', '#b9a6ff', '#ffb38a', '#8fe3c8', '#8cc8ff', '#ffe08a'];
 const showColor = (s) => PAL[Math.max(0, shows.findIndex(x => x.id === s.id)) % PAL.length];
+const COUNTRIES = {
+  TH: ['Таиланд', '<rect width="24" height="24" fill="#a51931"/><rect y="4" width="24" height="16" fill="#f4f5f8"/><rect y="8" width="24" height="8" fill="#2d2a4a"/>'],
+  CN: ['Китай', '<rect width="24" height="24" fill="#de2910"/><path d="M7 3.6l1 2.5 2.6.1-2 1.7.7 2.6L7 9l-2.3 1.5.7-2.6-2-1.7L6 6.1z" fill="#ffde00"/>'],
+  JP: ['Япония', '<rect width="24" height="24" fill="#f4f5f8"/><circle cx="12" cy="12" r="6" fill="#bc002d"/>'],
+  KR: ['Корея', '<rect width="24" height="24" fill="#f4f5f8"/><circle cx="12" cy="12" r="5.5" fill="#cd2e3a"/><path d="M6.5 12a5.5 5.5 0 0 0 11 0a2.75 2.75 0 0 0-5.5 0a2.75 2.75 0 0 1-5.5 0z" fill="#0047a0"/>'],
+  TW: ['Тайвань', '<rect width="24" height="24" fill="#fe0000"/><rect width="12" height="12" fill="#000095"/><circle cx="6" cy="6" r="2.6" fill="#fff"/>'],
+  HK: ['Гонконг', '<rect width="24" height="24" fill="#de2910"/><circle cx="12" cy="12" r="3.6" fill="#fff"/>'],
+};
+let autoC = {};
+const countryOf = (s) => (s.country === 'none' ? '' : (s.country || autoC[s.id] || ''));
+const flagSvg = (c, size, cls = '') => (COUNTRIES[c] ? `<svg class="flg ${cls}" width="${size}" height="${size}" viewBox="0 0 24 24" role="img" aria-label="${COUNTRIES[c][0]}">${COUNTRIES[c][1]}</svg>` : '');
+const cname = (s) => (COUNTRIES[countryOf(s)] || [''])[0];
 const mainName = (s) => (s.ruMain && s.ruTitle ? s.ruTitle : s.title);
 const subName = (s) => (s.ruTitle ? (s.ruMain ? s.title : s.ruTitle) : '');
 const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
@@ -558,7 +596,7 @@ function renderSub() {
 
 // ---------- списки ----------
 const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
-  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
 function agArrows() {
   const sc = document.querySelector('.agenda'); if (!sc) return;
   const l = document.querySelector('.agarr.l'), r = document.querySelector('.agarr.r');
@@ -578,7 +616,7 @@ function renderUpcoming() {
   const shortDay = (ds) => { const d = new Date(ds + 'T00:00:00Z'), diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
     return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
-    return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
+    return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span>${flagSvg(countryOf(g.s), 26, 'af')}<b>${lab}</b></div>
       <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
   const chev = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   $('upcoming').innerHTML = `<div class="agwrap"><button type="button" class="agarr l" data-ag="-1" aria-label="Назад" hidden>${chev('M15 5l-7 7 7 7')}</button><div class="agenda">${cards}</div><button type="button" class="agarr r" data-ag="1" aria-label="Дальше" hidden>${chev('M9 5l7 7-7 7')}</button></div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
@@ -602,7 +640,7 @@ function renderCal() {
     const rng = (a) => { const n = a.map(x => x.e.n).sort((p, q) => p - q); return n.length === 1 ? n[0] : n.every((v, k) => k === 0 || v === n[k - 1] + 1) ? n[0] + '–' + n[n.length - 1] : n.join(','); };
     const gv = groups.length > 4 ? groups.slice(0, 3) : groups;
     const minis = gv.map(g => { const cv = coverSrc(g.s), past = g.eps.every(x => x.ms < now);
-      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(mainName(g.s))}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
+      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(mainName(g.s))}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}${flagSvg(countryOf(g.s), 15, 'tf')}<b>${rng(g.eps)}</b></span>`; }).join('')
       + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
     cells += `<button type="button" class="cell${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
@@ -649,7 +687,7 @@ function renderList() {
   const nRun = info.filter(i => !i.done).length, nDone = info.length - nRun;
   document.querySelector('#lf [data-f="run"]').textContent = `Идут · ${nRun}`;
   document.querySelector('#lf [data-f="done"]').textContent = `Завершены · ${nDone}`;
-  const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.ruTitle || '') + ' ' + (i.s.siteName || '')).toLowerCase().includes(q)));
+  const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.ruTitle || '') + ' ' + (i.s.siteName || '') + ' ' + cname(i.s)).toLowerCase().includes(q)));
   if (!vis.length) { $('list').innerHTML = `<p class="hint">${q ? 'Ничего не нашлось.' : lf === 'done' ? 'Завершённых сериалов пока нет.' : 'Сейчас нет идущих сериалов.'}</p>`; return; }
   const cards = vis.map(({ s, eps, aired, done }) => {
     const tot = eps.length || 1, isOpen = openId === s.id;
@@ -664,6 +702,7 @@ function renderList() {
     if (isOpen) {
       const nxI = eps.findIndex(e => epMs(s, e) > now), ref = nxI < 0 ? Math.max(eps.length - 1, 0) : nxI;
       body = `<div class="srx"><div class="in">
+        ${cname(s) ? `<div class="cline">${flagSvg(countryOf(s), 16)}${cname(s)}</div>` : ''}
         <div class="trow"><button class="tarr" data-win="${s.id}|-1" aria-label="Раньше" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
           <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
@@ -672,9 +711,9 @@ function renderList() {
     }
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
-        <div class="srp" style="${coverSrc(s) ? bgi(coverSrc(s)) : ''}"><b>${eps.length}</b></div>
+        <div class="srp" style="${coverSrc(s) ? bgi(coverSrc(s)) : ''}">${flagSvg(countryOf(s), 22, 'lf')}<b>${eps.length}</b></div>
         <div class="srm"><div class="srn">${esc(mainName(s))}<small${subName(s) ? '' : ' class="ph" aria-hidden="true"'}>${subName(s) ? esc(subName(s)) : '&nbsp;'}</small></div>
-          <div class="srcols">${dayTxt ? `<span>${dayTxt}</span>` : ''}<span>${esc(s.time)}</span></div>
+          <div class="srcols">${cname(s) ? `<span class="cn">${flagSvg(countryOf(s), 15)}${cname(s)}</span>` : ''}${dayTxt ? `<span>${dayTxt}</span>` : ''}<span>${esc(s.time)}</span></div>
           <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
           <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div></div>
         <svg class="srch" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
@@ -703,6 +742,7 @@ function renderAll() { renderHero(); renderUpcoming(); renderList(); }
 setInterval(renderHero, 60000);
 
 // ---------- форма ----------
+$('country').innerHTML = '<option value="">Определить автоматически</option>' + Object.entries(COUNTRIES).map(([c, v]) => `<option value="${c}">${v[0]}</option>`).join('') + '<option value="none">Не показывать</option>';
 $('days').innerHTML = ORDER.map(d => `<label><input type="checkbox" value="${d}"><span>${DAYN[d]}</span></label>`).join('');
 $('ghRepo').value = ls.get('ghRepo') || ''; $('ghToken').value = ls.get('ghToken') || '';
 
@@ -713,7 +753,7 @@ function readForm() {
   });
   return {
     id: editing || 's' + Date.now().toString(36),
-    title: $('title').value.trim(), ruTitle: $('ruTitle').value.trim(), ruMain: $('ruMain').checked && !!$('ruTitle').value.trim(), siteName: $('site').value.trim(),
+    country: $('country').value, title: $('title').value.trim(), ruTitle: $('ruTitle').value.trim(), ruMain: $('ruMain').checked && !!$('ruTitle').value.trim(), siteName: $('site').value.trim(),
     startDate: $('start').value, time: $('time').value || '20:00', totalEpisodes: +$('total').value || 0,
     weekdays: [...document.querySelectorAll('#days input:checked')].map(i => +i.value),
     premiereBatch: +$('batch').value || 1, perDay: +$('perday').value || 1,
@@ -826,7 +866,7 @@ $('lq').addEventListener('input', (ev) => { lq = ev.target.value; renderList(); 
 $('lf').addEventListener('click', (ev) => { const b = ev.target.closest('[data-f]'); if (b) { lf = b.dataset.f; renderList(); } });
 function startEdit(id) {
   const s = shows.find(x => x.id === id); resetForm(); editing = id;
-  $('title').value = s.title; $('ruTitle').value = s.ruTitle || ''; $('ruMain').checked = !!s.ruMain; $('site').value = s.siteName || '';
+  $('country').value = s.country || ''; $('title').value = s.title; $('ruTitle').value = s.ruTitle || ''; $('ruMain').checked = !!s.ruMain; $('site').value = s.siteName || '';
   $('start').value = s.startDate; $('time').value = s.time; $('total').value = s.totalEpisodes;
   $('batch').value = s.premiereBatch || 1; $('perday').value = s.perDay || 1;
   document.querySelectorAll('#days input').forEach(i => i.checked = (s.weekdays || []).includes(+i.value));
@@ -884,10 +924,27 @@ $('pushBtn').onclick = async () => {
   } catch (e) { setStatus('Не удалось сохранить: ' + e.message, 'bad'); }
 };
 
+// ---------- автообновление: если на сайте новая версия, перезагружаем страницу ----------
+async function checkUpdate() {
+  try {
+    if ($('dlg').open || $('mv').open) return;
+    const cur = document.querySelector('meta[name=build]').content;
+    const r = await fetch(location.pathname + '?chk=' + Date.now(), { cache: 'no-store' });
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    if (m && m[1] !== cur && sessionStorage.getItem('triedBuild') !== m[1]) {
+      sessionStorage.setItem('triedBuild', m[1]);
+      const u = new URL(location.href); u.searchParams.set('v', m[1]); location.replace(u.toString());
+    }
+  } catch {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+checkUpdate();
+
 // ---------- старт ----------
 (async function init() {
   renderSub();
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
+  try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
   const draft = ls.get('draft');
   if (draft) {
     try {

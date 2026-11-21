@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261121-2340">
+<meta name="build" content="20261121-2343">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -596,8 +596,13 @@ function renderSub() {
 }
 
 // ---------- списки ----------
-const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
-  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+const rowHtml = (x, withBtns = true) => {
+  const eps = x.group || [x], n = eps.map(g => g.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : `${n[0]}`;
+  const upc = eps.find(g => upcomingNow(g)) || x;
+  return `<div class="row">${thumb(x.s, lab)}
+  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}${n.length > 1 ? `серии ${lab}` : `серия ${lab}`} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
+};
+const groupDay = (list) => { const out = []; list.forEach(x => { const g = out.find(o => o.s.id === x.s.id); if (g) g.group.push(x); else out.push({ ...x, group: [x] }); }); return out; };
 function agArrows() {
   const sc = document.querySelector('.agenda'); if (!sc) return;
   const l = document.querySelector('.agarr.l'), r = document.querySelector('.agarr.r');
@@ -648,7 +653,7 @@ function renderCal() {
   }
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`
-    + (sel.length ? sel.map(x => rowHtml(x, upcomingNow(x))).join('') : '<p class="hint">В этот день серий нет.</p>') + '</div>';
+    + (sel.length ? groupDay(sel).map(x => rowHtml(x, x.group.some(upcomingNow))).join('') : '<p class="hint">В этот день серий нет.</p>') + '</div>';
   const dd = (x) => { const d = new Date(x); return `${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const title = weeks ? `${dd(base)} – ${dd(base + 13 * 864e5)}` : `${MONTHN[calM]} ${calY}`;
   const atStart = weeks ? calStart <= mon0 : isCur;

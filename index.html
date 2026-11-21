@@ -76,20 +76,24 @@
   .name { font-size: clamp(20px, 3.8vw, 38px); letter-spacing: .025em; line-height: 1.25; max-width: 19em; margin: 0 auto; text-wrap: balance; overflow-wrap: anywhere; }
   .name span { color: var(--pink); display: block; }
   .sub2 { color: rgba(247,241,244,.8); font-size: 15px; margin: 18px 0 0; }
-  .hero .ra { justify-content: center; margin-top: 22px; }
 
   /* на компьютере баннер компактный: текст слева, кружок справа, вместо кнопок стрелка к списку серий */
+  .meta2 { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 18px; }
+  .pill { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.06); font-size: 13.5px; font-weight: 600; color: var(--bone); }
+  .pill.hot { background: var(--pink); border-color: var(--pink); color: var(--deep); font-weight: 700; }
+  .hero .ra { justify-content: center; margin-top: 22px; }
   .heroarrow { display: none; }
   @media (min-width: 641px) {
     .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; text-align: left; align-items: center; padding: 30px 36px; }
-    .hero .orb { grid-column: 2; grid-row: 1 / 5; margin: 0; width: 150px; height: 150px; }
-    .hero .name { grid-column: 1; margin: 0; max-width: none; font-size: clamp(20px, 3vw, 32px); }
-    .hero .sub2 { grid-column: 1; margin: 10px 0 0; font-size: 14.5px; }
+    .hero .orb { grid-column: 2; grid-row: 1; margin: 0; width: 150px; height: 150px; align-self: center; }
+    .hero .htext { grid-column: 1; grid-row: 1; align-self: end; }
+    .hero .name { margin: 0; max-width: none; font-size: clamp(20px, 3vw, 32px); }
+    .hero .sub2 { margin: 10px 0 0; font-size: 14.5px; }
+    .meta2 { justify-content: flex-start; margin-top: 16px; }
     .hero .ra { display: none; }
-    .hero.empty .name, .hero.empty .sub2 { grid-column: 1; }
-    .heroarrow { display: inline-grid; vertical-align: middle; place-items: center; margin-left: 12px; width: 32px; height: 32px; border-radius: 50%; border: 0; cursor: pointer;
-      background: var(--pink); color: var(--deep); font-size: 16px; line-height: 1; transition: transform .15s, background .15s; }
-    .heroarrow:hover { background: var(--pale); transform: translateY(2px); }
+    .heroarrow { display: inline-grid; place-items: center; margin-left: 6px; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+      background: var(--pink); color: var(--deep); box-shadow: 0 6px 18px rgba(255,138,196,.35); transition: transform .15s, background .15s; }
+    .heroarrow:hover { background: var(--pale); transform: translateY(3px); }
   }
   @keyframes flash { from { box-shadow: 0 0 0 3px rgba(255,138,196,.55); } to { box-shadow: 0 0 0 3px rgba(255,138,196,0); } }
   .daypanel.flash .row { animation: flash 1.4s ease-out; }
@@ -124,7 +128,7 @@
   .calhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
   .calhead b { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .025em; font-size: 15px; text-align: center; flex: 1; }
   .calhead { margin-bottom: 16px; }
-  .calhead b { font-size: 30px; text-align: left; letter-spacing: .02em; }
+  .calhead b { font-size: 30px; text-align: center; flex: 1; letter-spacing: .02em; }
   .calhead b i { font-style: normal; color: var(--pink); font-weight: 700; font-size: 16px; margin-left: 10px; letter-spacing: .08em; }
   .calhead .btn { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
@@ -362,7 +366,7 @@ const showColor = (s) => PAL[Math.max(0, shows.findIndex(x => x.id === s.id)) % 
 const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
 const bgi = (u) => `background-image:url('${esc(u)}')`;
 const thumb = (s, n) => { const cv = coverSrc(s); return cv ? `<span class="cv" style="${bgi(cv)}"><i>${n}</i></span>` : `<span class="num">${n}</span>`; };
-let view = ls.get('view') || (matchMedia('(max-width: 640px)').matches ? 'list' : 'cal'), span = 'month', calY, calM, calSel, calStart, agendaN = 3;
+let view = 'list', span = 'month', calY, calM, calSel, calStart, agendaN = 3;
 
 // момент выхода серии (в мс, UTC)
 function epMs(show, e) {
@@ -377,6 +381,11 @@ function dayLabel(dateStr) {
   const diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
   const base = `${DAYFULL[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`;
   return diff === 0 ? 'Сегодня · ' + base : diff === 1 ? 'Завтра · ' + base : base;
+}
+function heroWhen(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  const diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
+  return diff <= 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : diff === 2 ? 'Послезавтра' : `${DAYFULL[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`;
 }
 function short(dateStr) { const d = new Date(dateStr + 'T00:00:00Z'); return `${DAYN[d.getUTCDay()]} ${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}`; }
 
@@ -399,8 +408,8 @@ function renderHero() {
     ${center}</svg>`;
   if (!next) {
     $('hero').className = 'hero empty';
-    $('hero').innerHTML = `${orb}<h2 class="name">Следующая серия<span>пока не запланирована</span></h2>
-      <p class="sub2">Добавьте первый сериал, и здесь появится отсчёт до выхода серии.</p>`;
+    $('hero').innerHTML = `${orb}<div class="htext"><h2 class="name">Следующая серия<span>пока не запланирована</span></h2>
+      <p class="sub2">Добавьте первый сериал, и здесь появится отсчёт до выхода серии.</p></div>`;
     return;
   }
   const diff = next.ms - now;
@@ -412,9 +421,9 @@ function renderHero() {
     val = 'через ' + (d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`);
   }
   $('hero').className = 'hero';
-  $('hero').innerHTML = `${orb}<h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
-    <p class="sub2">Серия ${next.e.n} из ${next.s.totalEpisodes} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}<button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий">↓</button></p>
-    ${epButtons(next.s.id, next.e.n)}`;
+  $('hero').innerHTML = `${orb}<div class="htext"><h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
+    <div class="meta2"><span class="pill">Серия ${next.e.n} из ${next.s.totalEpisodes}</span><span class="pill">${heroWhen(next.e.date)}</span><span class="pill hot">${next.e.time || next.s.time}</span><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
+    ${epButtons(next.s.id, next.e.n)}</div>`;
 }
 const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
 
@@ -485,7 +494,7 @@ function renderCal() {
 const mondayOf = (ds) => { const d = DramaLib.parseDate(ds), dow = (d.getUTCDay() + 6) % 7; return fmtDate(new Date(d.getTime() - dow * 864e5)); };
 function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; calStart = mondayOf(ds); }
 goDate(todayStr());
-const setView = (v) => { view = v; ls.set('view', v); renderUpcoming(); };
+const setView = (v) => { view = v; renderUpcoming(); };
 $('vCal').onclick = () => setView('cal');
 $('vList').onclick = () => setView('list');
 $('upcoming').addEventListener('click', (ev) => {
@@ -625,7 +634,7 @@ $('mvReset').onclick = () => {
 function onEpClick(ev) {
   const b = ev.target.closest('button'); if (!b) return;
   if (b.dataset.goto) { // стрелка в баннере: открыть календарь на дне ближайшей серии и прокрутить к её строке
-    view = 'cal'; ls.set('view', 'cal'); goDate(b.dataset.goto); renderUpcoming();
+    view = 'cal'; goDate(b.dataset.goto); renderUpcoming();
     const el = document.querySelector('.daypanel') || $('upcoming'); el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1500); return;
   }

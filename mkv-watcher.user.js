@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.14
+// @version      1.15
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -19,7 +19,14 @@
   'use strict';
 
   const KEY = 'watch:' + location.origin + location.pathname;
-  const MIN_S = 35, MAX_S = 70; // пауза между обновлениями, секунд (случайная)
+  const ivlMin = () => +GM_getValue('ivl', 3) || 3; // минут между обновлениями (по умолчанию 3)
+  const fmt = t => { t = Math.max(0, Math.ceil(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  const isChallenge = () => {
+    const t = (document.title || '').toLowerCase(), b = (document.body && document.body.innerText || '').slice(0, 1500).toLowerCase();
+    return /just a moment|attention required|ddos|security check|access denied|too many requests/.test(t) ||
+      /verify you are human|checking your browser|are you a robot|confirm you are human|too many requests|проверка безопасности/.test(b) ||
+      !!document.querySelector('#challenge-form, .cf-challenge, #cf-challenge-running, iframe[src*="challenges.cloudflare"]');
+  };
 
   // ---- поиск номеров серий на странице ----
   function episodes() {
@@ -106,14 +113,15 @@
     const eps = episodes(), cur = maxEp(eps);
     if (!st) {
       box.innerHTML = `<div style="margin-bottom:8px"><div style="font-size:11px;opacity:.55">сейчас на странице</div><div id="bl-cur" style="font-size:18px;font-weight:700">${cur ? ser(cur) : 'ищу серии…'}</div></div>
-        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.14</span></div>
+        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.15</span></div>
         <div id="bl-cfg" style="display:none;margin-top:8px">
           <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
+          <div style="margin:6px 0;opacity:.85">Обновлять раз в <select id="bl-ivl" style="border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:2px 4px"><option>1</option><option>2</option><option>3</option><option>5</option></select> мин</div>
           ${btn('bl-save', 'Сохранить', true)}
         </div>`;
-      box.querySelector('#bl-set').onclick = () => { const c = box.querySelector('#bl-cfg'); c.style.display = c.style.display === 'none' ? 'block' : 'none'; box.querySelector('#bl-tok').value = GM_getValue('tgToken', ''); box.querySelector('#bl-chat').value = GM_getValue('tgChat', ''); };
-      box.querySelector('#bl-save').onclick = () => { GM_setValue('tgToken', box.querySelector('#bl-tok').value.trim()); GM_setValue('tgChat', box.querySelector('#bl-chat').value.trim()); box.querySelector('#bl-cfg').style.display = 'none'; };
+      box.querySelector('#bl-set').onclick = () => { const c = box.querySelector('#bl-cfg'); c.style.display = c.style.display === 'none' ? 'block' : 'none'; box.querySelector('#bl-tok').value = GM_getValue('tgToken', ''); box.querySelector('#bl-chat').value = GM_getValue('tgChat', ''); box.querySelector('#bl-ivl').value = String(ivlMin()); };
+      box.querySelector('#bl-save').onclick = () => { GM_setValue('tgToken', box.querySelector('#bl-tok').value.trim()); GM_setValue('tgChat', box.querySelector('#bl-chat').value.trim()); GM_setValue('ivl', +box.querySelector('#bl-ivl').value || 3); box.querySelector('#bl-cfg').style.display = 'none'; };
       box.querySelector('#bl-go').onclick = () => {
         const now = maxEp(episodes());
         GM_setValue(KEY, { target: 0, base: now, links: document.querySelectorAll('a').length, since: Date.now() });
@@ -137,20 +145,32 @@
       box.querySelector('#bl-ok').onclick = () => { render(); };
       alertUser(c);
     };
+    const stopWith = (why) => {
+      GM_deleteValue(KEY);
+      box.innerHTML = `<div style="font-size:14px;margin-bottom:6px">⚠️ <b>Слежение остановлено</b></div><div style="font-size:12px;opacity:.8;margin-bottom:8px">${why}</div><div id="bl-tg" style="font-size:12px;margin-bottom:8px"></div>${btn('bl-ok', 'Понятно', true)}`;
+      box.style.borderColor = '#ffb86b';
+      box.querySelector('#bl-ok').onclick = () => { render(); };
+      try { GM_notification({ title: 'Сторож серии', text: 'Слежение остановлено: ' + why, timeout: 0 }); } catch (e) {}
+      tg('⚠️ MkvDrama: слежение остановлено — ' + why + '\n' + location.href);
+      sound();
+    };
+    if (isChallenge()) { stopWith('сайт просит проверку «Вы человек?». Пройди её и нажми «Следить» снова.'); return; }
     if (cur && isHit(cur)) { fire(cur); return; }
-    const deadline = Date.now() + (MIN_S + Math.random() * (MAX_S - MIN_S)) * 1000;
+    const base_s = ivlMin() * 60, deadline = Date.now() + base_s * (0.8 + Math.random() * 0.4) * 1000;
     const mins = Math.floor((Date.now() - st.since) / 60000);
     let seen = cur;
     const draw = left => {
       box.innerHTML = `<div style="margin-bottom:8px">👀 Слежу за новой серией
         <div style="font-size:11px;opacity:.55;margin-top:4px">сейчас на странице</div>
         <div style="font-size:18px;font-weight:700">${seen ? ser(seen) : '—'}</div>
-        <div style="font-size:11px;opacity:.55">следим ${mins} мин · обновление через ${Math.max(0, Math.ceil(left))} с</div></div>${btn('bl-stop', 'Остановить')}`;
+        <div style="font-size:11px;opacity:.55">следим ${mins} мин · обновление через ${fmt(left)}</div></div>${btn('bl-stop', 'Остановить')}`;
       box.querySelector('#bl-stop').onclick = () => { GM_deleteValue(KEY); location.reload(); };
     };
     draw((deadline - Date.now()) / 1000);
     const timer = setInterval(() => {
       const c = maxEp(episodes()); seen = c;
+      if (isChallenge()) { clearInterval(timer); stopWith('сайт просит проверку «Вы человек?». Пройди её и нажми «Следить» снова.'); return; }
+      if (!c && st.base && Date.now() - T0 > 25000) { clearInterval(timer); stopWith('страница не загрузилась или серии на ней не найдены (возможно, ошибка или защита сайта).'); return; }
       if (c && isHit(c)) { clearInterval(timer); fire(c); return; }
       const left = (deadline - Date.now()) / 1000;
       if (left <= 0) { clearInterval(timer); location.reload(); } else draw(left);

@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: watch
   cancel-in-progress: false
@@ -27,3 +28,12 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add state.json
           git diff --cached --quiet || (git commit -m "Состояние слежки" && git pull --rebase -q && git push)
+      # Расписание GitHub (cron) для этого репозитория не срабатывает, поэтому каждый запуск через 13 минут запускает следующий сам.
+      # Если цепочка когда-нибудь оборвётся, достаточно один раз нажать «Run workflow».
+      - name: Запустить следующую проверку
+        if: always()
+        run: |
+          sleep 780
+          gh workflow run watch.yml --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}

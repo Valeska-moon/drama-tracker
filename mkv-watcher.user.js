@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.2
+// @version      1.3
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -24,18 +24,21 @@
   // ---- поиск номеров серий на странице ----
   function episodes() {
     const found = new Set();
-    const re = /(?:episode|\bep\.?|\bE)\s*0*(\d{1,3})\b/i;
-    const reHref = /(?:episode[-_/]?|[-_/]e|[-_/]ep)0*(\d{1,3})(?:\D|$)/i;
-    document.querySelectorAll('a, h1, h2, h3, h4, li, td, span, b, strong').forEach(el => {
-      if (el.closest('#bl-watch')) return;
-      if (el.children.length > 3) return; // не берём большие контейнеры
-      const t = (el.textContent || '').trim();
-      if (t.length > 120) return;
-      let m = t.match(re);
-      if (m) found.add(+m[1]);
-      if (el.tagName === 'A') {
-        m = (el.getAttribute('href') || '').match(reHref);
-        if (m) found.add(+m[1]);
+    // "Episode 03", "Episode 01 - 02", "EP 5", "E05" (диапазон разворачиваем целиком)
+    const re = /\b(?:episodes?|ep\.?|e)\s*0*(\d{1,3})(?:\s*[-–—~]\s*0*(\d{1,3}))?(?!\d)/gi;
+    const add = (a, b) => { a = +a; b = b ? +b : a; if (b < a || b - a > 60) b = a; for (let i = a; i <= b; i++) found.add(i); };
+    document.querySelectorAll('body *').forEach(el => {
+      if (el.closest('#bl-watch') || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName)) return;
+      // только собственный текст элемента, без вложенных
+      let own = '';
+      el.childNodes.forEach(n => { if (n.nodeType === 3) own += n.nodeValue; });
+      own = own.replace(/\s+/g, ' ').trim();
+      if (own && own.length < 60) {
+        // заголовок серии: строка начинается со слова Episode / EP
+        if (/^(?:episodes?|ep\.?)\s*0*\d/i.test(own)) {
+          let m; re.lastIndex = 0;
+          while ((m = re.exec(own))) add(m[1], m[2]);
+        }
       }
     });
     return found;

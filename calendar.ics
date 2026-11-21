@@ -12,10 +12,12 @@ UID:smwqoeznv-ep1@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261014T130000Z
 DTEND:20261014T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 1/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 1/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 1
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -24,10 +26,12 @@ UID:smwqoeznv-ep2@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261021T130000Z
 DTEND:20261021T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 2/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 2/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 2
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -36,10 +40,12 @@ UID:smwqoeznv-ep3@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261028T130000Z
 DTEND:20261028T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 3/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 3/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 3
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -48,10 +54,12 @@ UID:smwqoeznv-ep4@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261104T130000Z
 DTEND:20261104T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 4/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 4/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 4
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -60,10 +68,12 @@ UID:smwqoeznv-ep5@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261111T130000Z
 DTEND:20261111T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 5/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 5/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 5
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -72,10 +82,12 @@ UID:smwqoeznv-ep6@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261118T130000Z
 DTEND:20261118T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 6/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 6/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 6
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -84,10 +96,12 @@ UID:smwqoeznv-ep7@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261125T130000Z
 DTEND:20261125T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 7/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 7/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 7
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -96,10 +110,12 @@ UID:smwqoeznv-ep8@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261202T130000Z
 DTEND:20261202T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 8/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 8/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 8
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -108,10 +124,12 @@ UID:smwqoeznv-ep9@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261209T130000Z
 DTEND:20261209T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 9/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 9/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 9
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -120,10 +138,12 @@ UID:smwqoeznv-ep10@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261216T130000Z
 DTEND:20261216T140000Z
-SUMMARY:Teach Me\, Touch Me — серия 10/10
+SUMMARY:Научи меня\, прикоснись ко мне — сер
+ ия 10/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Teach Me\, Touch Me\, серия 10
+DESCRIPTION:Через час: Научи меня\, прикоснись 
+ ко мне\, серия 10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

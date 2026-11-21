@@ -122,6 +122,7 @@
     display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 16px; }
   .row .n { flex: 1; min-width: 0; }
   .row .n b { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  small.sn { display: block; font-size: 12px; font-weight: 500; color: rgba(247,241,244,.5); margin-top: 2px; line-height: 1.25; }
   .row .n small { color: var(--ash); font-size: 13.5px; }
   .row .t { font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: .02em; color: var(--pink); font-variant-numeric: tabular-nums; }
 
@@ -135,11 +136,14 @@
   .calhead b { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .025em; font-size: 15px; text-align: center; flex: 1; }
   .calhead { margin-bottom: 16px; }
   .calhead b { font-size: 30px; text-align: center; flex: 1; letter-spacing: .02em; }
-  .calhead b:has(.mm) { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
-  .calhead .yy { color: var(--pink); font-size: 20px; text-align: left; }
-  .calhead .yy.r { text-align: right; }
-  .calhead .mm { font-size: 32px; }
-  @media (max-width: 640px) { .calhead .mm { font-size: 22px; } .calhead .yy { font-size: 15px; } .calhead b:has(.mm) { gap: 8px; } }
+  .calhead b:has(.mm) { position: relative; display: flex; flex-direction: column; align-items: center; padding: 10px 0 2px; }
+  .calhead .mw { position: relative; display: grid; place-items: center; padding: 20px 40px; }
+  .calhead .ywm { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-size: clamp(44px, 9vw, 70px); color: rgba(255,138,196,.14); letter-spacing: .06em; padding-left: .06em; pointer-events: none; }
+  .calhead .mm { position: relative; font-size: 32px; line-height: 1.15; }
+  .calhead .mdots { position: relative; display: flex; gap: 6px; margin-top: 9px; }
+  .calhead .mdots i { width: 6px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.22); transition: width .2s; }
+  .calhead .mdots i.on { width: 18px; background: var(--pink); }
+  @media (max-width: 640px) { .calhead .mm { font-size: 22px; } .calhead .mdots { gap: 5px; } .calhead .mdots i.on { width: 14px; } }
   .calhead b i { font-style: normal; color: var(--pink); font-weight: 700; font-size: 16px; margin-left: 10px; letter-spacing: .08em; }
   .calhead .btn { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
@@ -510,7 +514,7 @@ function renderSub() {
 
 // ---------- списки ----------
 const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
-  <span class="n"><b>${esc(mainName(x.s))}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
 const upcomingNow = (x) => x.ms > Date.now() - 3 * 3600e3;
 function renderUpcoming() {
   $('vCal').classList.toggle('on', view === 'cal'); $('vList').classList.toggle('on', view === 'list');
@@ -523,7 +527,7 @@ function renderUpcoming() {
     return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
     return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
-      <div class="abody"><div class="atitle">${esc(mainName(g.s))}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
+      <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
   $('upcoming').innerHTML = `<div class="agenda">${cards}</div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
 }
 const MONTHN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -556,7 +560,7 @@ function renderCal() {
   const title = weeks ? `${dd(base)} – ${dd(base + 13 * 864e5)}` : `${MONTHN[calM]} ${calY}`;
   const atStart = weeks ? calStart <= mon0 : isCur;
   $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Назад" ${atStart ? 'disabled style="visibility:hidden"' : ''}>←</button>
-    <b>${weeks ? title : `<span class="yy">${String(calY).slice(0, 2)}</span><span class="mm">${MONTHN[calM].toUpperCase()}</span><span class="yy r">${String(calY).slice(2)}</span>`}</b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>${panel}`;
+    <b>${weeks ? title : `<span class="mw"><span class="ywm">${calY}</span><span class="mm">${MONTHN[calM].toUpperCase()}</span></span><span class="mdots">${MONTHN.map((_, i) => `<i${i === calM ? ' class="on"' : ''}></i>`).join('')}</span>`}</b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>${panel}`;
 }
 const mondayOf = (ds) => { const d = DramaLib.parseDate(ds), dow = (d.getUTCDay() + 6) % 7; return fmtDate(new Date(d.getTime() - dow * 864e5)); };
 function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; calStart = mondayOf(ds); }

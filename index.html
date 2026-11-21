@@ -75,7 +75,7 @@
   @media (prefers-reduced-motion: reduce) { .orb .ring { animation: none; } }
   .name { font-size: clamp(20px, 3.8vw, 38px); letter-spacing: .025em; line-height: 1.25; max-width: 19em; margin: 0 auto; text-wrap: balance; overflow-wrap: anywhere; }
   .name span { color: var(--pink); display: block; }
-  .sub2 { color: var(--bone); opacity: .8; font-size: 15px; margin: 18px 0 0; }
+  .sub2 { color: rgba(247,241,244,.8); font-size: 15px; margin: 18px 0 0; }
   .hero .ra { justify-content: center; margin-top: 22px; }
 
   /* на компьютере баннер компактный: текст слева, кружок справа, вместо кнопок стрелка к списку серий */
@@ -87,8 +87,8 @@
     .hero .sub2 { grid-column: 1; margin: 10px 0 0; font-size: 14.5px; }
     .hero .ra { display: none; }
     .hero.empty .name, .hero.empty .sub2 { grid-column: 1; }
-    .heroarrow { display: grid; grid-column: 1; justify-self: start; place-items: center; margin-top: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
-      background: var(--pink); color: var(--deep); font-size: 20px; line-height: 1; transition: transform .15s, background .15s; }
+    .heroarrow { display: inline-grid; vertical-align: middle; place-items: center; margin-left: 12px; width: 32px; height: 32px; border-radius: 50%; border: 0; cursor: pointer;
+      background: var(--pink); color: var(--deep); font-size: 16px; line-height: 1; transition: transform .15s, background .15s; }
     .heroarrow:hover { background: var(--pale); transform: translateY(2px); }
   }
   @keyframes flash { from { box-shadow: 0 0 0 3px rgba(255,138,196,.55); } to { box-shadow: 0 0 0 3px rgba(255,138,196,0); } }
@@ -408,8 +408,8 @@ function renderHero() {
   }
   $('hero').className = 'hero';
   $('hero').innerHTML = `${orb}<h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
-    <p class="sub2">Серия ${next.e.n} из ${next.s.totalEpisodes} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}</p>
-    ${epButtons(next.s.id, next.e.n)}<button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий">↓</button>`;
+    <p class="sub2">Серия ${next.e.n} из ${next.s.totalEpisodes} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}<button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий">↓</button></p>
+    ${epButtons(next.s.id, next.e.n)}`;
 }
 const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
 

@@ -110,23 +110,25 @@
   .calhead .btn { padding: 6px 14px; }
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
   .cal .wd { text-align: center; color: var(--ash); font-size: 12.5px; padding-bottom: 2px; }
-  .cell { min-height: 82px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
+  .cell { position: relative; aspect-ratio: 1 / 1; min-height: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 0; display: block;
     cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
   .cell:hover { border-color: rgba(255,138,196,.5); }
   .cell.out { opacity: .32; }
   .cell.today { border-color: rgba(255,138,196,.65); }
   .cell.today .d { color: var(--pink); }
-  .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); }
-  .cell .d { font-size: 12.5px; font-weight: 600; line-height: 1; }
-  .minis { width: 100%; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); gap: 4px; }
-  .tile { position: relative; aspect-ratio: 3 / 4; border-radius: 10px; background-size: cover; background-position: center; overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); display: block; }
+  .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink) inset; }
+  .cell .d { position: absolute; left: 6px; top: 5px; z-index: 2; font-size: 12.5px; font-weight: 600; line-height: 1; padding: 3px 6px; border-radius: 8px; }
+  .cell.has .d { background: rgba(10,8,9,.66); color: var(--bone); }
+  .cell.has.today .d { color: var(--pink); }
+  /* один сериал в день занимает всю рамку; несколько делят её на части */
+  .minis { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 2px; }
+  .tile { position: relative; background-size: cover; background-position: center top; overflow: hidden; display: block; }
+  .minis.n3 .tile:last-child { grid-column: 1 / -1; }
   .tile.past { opacity: .4; }
-  @media (min-width: 641px) { .cell { min-height: 0; } .minis .tile { height: 88px; width: auto; max-width: 100%; } }
-  .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 22px var(--display); color: var(--deep); opacity: .55; }
+  .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 28px var(--display); color: var(--deep); opacity: .5; }
   .tile b { position: absolute; right: 4px; bottom: 4px; min-width: 20px; padding: 2px 5px; border-radius: 7px; background: var(--pink); color: var(--deep);
     font: 700 11px/1.2 var(--display); text-align: center; white-space: nowrap; }
-  .more { font-size: 11px; color: var(--ash); align-self: center; }
+  .more { display: grid; place-items: center; font: 700 13px var(--display); color: var(--bone); background: rgba(255,255,255,.1); }
   .daypanel { margin-top: 18px; }
   .agbtns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
   .cv { flex: none; position: relative; width: 46px; height: 62px; border-radius: 14px; background-size: cover; background-position: center; border: 1px solid var(--line); }
@@ -199,7 +201,7 @@
   @media (max-width: 520px) {
     .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
     .top .btn { padding: 9px 14px; font-size: 14px; }
-        .cell { min-height: 64px; padding: 4px; gap: 4px; border-radius: 13px; } .tile { border-radius: 7px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 14px; } .cal { gap: 4px; }
+    .cell { border-radius: 12px; } .cell .d { left: 3px; top: 3px; font-size: 11px; padding: 2px 4px; border-radius: 6px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 16px; } .cal { gap: 4px; }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -433,7 +435,7 @@ function renderCal() {
       return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(g.s.title)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
       + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
-    cells += `<button type="button" class="cell${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
+    cells += `<button type="button" class="cell${list.length ? ' has' : ''}${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
   }
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`

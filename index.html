@@ -72,6 +72,7 @@
   /* подписка */
   .sub { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap;
     background: var(--glass); border: 1px solid var(--line); border-radius: 22px; padding: 14px 20px; margin-bottom: 44px; }
+  .sub[hidden] { display: none; }
   .sub p { margin: 0; color: var(--ash); font-size: 14px; max-width: 48em; }
   .sub b { color: var(--bone); font-weight: 600; }
   code { background: var(--glass2); border-radius: 6px; padding: 2px 7px; font-size: 13px; word-break: break-all; color: var(--pink); }
@@ -221,6 +222,7 @@
           <button class="btn small ghost" id="dl" type="button">Скачать shows.json</button>
         </div>
         <p class="hint" id="cfgStatus"></p>
+        <button class="btn small ghost" id="subShow" type="button">Показать ссылку на календарь</button>
       </div>
     </details>
   </footer>
@@ -368,13 +370,16 @@ const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" d
 
 // ---------- подписка ----------
 function renderSub() {
+  if (ls.get('subDone') === '1') { $('subCard').hidden = true; return; }
+  $('subCard').hidden = false;
   const host = location.host, path = location.pathname.replace(/[^/]*$/, '');
   if (!/github\.io$/.test(host)) {
     $('subCard').innerHTML = '<p>Ссылка для календаря появится, когда страница будет опубликована на GitHub Pages.</p>'; return;
   }
   const web = `webcal://${host}${path}calendar.ics`;
   $('subCard').innerHTML = `<p><b>Календарь на Маке и iPhone.</b> Один раз: Календарь → Файл → Новая подписка на календарь → вставьте <code>${web}</code>. Напоминание приходит за час до серии.</p>
-    <a href="${web}"><button class="btn small" type="button">Подписаться</button></a>`;
+    <span class="ra"><a href="${web}"><button class="btn small" type="button">Подписаться</button></a><button class="btn small ghost" type="button" id="subDone">Уже подписана</button></span>`;
+  $('subDone').onclick = () => { ls.set('subDone', '1'); renderSub(); };
 }
 
 // ---------- списки ----------
@@ -591,6 +596,7 @@ function markDirty() {
 }
 window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 $('ghSave').onclick = () => { ls.set('ghRepo', $('ghRepo').value.trim()); ls.set('ghToken', $('ghToken').value.trim()); $('cfgStatus').textContent = 'Настройки запомнены.'; };
+$('subShow').onclick = () => { ls.set('subDone', ''); renderSub(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 $('dl').onclick = () => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify({ shows }, (k, v) => (k[0] === '_' ? undefined : v), 2)], { type: 'application/json' }));

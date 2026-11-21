@@ -217,6 +217,8 @@
   .srm { flex: 1; min-width: 0; }
   .srn { font-weight: 600; font-size: 16px; line-height: 1.25; margin-bottom: 6px; overflow-wrap: anywhere; }
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
+  .srcols span { white-space: nowrap; }
+  @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 58px; height: 76px; } }
   .srcols span + span { margin-left: 12px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,.22); }
   .sr .bar { height: 5px; margin: 10px 0 6px; }
   .sr .prog { font-size: 13px; }
@@ -233,7 +235,8 @@
   .tl { flex: 0 0 calc((100% - (var(--n) - 1) * 8px) / var(--n)); scroll-snap-align: start; border: 1px solid var(--line); border-radius: 13px; padding: 9px 4px; text-align: center; background: var(--glass); }
   .tl strong { display: block; font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1.1; }
   .tl em { display: block; font-style: normal; font-size: 11.5px; color: var(--ash); margin-top: 4px; line-height: 1.25; }
-  .tl em span { display: block; }
+  .tl em u { text-decoration: none; }
+  @media (max-width: 640px) { .tl em span { display: block; } .tl em u { display: none; } }
   .tl.past { opacity: .45; }
   .tl.nx { background: var(--pink); border-color: var(--pink); color: var(--deep); }
   .tl.nx em { color: #5a2f47; }
@@ -562,9 +565,9 @@ $('upcoming').addEventListener('click', (ev) => {
   } else if (cell) { calSel = cell.dataset.date; renderCal(); }
 });
 const MON3 = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-const tileDate = (ds) => { const d = new Date(ds + 'T00:00:00Z'); return `<span>${DAYFULL[d.getUTCDay()].toLowerCase()},</span> <span>${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}</span>`; };
+const tileDate = (ds) => { const d = new Date(ds + 'T00:00:00Z'); return `<span>${DAYN[d.getUTCDay()]}</span><u> · </u><span>${d.getUTCDate()} ${MON3[d.getUTCMonth()]}</span>`; };
 let lf = 'run', lq = '', openId = null; const tw = {};
-const tilesN = () => matchMedia('(max-width: 640px)').matches ? 3 : 6;
+const tilesN = () => matchMedia('(max-width: 640px)').matches ? 4 : 6;
 function renderList() {
   document.querySelectorAll('#lf button').forEach(b => b.classList.toggle('on', b.dataset.f === lf));
   if (!shows.length) { $('list').innerHTML = '<p class="hint">Список пуст. Нажмите «Добавить сериал».</p>'; return; }
@@ -578,7 +581,8 @@ function renderList() {
   $('list').innerHTML = vis.map(({ s, eps, aired, done }) => {
     const tot = eps.length || 1, isOpen = openId === s.id;
     const days = (s.weekdays && s.weekdays.length ? ORDER.filter(d => s.weekdays.includes(d)) : []);
-    const dayTxt = days.length === 1 ? DAYFULL[days[0]].toLowerCase() : days.map(d => DAYN[d]).join(', ');
+    const ne = eps.find(e => epMs(s, e) > now) || eps[eps.length - 1];
+    const dayTxt = ne ? (() => { const d = new Date(ne.date + 'T00:00:00Z'); return `${DAYFULL[d.getUTCDay()].toLowerCase()}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`; })() : days.map(d => DAYN[d]).join(', ');
     const edits = [
       ...(s.skipDates || []).map(d => `<span class="chip">пропуск ${short(d)}<button data-us="${s.id}|${d}" aria-label="Убрать пропуск">✕</button></span>`),
       ...Object.entries(s.overrides || {}).map(([n, v]) => `<span class="chip">серия ${esc(n)} → ${esc(v)}<button data-uo="${s.id}|${n}" aria-label="Убрать перенос">✕</button></span>`),

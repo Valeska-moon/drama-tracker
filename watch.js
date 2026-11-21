@@ -56,7 +56,7 @@ async function findShowPage(sl) {
       const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (compatible; drama-tracker)' }, signal: AbortSignal.timeout(15000) });
       if (!r.ok) continue;
       const html = await r.text();
-      if (/Total Episodes|Original name|Description:/i.test(html)) return url;
+      if (/Total Episodes|Original name|Description:|\/ep\//i.test(html)) return { url, html };
     } catch {}
   }
   return null;
@@ -125,6 +125,23 @@ async function checkMkv(tracked, state) {
   for (const m of msgs) await tg(m);
 }
 
+const COUNTRY = { thai: 'Таиланд', korean: 'Корея', chinese: 'Китай', japanese: 'Япония', taiwanese: 'Тайвань', 'hong kong': 'Гонконг' };
+// Страница сериала: серии с плашкой SUB уже вышли с английскими субтитрами, с плашкой NEXT только анонсированы (видео ещё нет).
+function parseShowPage(html, sl) {
+  const sub = {}, next = {};
+  for (const m of html.matchAll(/<a\b[^>]*href="([^"]*\/ep\/([^"\/?#]+)[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi)) {
+    const nm = m[2].match(/^(.*?)-episode-\d+/);
+    if (!nm || !matches(nm[1], sl)) continue; // ссылки на серии других сериалов (боковая колонка) пропускаем
+    const text = m[3].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const n = text.match(/Episode\s+(\d+)/i); if (!n) continue;
+    const date = (text.match(/[A-Z][a-z]{2}\.? \d{1,2}, \d{4}/) || [''])[0];
+    if (/^NEXT\b/i.test(text)) next[n[1]] = date;
+    else if (/^SUB\b/i.test(text)) sub[n[1]] = { url: new URL(m[1], SITE).href, date };
+  }
+  const c = (html.match(/<title>[^<]*?\b(Thai|Korean|Chinese|Japanese|Taiwanese|Hong Kong)\s+Drama/i) || [])[1];
+  return { sub, next, country: c ? COUNTRY[c.toLowerCase()] : '' };
+}
+
 async function main() {
   const shows = (JSON.parse(fs.readFileSync(SHOWS_FILE, 'utf8')).shows || []);
   let state = {};
@@ -155,39 +172,49 @@ async function main() {
   const fresh = mine.filter(e => !state.seen[`${e.name}|${e.n}|${e.kind}`]);
   console.log(`Серий на странице: ${eps.length}, из вашего списка: ${mine.length}, новых: ${fresh.length}`);
 
-  // есть ли сериал на сайте: по сериям на главной или по его собственной странице /tv/…
-  state.shows = state.shows || {};
-  const status = {};
+  // Источник правды: страница сериала на сайте. Там у каждой серии плашка SUB (вышла с англ. субтитрами) или NEXT (только анонс).
+  state.shows = state.shows || {}; state.eps = state.eps || {};
+  const info = {};
   for (const t of tracked.filter(t => t.slug)) {
-    const own = mine.filter(e => matches(e.name, t.slug));
-    let url = own.length ? own[0].url : null;
-    if (!url && state.shows[t.s.id] !== true) url = await findShowPage(t.slug);
-    status[t.s.id] = { on: !!url || state.shows[t.s.id] === true, url, last: own.length ? Math.max(...own.map(e => e.n)) : null };
+    const f = await findShowPage(t.slug);
+    info[t.s.id] = f ? { on: true, url: f.url, ...parseShowPage(f.html, t.slug) } : { on: false };
   }
-  const added = tracked.filter(t => t.slug && !(t.s.id in state.shows)); // сериалы, которых бот ещё не видел в списке
-  const addedIds = new Set(added.map(t => t.s.id));
-
-  if (added.length) {
-    const onSite = added.filter(t => status[t.s.id].on), missing = added.filter(t => !status[t.s.id].on);
-    const line = (t) => `• ${t.s.title}${status[t.s.id].last ? ` (последняя серия на сайте: ${status[t.s.id].last})` : ''}`;
-    let msg = state.started ? 'Добавила в слежку:' : `Слежка за MyAsianTV включена. Слежу за сериалами: ${shows.length}.`;
-    if (onSite.length) msg += `\n\nУже есть на сайте:\n${onSite.map(line).join('\n')}`;
-    if (missing.length) msg += `\n\nПока нет на сайте (напишу, когда появятся):\n${missing.map(t => '• ' + t.s.title).join('\n')}`;
-    await tg(msg);
+  const nums = (o) => Object.keys(o).map(Number).sort((a, b) => a - b);
+  const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'], MONRU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const dateRu = (d) => { const m = String(d).match(/^([A-Za-z]{3})\.? (\d{1,2}), (\d{4})$/), i = m ? MON.indexOf(m[1].toLowerCase()) : -1; return i >= 0 ? `${+m[2]} ${MONRU[i]} ${m[3]}` : (d || 'дата не указана'); };
+  const baseline = tracked.filter(t => t.slug && ((info[t.s.id].on && !state.eps[t.s.id]) || !(t.s.id in state.shows)));
+  if (baseline.length) {
+    const lines = baseline.map(t => {
+      const i = info[t.s.id];
+      if (!i.on) return `• ${t.s.title}: страницы на сайте пока нет (напишу, когда появится)`;
+      const sn = nums(i.sub), nx = nums(i.next);
+      const was = state.shows[t.s.id] === false ? ' появился на сайте;' : '';
+      return `• ${t.s.title}${i.country ? ` (${i.country})` : ''}:${was} ${sn.length ? `с английскими сабами вышло серий: ${sn.length}, последняя ${sn[sn.length - 1]}` : 'серий с английскими сабами пока нет'}${nx.length ? `; анонс: серия ${nx[0]}, ${dateRu(i.next[nx[0]])}` : ''}`;
+    });
+    await tg(`${state.started ? 'Слежка по страницам сериалов:' : 'Слежка за MyAsianTV включена.'}\n\n${lines.join('\n')}`);
     state.started = true;
   }
   if (noLatin.length && !state.warnedNoLatin) { await tg(`Не могу следить за: ${noLatin.join(', ')}. Впишите английское название, как на MyAsianTV, в поле «Название на MyAsianTV».`); state.warnedNoLatin = true; }
 
-  for (const t of tracked) { // сериал, которого раньше не было на сайте, появился
-    if (!t.slug || addedIds.has(t.s.id)) continue;
-    if (state.shows[t.s.id] === false && status[t.s.id].on) await tg(`Сериал «${t.s.title}» появился на сайте\n${status[t.s.id].url}`);
+  for (const t of tracked) {
+    if (!t.slug) continue;
+    const i = info[t.s.id], base = baseline.includes(t);
+    if (!base && state.shows[t.s.id] === false && i.on) await tg(`Сериал «${t.s.title}» появился на сайте\n${i.url}`);
+    if (i.on) {
+      const prev = state.eps[t.s.id];
+      if (prev && !base) {
+        for (const n of nums(i.sub)) if (!prev.sub.includes(n)) await tg(`Вышла серия ${n} «${t.s.title}» с английскими субтитрами${i.country ? ` (${i.country})` : ''}\n${i.sub[n].url}`);
+        for (const n of nums(i.next)) {
+          if (prev.sub.includes(n)) continue;
+          if (!(n in prev.next)) await tg(`Серия ${n} «${t.s.title}» анонсирована на сайте: ${dateRu(i.next[n])} (видео пока нет)`);
+          else if (prev.next[n] !== i.next[n]) await tg(`У серии ${n} «${t.s.title}» изменилась дата на сайте: было ${dateRu(prev.next[n])}, стало ${dateRu(i.next[n])}`);
+        }
+      }
+      state.eps[t.s.id] = { sub: nums(i.sub), next: i.next };
+    }
+    state.shows[t.s.id] = i.on;
   }
-  for (const e of fresh) { // новые серии (о сериалах, добавленных только что, уже сказано выше)
-    const t = tracked.find(t => matches(e.name, t.slug));
-    if (!addedIds.has(t.s.id)) await tg(`Вышла серия ${e.n} «${t.s.title}» (${e.kind})\n${e.url}`);
-  }
-  for (const t of tracked) if (t.slug) state.shows[t.s.id] = status[t.s.id].on;
-  await checkMkv(tracked, state).catch(e => console.log('MKVDrama, ошибка:', e.message));
+  if (process.env.CHECK_MKV) await checkMkv(tracked, state).catch(e => console.log('MKVDrama, ошибка:', e.message));
   const now = new Date().toISOString();
   for (const e of mine) state.seen[`${e.name}|${e.n}|${e.kind}`] = state.seen[`${e.name}|${e.n}|${e.kind}`] || now;
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));

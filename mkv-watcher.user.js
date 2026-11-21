@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.5
+// @version      1.6
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -24,23 +24,23 @@
   // ---- поиск номеров серий на странице ----
   function episodes() {
     const found = new Set();
-    // "Episode 03", "Episode 01 - 02", "EP 5", "E05" (диапазон разворачиваем целиком)
-    const re = /\b(?:episodes?|ep\.?|e)\s*0*(\d{1,3})(?:\s*[-–—~]\s*0*(\d{1,3}))?(?!\d)/gi;
-    const add = (a, b) => { a = +a; b = b ? +b : a; if (b < a || b - a > 60) b = a; for (let i = a; i <= b; i++) found.add(i); };
-    document.querySelectorAll('body *').forEach(el => {
+    // "Episode 03", "Episode 01 - 08" (любой дефис/тире), "EP 5"
+    const re = /(?:episodes?|ep\.?)\s*0*(\d{1,3})(?:\s*[^\w\s]{1,2}\s*0*(\d{1,3}))?(?!\d)/gi;
+    const add = (a, b) => { a = +a; b = b ? +b : a; if (b < a || b - a > 80) b = a; for (let i = a; i <= b; i++) found.add(i); };
+    const scan = txt => {
+      txt = txt.replace(/[\s\u00a0\u200b-\u200f]+/g, ' ').trim();
+      if (!txt || txt.length > 40 || !/^(?:episodes?|ep\.?)\s*0*\d/i.test(txt)) return;
+      let m; re.lastIndex = 0;
+      while ((m = re.exec(txt))) add(m[1], m[2]);
+    };
+    const els = document.querySelectorAll('body *');
+    els.forEach(el => {
       if (el.closest('#bl-watch') || /^(SCRIPT|STYLE|NOSCRIPT)$/.test(el.tagName)) return;
-      // только собственный текст элемента, без вложенных
       let own = '';
       el.childNodes.forEach(n => { if (n.nodeType === 3) own += n.nodeValue; });
-      own = own.replace(/\s+/g, ' ').trim();
-      if (own && own.length < 60) {
-        // заголовок серии: строка начинается со слова Episode / EP
-        if (/^(?:episodes?|ep\.?)\s*0*\d/i.test(own)) {
-          let m; re.lastIndex = 0;
-          while ((m = re.exec(own))) add(m[1], m[2]);
-        }
-      }
+      scan(own);
     });
+    if (!found.size) els.forEach(el => { if (!el.closest('#bl-watch')) scan(el.textContent || ''); });
     return found;
   }
   const maxEp = s => (s.size ? Math.max(...s) : null);

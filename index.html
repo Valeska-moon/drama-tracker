@@ -78,9 +78,13 @@
   .sub2 { color: rgba(247,241,244,.8); font-size: 15px; margin: 18px 0 0; }
 
   /* на компьютере баннер компактный: текст слева, кружок справа, вместо кнопок стрелка к списку серий */
-  .meta2 { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 18px; }
-  .pill { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.06); font-size: 13.5px; font-weight: 600; color: var(--bone); }
-  .pill.hot { background: var(--pink); border-color: var(--pink); color: var(--deep); font-weight: 700; }
+  .meta2 { display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; margin-top: 18px; }
+  .mc { padding: 0 14px; border-left: 1px solid rgba(255,255,255,.2); text-align: left; min-width: 0; }
+  .mc:first-child { border-left: 0; }
+  .mc i { display: block; font-style: normal; font-size: 11.5px; color: var(--ash); margin-bottom: 2px; }
+  .mc b { display: block; font-size: 14px; font-weight: 600; color: var(--bone); white-space: nowrap; }
+  .ws { display: none; }
+  @media (max-width: 640px) { .wl { display: none; } .ws { display: inline; } }
   .hero .ra { justify-content: center; margin-top: 22px; }
   .heroarrow { display: none; }
   @media (min-width: 641px) {
@@ -90,6 +94,8 @@
     .hero .name { margin: 0; max-width: none; font-size: clamp(20px, 3vw, 32px); }
     .hero .sub2 { margin: 10px 0 0; font-size: 14.5px; }
     .meta2 { justify-content: flex-start; margin-top: 16px; }
+    .mc { padding: 0 22px; } .mc b { font-size: 17px; } .mc i { font-size: 12px; }
+    .mc:first-child { padding-left: 0; }
     .hero .ra { display: none; }
     .heroarrow { display: inline-grid; place-items: center; margin-left: 6px; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
       background: var(--pink); color: var(--deep); box-shadow: 0 6px 18px rgba(255,138,196,.35); transition: transform .15s, background .15s; }
@@ -385,7 +391,11 @@ function dayLabel(dateStr) {
 function heroWhen(dateStr) {
   const d = new Date(dateStr + 'T00:00:00Z');
   const diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
-  return diff <= 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : diff === 2 ? 'Послезавтра' : `${DAYFULL[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`;
+  if (diff <= 0) return 'Сегодня';
+  if (diff === 1) return 'Завтра';
+  if (diff === 2) return 'Послезавтра';
+  const md = `${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`;
+  return `<span class="wl">${DAYFULL[d.getUTCDay()]}, ${md}</span><span class="ws">${DAYN[d.getUTCDay()]}, ${md}</span>`;
 }
 function short(dateStr) { const d = new Date(dateStr + 'T00:00:00Z'); return `${DAYN[d.getUTCDay()]} ${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}`; }
 
@@ -422,7 +432,7 @@ function renderHero() {
   }
   $('hero').className = 'hero';
   $('hero').innerHTML = `${orb}<div class="htext"><h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
-    <div class="meta2"><span class="pill">Серия ${next.e.n} из ${next.s.totalEpisodes}</span><span class="pill">${heroWhen(next.e.date)}</span><span class="pill hot">${next.e.time || next.s.time}</span><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
+    <div class="meta2"><div class="mc"><i>Серия</i><b>${next.e.n} из ${next.s.totalEpisodes}</b></div><div class="mc"><i>Когда</i><b>${heroWhen(next.e.date)}</b></div><div class="mc"><i>Время</i><b>${next.e.time || next.s.time}</b></div><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
     ${epButtons(next.s.id, next.e.n)}</div>`;
 }
 const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;

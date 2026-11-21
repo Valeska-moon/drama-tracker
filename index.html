@@ -180,8 +180,9 @@
     <h2 id="formTitle">Новый сериал</h2>
     <label>Название</label>
     <input type="text" id="title" required>
-    <label>Ссылка на сериал на MyAsianTV (необязательно, пригодится для слежки за выходом серий)</label>
-    <input type="url" id="atv" placeholder="https://ww19.myasiantv.es/tv/...">
+    <label>Название на MyAsianTV, если оно отличается от названия выше</label>
+    <input type="text" id="site" placeholder="Например: Ao to Midori">
+    <p class="hint">По названию приложение находит новые серии на сайте. Если сериал записан по-русски, впишите сюда английское название, как на MyAsianTV.</p>
     <div class="two">
     <div class="two">
       <div><label>Дата премьеры</label><input type="date" id="start" required></div>
@@ -334,7 +335,6 @@ function renderList() {
       <div class="prog">${aired >= eps.length && eps.length ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div>
       <div class="chips">${nextEps.map(e => `<span class="chip">${e.n}: ${short(e.date)}</span>`).join('') || ''}</div>
       ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-      <div class="links">${s.asiantvUrl ? `<a href="${esc(s.asiantvUrl)}" target="_blank" rel="noopener">MyAsianTV</a>` : ''}</div>
       <div class="acts"><button class="btn small" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div>
     </article>`;
   }).join('');
@@ -353,7 +353,7 @@ function readForm() {
   });
   return {
     id: editing || 's' + Date.now().toString(36),
-    title: $('title').value.trim(), asiantvUrl: $('atv').value.trim(),
+    title: $('title').value.trim(), siteName: $('site').value.trim(),
     startDate: $('start').value, time: $('time').value || '20:00', totalEpisodes: +$('total').value || 0,
     weekdays: [...document.querySelectorAll('#days input:checked')].map(i => +i.value),
     premiereBatch: +$('batch').value || 1, perDay: +$('perday').value || 1,
@@ -431,7 +431,7 @@ $('list').addEventListener('click', (ev) => {
 });
 function startEdit(id) {
   const s = shows.find(x => x.id === id); resetForm(); editing = id;
-  $('title').value = s.title; $('atv').value = s.asiantvUrl || '';
+  $('title').value = s.title; $('site').value = s.siteName || '';
   $('start').value = s.startDate; $('time').value = s.time; $('total').value = s.totalEpisodes;
   $('batch').value = s.premiereBatch || 1; $('perday').value = s.perDay || 1;
   document.querySelectorAll('#days input').forEach(i => i.checked = (s.weekdays || []).includes(+i.value));

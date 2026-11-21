@@ -169,6 +169,15 @@
   /* ближайшие серии: карточки по горизонтали */
   .agenda { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -18px; padding: 0 18px 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .agenda::-webkit-scrollbar { display: none; }
+  .agenda { scroll-behavior: smooth; overscroll-behavior-x: contain; }
+  .agwrap { position: relative; }
+  .agarr { position: absolute; top: calc(min(43vw, 200px) * 2 / 3 - 19px); z-index: 2; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(10,8,9,.38);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #fff; opacity: .8; display: grid; place-items: center; padding: 0; cursor: pointer; transition: opacity .15s, background .15s; }
+  .agarr:hover { opacity: 1; background: rgba(10,8,9,.6); }
+  .agarr[hidden] { display: none; }
+  .agarr.l { left: 6px; } .agarr.r { right: 6px; }
+  .abody { display: flex; flex-direction: column; }
+  .abody .atime { margin-top: auto; padding-top: 6px; }
   .acard { flex: 0 0 min(43vw, 200px); scroll-snap-align: start; border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
     background: radial-gradient(240px 200px at 100% 0, rgba(255,138,196,.22), transparent 70%), #141012; display: flex; flex-direction: column; }
   .apic { position: relative; aspect-ratio: 3 / 4; background-size: cover; background-position: center top; display: grid; place-items: center; }
@@ -225,6 +234,7 @@
   .srp b { position: absolute; right: 5px; bottom: 5px; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 8px; background: var(--pink); color: var(--deep); display: grid; place-items: center; font-family: var(--display); font-size: 12px; font-weight: 700; }
   .srm { flex: 1; min-width: 0; }
   .srn { font-weight: 600; font-size: 16px; line-height: 1.25; margin-bottom: 6px; overflow-wrap: anywhere; }
+  .srn small.ph { visibility: hidden; }
   .srn small { display: block; font-size: 12.5px; font-weight: 500; color: rgba(247,241,244,.5); margin-top: 2px; }
   .srn { margin-bottom: 8px; }
   .chk { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 14px; color: var(--bone); cursor: pointer; }
@@ -515,6 +525,14 @@ function renderSub() {
 // ---------- списки ----------
 const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
   <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+function agArrows() {
+  const sc = document.querySelector('.agenda'); if (!sc) return;
+  const l = document.querySelector('.agarr.l'), r = document.querySelector('.agarr.r');
+  l.hidden = sc.scrollLeft < 30; r.hidden = sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 8;
+}
+$('upcoming').addEventListener('scroll', (ev) => { if (ev.target.classList && ev.target.classList.contains('agenda')) agArrows(); }, true);
+$('upcoming').addEventListener('click', (ev) => { const b = ev.target.closest('[data-ag]'); if (!b) return; const sc = document.querySelector('.agenda'); sc.scrollBy({ left: +b.dataset.ag * sc.clientWidth * 0.8, behavior: 'smooth' }); });
+window.addEventListener('resize', agArrows);
 const upcomingNow = (x) => x.ms > Date.now() - 3 * 3600e3;
 function renderUpcoming() {
   $('vCal').classList.toggle('on', view === 'cal'); $('vList').classList.toggle('on', view === 'list');
@@ -528,7 +546,9 @@ function renderUpcoming() {
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
     return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
       <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
-  $('upcoming').innerHTML = `<div class="agenda">${cards}</div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
+  const chev = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  $('upcoming').innerHTML = `<div class="agwrap"><button type="button" class="agarr l" data-ag="-1" aria-label="Назад" hidden>${chev('M15 5l-7 7 7 7')}</button><div class="agenda">${cards}</div><button type="button" class="agarr r" data-ag="1" aria-label="Дальше" hidden>${chev('M9 5l7 7-7 7')}</button></div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
+  agArrows();
 }
 const MONTHN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 function renderCal() {
@@ -619,7 +639,7 @@ function renderList() {
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
         <div class="srp" style="${coverSrc(s) ? bgi(coverSrc(s)) : ''}"><b>${eps.length}</b></div>
-        <div class="srm"><div class="srn">${esc(mainName(s))}${subName(s) ? `<small>${esc(subName(s))}</small>` : ''}</div>
+        <div class="srm"><div class="srn">${esc(mainName(s))}<small${subName(s) ? '' : ' class="ph" aria-hidden="true"'}>${subName(s) ? esc(subName(s)) : '&nbsp;'}</small></div>
           <div class="srcols">${dayTxt ? `<span>${dayTxt}</span>` : ''}<span>${esc(s.time)}</span></div>
           <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
           <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div></div>

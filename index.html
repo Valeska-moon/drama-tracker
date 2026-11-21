@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0229">
+<meta name="build" content="20261122-0245">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -125,7 +125,10 @@
   .row .n b { display: block; font-weight: 600; overflow-wrap: anywhere; }
   small.sn { display: block; font-size: 12px; font-weight: 500; color: rgba(247,241,244,.5); margin-top: 2px; line-height: 1.25; }
   .row .n small { color: var(--ash); font-size: 13.5px; }
-  .row .t { font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: .02em; color: var(--pink); font-variant-numeric: tabular-nums; }
+  .row .t { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: .02em; color: var(--pink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row .t .te { font-weight: 800; color: var(--bone); font-size: 15px; }
+  .row .t .tsep { width: 1px; height: 22px; background: var(--line); display: block; }
+  .row .n b .sm { display: inline-block; vertical-align: middle; margin: -2px 8px 0 0; }
 
   /* календарь */
   .sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -246,7 +249,9 @@
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
   .srcols span { white-space: nowrap; }
   @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 62px; min-height: 76px; } }
-  .acard .alinks { min-height: 16px; margin: 6px 0 2px; }
+  .acard .alinks { min-height: 16px; margin: 6px 0 2px; flex-wrap: nowrap; gap: 4px 8px; white-space: nowrap; }
+  .acard .alinks .sl { font-size: 11.5px; }
+  .acard .alinks .sl svg { display: none; }
   .alinks { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; }
   a.sl { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 500; color: rgba(255,194,224,.75); text-decoration: none; }
   a.sl:hover { color: var(--pink); text-decoration: underline; }
@@ -281,6 +286,10 @@
   .tl.nx { background: var(--pink); border-color: var(--pink); color: var(--deep); }
   .tl.nx em { color: #5a2f47; }
   .srx .acts { margin-top: 14px; }
+  .srx .srl { margin-top: 14px; gap: 6px 16px; }
+  .srx .srl + .acts { margin-top: 12px; }
+  .acts .del { margin-left: auto; border-color: transparent; background: transparent; color: var(--ash); }
+  .acts .del:hover { color: #ff7a7a; }
   .srx .edits { margin: 14px 0 0; }
 
   .edits { margin: 4px 0 8px; }
@@ -382,7 +391,7 @@
     .cell .d { font-size: 12px; }
     .tile { border-radius: 8px; } .tile b { font-size: 10px; padding: 1px 4px; border-radius: 6px; right: 3px; bottom: 3px; }
     .calhead .mm.wk { font-size: 20px; }
-    .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
+    .row { flex-wrap: wrap; row-gap: 10px; } .row .n { flex: 1 1 calc(100% - 66px); } .row .t { order: 3; margin-left: 60px; font-size: 16px; gap: 10px; } .row .t .te { font-size: 14px; } .row .ra { order: 4; margin-left: auto; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
 </style>
@@ -464,7 +473,7 @@
     <div class="pvwrap" id="pvwrap" hidden>
       <label>Расписание серий</label>
       <div class="pvt" id="preview"></div>
-      <p class="hint">Серия не выйдет или выйдет в другой день? Откройте её в «Ближайших» и нажмите «Не выйдет» или «Перенести».</p>
+      <p class="hint">Серия не выйдет? Откройте её в «Ближайших» и нажмите «Не выйдет»: она и следующие сдвинутся на неделю.</p>
     </div>
     <details><summary>Дополнительно</summary>
       <label>Страна</label>
@@ -608,7 +617,7 @@ function renderHero() {
     <div class="meta2"><div class="mc"><i>Серия</i><b>${next.e.n} из ${next.s.totalEpisodes}</b></div><div class="mc"><i>Когда</i><b>${heroWhen(next.e.date)}</b></div><div class="mc"><i>Время</i><b>${next.e.time || next.s.time}</b></div><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
     ${epButtons(next.s.id, next.e.n)}</div>`;
 }
-const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
+const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button></span>`;
 
 // ---------- подписка ----------
 function renderSub() {
@@ -629,7 +638,7 @@ const rowHtml = (x, withBtns = true) => {
   const eps = x.group || [x], n = eps.map(g => g.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : `${n[0]}`;
   const upc = eps.find(g => upcomingNow(g)) || x;
   return `<div class="row">${thumb(x.s, lab)}
-  <span class="n"><b>${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>${cname(x.s) ? `${flagSvg(countryOf(x.s), 14, 'sm')}${cname(x.s)} · ` : ''}${n.length > 1 ? `серии ${lab}` : `серия ${lab}`} из ${x.s.totalEpisodes}</small>${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
+  <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span><span class="t"><b class="te">${n.length > 1 ? `серии ${lab}` : `серия ${lab}`}</b><i class="tsep"></i>${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
 };
 const groupDay = (list) => { const out = []; list.forEach(x => { const g = out.find(o => o.s.id === x.s.id); if (g) g.group.push(x); else out.push({ ...x, group: [x] }); }); return out; };
 function agArrows() {
@@ -746,7 +755,7 @@ function renderList() {
           <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-        <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button>${[[matvUrl(s), 'Субтитры'], [mkvUrl(s), 'Скачать видео']].filter(l => l[0]).map(l => `<a class="btn small ghost" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]} ↗</a>`).join('')}</div></div></div>`;
+        ${linkBtns(s) ? `<div class="alinks srl">${linkBtns(s)}</div>` : ''}<div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost del" data-d="${s.id}">Удалить</button></div></div></div>`;
     }
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">

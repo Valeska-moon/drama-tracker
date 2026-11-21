@@ -3,6 +3,8 @@
     {
       "id": "smwqoeznv",
       "title": "Teach Me, Touch Me",
+      "ruTitle": "Научи меня, прикоснись ко мне",
+      "ruMain": true,
       "siteName": "",
       "startDate": "2026-10-14",
       "time": "16:00",
@@ -20,6 +22,8 @@
     {
       "id": "smwqoisuc",
       "title": "Love Game with My Enemy",
+      "ruTitle": "Игра в любовь с моим врагом",
+      "ruMain": false,
       "siteName": "",
       "startDate": "2026-11-17",
       "time": "17:00",

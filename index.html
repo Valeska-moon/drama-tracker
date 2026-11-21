@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0227">
+<meta name="build" content="20261122-0229">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -222,7 +222,8 @@
   .chip.past { opacity: .4; }
   .chip button { background: none; border: 0; color: var(--ash); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
   .chip button:hover { color: var(--pink); }
-  .acts { display: flex; gap: 8px; margin-top: 6px; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .acts .btn { white-space: nowrap; }
   /* список сериалов: компактные строки */
   .lbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   .lsearch { flex: 1; min-width: 180px; display: flex; align-items: center; gap: 9px; background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 0 16px; color: var(--ash); }
@@ -535,7 +536,7 @@ let autoL = {};
 const okUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
 const matvUrl = (s) => okUrl(s.matvUrl) || okUrl(autoL[s.id]);
 const mkvUrl = (s) => okUrl(s.mkvUrl);
-const linkBtns = (s, cls = 'sl') => [[matvUrl(s), 'MyAsianTV'], [mkvUrl(s), 'MKVDrama']].filter(l => l[0]).map(l => `<a class="${cls}" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]}<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`).join('');
+const linkBtns = (s, cls = 'sl') => [[matvUrl(s), 'Субтитры'], [mkvUrl(s), 'Скачать видео']].filter(l => l[0]).map(l => `<a class="${cls}" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]}<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`).join('');
 const cname = (s) => (COUNTRIES[countryOf(s)] || [''])[0];
 const mainName = (s) => (s.ruMain && s.ruTitle ? s.ruTitle : s.title);
 const subName = (s) => (s.ruTitle ? (s.ruMain ? s.title : s.ruTitle) : '');
@@ -745,7 +746,7 @@ function renderList() {
           <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-        <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button>${[[matvUrl(s), 'MyAsianTV'], [mkvUrl(s), 'MKVDrama']].filter(l => l[0]).map(l => `<a class="btn small ghost" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]} ↗</a>`).join('')}</div></div></div>`;
+        <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button>${[[matvUrl(s), 'Субтитры'], [mkvUrl(s), 'Скачать видео']].filter(l => l[0]).map(l => `<a class="btn small ghost" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]} ↗</a>`).join('')}</div></div></div>`;
     }
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.4
+// @version      1.5
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -59,14 +59,23 @@
       }
     } catch (e) {}
   }
+  function tgStatus(t, ok) {
+    const el = document.getElementById('bl-tg');
+    if (el) { el.textContent = t; el.style.color = ok ? '#7dffb0' : '#ff8a8a'; }
+  }
   function tg(text) {
     const tok = GM_getValue('tgToken', ''), chat = GM_getValue('tgChat', '');
-    if (!tok || !chat) return;
+    if (!tok || !chat) { tgStatus('Telegram не настроен: нажми ⚙ и впиши токен и chat id', false); return; }
+    tgStatus('Отправляю в Telegram…', true);
     try {
       GM_xmlhttpRequest({ method: 'POST', url: 'https://api.telegram.org/bot' + tok + '/sendMessage',
         headers: { 'Content-Type': 'application/json' },
-        data: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }) });
-    } catch (e) {}
+        data: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }),
+        onload: r => { let j = {}; try { j = JSON.parse(r.responseText); } catch (e) {}
+          j.ok ? tgStatus('✅ Отправлено в Telegram', true) : tgStatus('❌ Telegram: ' + (j.description || r.status), false); },
+        onerror: () => tgStatus('❌ Нет связи с Telegram (проверь, что разрешила доступ в Tampermonkey)', false),
+        ontimeout: () => tgStatus('❌ Telegram не ответил', false) });
+    } catch (e) { tgStatus('❌ ' + e.message, false); }
   }
   function alertUser(ep) {
     const title = document.title;
@@ -111,7 +120,7 @@
     const hit = (cur && st.target && cur >= st.target) || (cur && st.base && cur > st.base) || (!cur && !st.base && document.querySelectorAll('a').length > st.links + 2);
     if (hit) {
       GM_deleteValue(KEY);
-      box.innerHTML = `<div style="font-size:15px;margin-bottom:8px">🔔 <b>${cur ? 'Серия ' + cur + ' вышла' : 'Что-то новое'}!</b></div>${btn('bl-ok', 'Готово', true)}`;
+      box.innerHTML = `<div style="font-size:15px;margin-bottom:8px">🔔 <b>${cur ? 'Серия ' + cur + ' вышла' : 'Что-то новое'}!</b></div><div id="bl-tg" style="font-size:12px;margin-bottom:8px"></div>${btn('bl-ok', 'Готово', true)}`;
       box.style.borderColor = '#7dffb0';
       box.querySelector('#bl-ok').onclick = () => { render(); };
       alertUser(cur);

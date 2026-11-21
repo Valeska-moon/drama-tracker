@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.6
+// @version      1.7
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -25,7 +25,7 @@
   function episodes() {
     const found = new Set();
     // "Episode 03", "Episode 01 - 08" (любой дефис/тире), "EP 5"
-    const re = /(?:episodes?|ep\.?)\s*0*(\d{1,3})(?:\s*[^\w\s]{1,2}\s*0*(\d{1,3}))?(?!\d)/gi;
+    const re = /(?:episodes?|ep\.?)\s*0*(\d{1,3})(?:\s*[^\w\s]{1,4}\s*0*(\d{1,3}))?(?!\d)/gi;
     const add = (a, b) => { a = +a; b = b ? +b : a; if (b < a || b - a > 80) b = a; for (let i = a; i <= b; i++) found.add(i); };
     const scan = txt => {
       txt = txt.replace(/[\s\u00a0\u200b-\u200f]+/g, ' ').trim();

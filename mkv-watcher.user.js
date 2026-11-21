@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.8
+// @version      1.9
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*

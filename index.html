@@ -7,7 +7,7 @@
 <title>Дорамы · график серий</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #0a0809;
@@ -20,8 +20,8 @@
     --pale: #ffc2e0;
     --deep: #1a0f17;         /* тёмный на розовом */
     --ok: #7fe3b0; --bad: #ff7d7d;
-    --display: "Unbounded", "Onest", system-ui, sans-serif;
-    --text: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --display: "Unbounded", "Montserrat", system-ui, sans-serif;
+    --text: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
   html { background: var(--ink); }
@@ -36,15 +36,15 @@
   }
   main { max-width: 960px; margin: 0 auto; padding: 22px 18px 130px; }
   a { color: var(--pink); }
-  h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; letter-spacing: -.01em; line-height: 1.18; }
-  h2 { font-size: clamp(22px, 3.6vw, 30px); margin-bottom: 18px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: 0; line-height: 1.2; }
+  h2 { font-size: clamp(18px, 2.8vw, 24px); margin-bottom: 18px; }
   :focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-radius: 8px; }
 
   /* шапка */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 26px; }
   .logo { display: flex; align-items: center; gap: 9px; }
   .logo svg { width: 20px; height: 20px; fill: var(--pink); }
-  .top h1 { font-size: 16px; font-weight: 500; }
+  .top h1 { font-size: 15px; font-weight: 700; }
   .btn { white-space: nowrap; font: inherit; font-weight: 500; color: var(--bone); background: var(--glass); border: 1px solid var(--line);
     padding: 10px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
   .btn:hover { border-color: var(--pink); }
@@ -64,7 +64,7 @@
   .orb .ring { animation: spin 30s linear infinite; transform-origin: 62px 62px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .orb .ring { animation: none; } }
-  .name { font-size: clamp(24px, 4.6vw, 46px); max-width: 17em; margin: 0 auto; text-wrap: balance; overflow-wrap: anywhere; }
+  .name { font-size: clamp(20px, 3.8vw, 38px); max-width: 19em; margin: 0 auto; text-wrap: balance; overflow-wrap: anywhere; }
   .name span { color: var(--pink); display: block; }
   .sub2 { color: var(--bone); opacity: .8; font-size: 15px; margin: 18px 0 0; }
   .hero .ra { justify-content: center; margin-top: 22px; }
@@ -79,34 +79,36 @@
   /* ближайшие серии */
   section { margin-bottom: 44px; }
   .day { margin-bottom: 16px; }
-  .day h3 { font-family: var(--text); font-size: 15px; font-weight: 600; color: var(--pink); margin-bottom: 8px; letter-spacing: 0; }
+  .day h3 { font-family: var(--text); text-transform: none; font-size: 15px; font-weight: 600; color: var(--pink); margin-bottom: 8px; letter-spacing: 0; }
   .row { display: flex; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; margin-bottom: 8px;
     background: var(--glass); border: 1px solid var(--line); border-radius: 22px; }
   .num { flex: none; width: 46px; height: 46px; border-radius: 15px; background: var(--pink); color: var(--deep);
-    display: grid; place-items: center; font-family: var(--display); font-weight: 500; font-size: 17px; }
+    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 16px; }
   .row .n { flex: 1; min-width: 0; }
   .row .n b { display: block; font-weight: 600; overflow-wrap: anywhere; }
   .row .n small { color: var(--ash); font-size: 13.5px; }
-  .row .t { font-family: var(--display); font-weight: 400; font-size: 18px; color: var(--pink); font-variant-numeric: tabular-nums; }
+  .row .t { font-family: var(--display); font-weight: 500; font-size: 17px; color: var(--pink); font-variant-numeric: tabular-nums; }
 
   /* сериалы */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
-  .card { background: var(--pink); color: var(--deep); border-radius: 26px; padding: 20px 20px 18px; }
-  .card .badge2 { width: 46px; height: 46px; border-radius: 15px; background: var(--deep); color: var(--pink); display: grid; place-items: center;
-    font-family: var(--display); font-size: 16px; font-weight: 500; margin-bottom: 14px; }
-  .card h3 { font-family: var(--text); font-weight: 600; font-size: 19px; line-height: 1.25; margin: 0 0 6px; overflow-wrap: anywhere; }
-  .meta { color: rgba(26,15,23,.72); font-size: 14px; }
-  .bar { height: 8px; background: rgba(26,15,23,.16); border-radius: 9px; margin: 16px 0 7px; overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--deep); border-radius: 9px; }
+  .card { color: var(--bone); border: 1px solid var(--line); border-radius: 26px; padding: 20px 20px 18px;
+    background:
+      radial-gradient(280px 220px at 100% 0, rgba(255,138,196,.26), transparent 70%),
+      radial-gradient(260px 220px at 0 100%, rgba(150,58,122,.30), transparent 70%),
+      #141012; }
+  .card .badge2 { width: 46px; height: 46px; border-radius: 15px; background: var(--pink); color: var(--deep); display: grid; place-items: center;
+    font-family: var(--display); font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+  .card h3 { font-family: var(--text); text-transform: none; font-weight: 600; font-size: 19px; line-height: 1.25; margin: 0 0 6px; overflow-wrap: anywhere; }
+  .meta { color: var(--ash); font-size: 14px; }
+  .bar { height: 8px; background: rgba(255,255,255,.12); border-radius: 9px; margin: 16px 0 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--pink); border-radius: 9px; }
   .prog { font-size: 14.5px; font-weight: 600; }
   .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0; }
-  .chip { font-size: 12.5px; background: rgba(26,15,23,.10); border-radius: 999px; padding: 3px 10px; color: var(--deep); white-space: nowrap; }
+  .chip { font-size: 12.5px; background: var(--glass2); border-radius: 999px; padding: 3px 10px; color: var(--bone); white-space: nowrap; }
   .chip.past { opacity: .4; }
-  .chip button { background: none; border: 0; color: rgba(26,15,23,.65); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
-  .chip button:hover { color: var(--deep); }
+  .chip button { background: none; border: 0; color: var(--ash); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
+  .chip button:hover { color: var(--pink); }
   .acts { display: flex; gap: 8px; margin-top: 6px; }
-  .card .btn { color: var(--deep); background: transparent; border-color: rgba(26,15,23,.4); }
-  .card .btn:hover { background: var(--deep); color: var(--pink); border-color: var(--deep); }
   .edits { margin: 4px 0 8px; }
   .hint { color: var(--ash); font-size: 14px; }
   .ra { display: flex; gap: 6px; flex-shrink: 0; }
@@ -290,7 +292,7 @@ function renderHero() {
   const now = Date.now(), next = allEpisodes().find(x => x.ms >= now - 3 * 3600e3);
   const orb = `<svg class="orb" viewBox="0 0 124 124" aria-hidden="true">
     <defs><path id="ringp" d="M62 62 m-53 0 a53 53 0 1 1 106 0 a53 53 0 1 1 -106 0"/></defs>
-    <g class="ring"><text font-family="Onest, sans-serif" font-size="10.5" font-weight="500" fill="#ff8ac4"><textPath href="#ringp" textLength="328" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ • СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
+    <g class="ring"><text font-family="Montserrat, sans-serif" font-size="10.5" font-weight="500" fill="#ff8ac4"><textPath href="#ringp" textLength="328" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ • СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
     <circle cx="62" cy="62" r="34" fill="#ff8ac4"/>
     <path d="M62 42 L67 57 L82 62 L67 67 L62 82 L57 67 L42 62 L57 57Z" fill="#1a0f17"/></svg>`;
   if (!next) {
@@ -356,7 +358,7 @@ function renderList() {
       <div class="prog">${aired >= eps.length && eps.length ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div>
       <div class="chips">${nextEps.map(e => `<span class="chip">${e.n}: ${short(e.date)}</span>`).join('') || ''}</div>
       ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-      <div class="acts"><button class="btn small" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div>
+      <div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div>
     </article>`;
   }).join('');
 }

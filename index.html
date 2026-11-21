@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0122">
+<meta name="build" content="20261122-0126">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -140,7 +140,7 @@
   .calhead b:has(.mm) { position: relative; display: flex; flex-direction: column; align-items: center; padding: 30px 0 0; }
   .calhead .mw { position: relative; width: 100%; display: flex; justify-content: center; }
   .calhead .ywm { position: absolute; left: 0; right: 0; bottom: -5px; text-align: center; font-size: clamp(44px, 9vw, 70px); line-height: 1; color: rgba(255,138,196,.14); letter-spacing: .06em; text-indent: .06em; pointer-events: none; white-space: nowrap; }
-  .calhead .mm { position: relative; font-size: 32px; line-height: 1.15; }
+  .calhead .mm { position: relative; font-size: 32px; line-height: 1.15; white-space: nowrap; }
   .calhead .mdots { position: relative; display: flex; gap: 6px; margin-top: 4px; }
   .calhead .mdots i { width: 6px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.22); transition: width .2s; }
   .calhead .mdots i.on { width: 18px; background: var(--pink); }
@@ -373,6 +373,11 @@
     .top .btn { padding: 9px 14px; font-size: 14px; }
     .cell { border-radius: 12px; padding: 4px; gap: 3px; } .cell .d { font-size: 11px; } .tile { border-radius: 8px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 16px; } .more { border-radius: 8px; } .cal { gap: 4px; }
     .minis.n2 { grid-template-rows: minmax(0, 1fr); }
+    .cal { gap: 6px; }
+    .cell { aspect-ratio: 1 / 1.55; border-radius: 13px; padding: 5px; }
+    .cell .d { font-size: 12px; }
+    .tile { border-radius: 8px; } .tile b { font-size: 10px; padding: 1px 4px; border-radius: 6px; right: 3px; bottom: 3px; }
+    .calhead .mm.wk { font-size: 20px; }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -536,7 +541,9 @@ const subName = (s) => (s.ruTitle ? (s.ruMain ? s.title : s.ruTitle) : '');
 const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
 const bgi = (u) => `background-image:url('${esc(u)}')`;
 const thumb = (s, n) => { const cv = coverSrc(s); return cv ? `<span class="cv" style="${bgi(cv)}"><i>${n}</i></span>` : `<span class="num">${n}</span>`; };
-let view = 'list', span = 'month', calY, calM, calSel, calStart, agendaN = 3;
+const MON3 = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+const isMob = () => matchMedia('(max-width: 640px)').matches;
+let view = 'list', span = isMob() ? 'weeks' : 'month', calY, calM, calSel, calStart, agendaN = 3;
 
 // момент выхода серии (в мс, UTC)
 function epMs(show, e) {
@@ -674,15 +681,20 @@ function renderCal() {
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`
     + (sel.length ? groupDay(sel).map(x => rowHtml(x, x.group.some(upcomingNow))).join('') : '<p class="hint">В этот день серий нет.</p>') + '</div>';
-  const dd = (x) => { const d = new Date(x); return `${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
-  const title = weeks ? `${dd(base)} – ${dd(base + 13 * 864e5)}` : `${MONTHN[calM]} ${calY}`;
+  const dd = (x) => { const d = new Date(x); return `${d.getUTCDate()} ${MON3[d.getUTCMonth()].toUpperCase()}`; };
+  const bM = new Date(base).getUTCMonth(), bY = new Date(base).getUTCFullYear();
   const atStart = weeks ? calStart <= mon0 : isCur;
   $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Назад" ${atStart ? 'disabled style="visibility:hidden"' : ''}>←</button>
-    <b>${weeks ? title : `<span class="mw"><span class="ywm">${calY}</span><span class="mm">${MONTHN[calM].toUpperCase()}</span></span><span class="mdots">${MONTHN.map((_, i) => `<i${i === calM ? ' class="on"' : ''}></i>`).join('')}</span>`}</b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>${panel}`;
+    <b><span class="mw"><span class="ywm">${weeks ? bY : calY}</span><span class="mm${weeks ? ' wk' : ''}">${weeks ? `${dd(base)} – ${dd(base + 13 * 864e5)}` : MONTHN[calM].toUpperCase()}</span></span><span class="mdots">${MONTHN.map((_, i) => `<i${i === (weeks ? bM : calM) ? ' class="on"' : ''}></i>`).join('')}</span></b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>${panel}`;
 }
 const mondayOf = (ds) => { const d = DramaLib.parseDate(ds), dow = (d.getUTCDay() + 6) % 7; return fmtDate(new Date(d.getTime() - dow * 864e5)); };
 function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; calStart = mondayOf(ds); }
 goDate(todayStr());
+matchMedia('(max-width: 640px)').addEventListener('change', () => {
+  span = isMob() ? 'weeks' : 'month';
+  if (span === 'month') { const [y, m] = calSel.split('-').map(Number); calY = y; calM = m - 1; } else { const mon0 = mondayOf(todayStr()), m = mondayOf(calSel); calStart = m < mon0 ? mon0 : m; }
+  if (view === 'cal') renderCal();
+});
 const setView = (v) => { view = v; renderUpcoming(); };
 $('vCal').onclick = () => setView('cal');
 $('vList').onclick = () => setView('list');
@@ -701,7 +713,6 @@ $('upcoming').addEventListener('click', (ev) => {
     renderCal();
   } else if (cell) { calSel = cell.dataset.date; renderCal(); }
 });
-const MON3 = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 const tileDate = (ds) => { const d = new Date(ds + 'T00:00:00Z'); return `<span>${DAYN[d.getUTCDay()]}</span><u> · </u><span>${d.getUTCDate()} ${MON3[d.getUTCMonth()]}</span>`; };
 let lf = 'run', lq = '', openId = null; const tw = {};
 const tilesN = () => matchMedia('(max-width: 640px)').matches ? 4 : 6;
@@ -974,7 +985,7 @@ async function checkUpdate() {
     if ($('dlg').open || $('mv').open || dirty) return;
     const cur = document.querySelector('meta[name=build]').content;
     const r = await fetch(location.pathname + '?chk=' + Date.now(), { cache: 'no-store' });
-    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    const m = (await r.text()).match(/<meta name="build" content="20261122-0126"]+)"/);
     if (m && m[1] !== cur && sessionStorage.getItem('triedBuild') !== m[1]) {
       sessionStorage.setItem('triedBuild', m[1]);
       const u = new URL(location.href); u.searchParams.set('v', m[1]); location.replace(u.toString());

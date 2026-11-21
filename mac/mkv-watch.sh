@@ -13,11 +13,13 @@ say() { # отправка в Telegram (без токена просто печ�
   echo "Telegram: $1"
   [ -n "$TG_TOKEN" ] && curl -s -m 20 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" --data-urlencode "chat_id=$TG_CHAT" --data-urlencode "text=$1" >/dev/null
 }
-get() { # адрес -> тело страницы; код ответа не 200 = ошибка
-  local out code; out=$(curl -s -m 25 -L -A "$UA" -H 'Accept-Language: en' -w '\n%{http_code}' "$1") || return 1
-  code=${out##*$'\n'}; [ "$code" = 200 ] || { ERR="код $code"; return 1; }
+get() { # адрес -> тело страницы; при ошибке причина пишется в файл (из $(...) переменные наружу не попадают)
+  local out code; rm -f "$DIR/err"
+  out=$(curl -s -m 25 -L -A "$UA" -H 'Accept-Language: en' -w '\n%{http_code}' "$1") || { echo "нет соединения с сайтом" > "$DIR/err"; return 1; }
+  code=${out##*$'\n'}; [ "$code" = 200 ] || { echo "сайт ответил кодом $code" > "$DIR/err"; return 1; }
   printf '%s' "${out%$'\n'*}"
 }
+why() { cat "$DIR/err" 2>/dev/null || echo "неизвестная ошибка"; }
 flat() { printf '%s' "$1" | tr 'A-Z' 'a-z' | sed -e "s/’//g" -e "s/‘//g" -e "s/[\`'\"]//g" -e 's/([0-9]\{4\})//g' | tr -cd 'a-z0-9'; }
 query() { printf '%s' "$1" | tr 'A-Z' 'a-z' | sed -e "s/’//g" -e "s/‘//g" -e "s/[\`'\"]//g" -e 's/([0-9]\{4\})/ /g' -e 's/[^a-z0-9]\{1,\}/+/g' -e 's/^+//' -e 's/+$//'; }
 
@@ -36,7 +38,7 @@ while IFS='|' read -r id name title; do
   old=$(grep "^$id|" "$STATE" | head -1); oldurl=$(echo "$old" | cut -d'|' -f2); oldmax=$(echo "$old" | cut -d'|' -f3)
   url="$oldurl"
   if [ -z "$url" ]; then
-    html=$(get "$MKV/search?q=$(query "$name")") || { PROBLEM="$ERR"; break; }
+    html=$(get "$MKV/search?q=$(query "$name")") || { PROBLEM="$(why)"; break; }
     for path in $(printf '%s' "$html" | grep -oE 'href="(https?://[^"/]*)?/[a-zA-Z0-9][a-zA-Z0-9-]*/?"' | sed -E 's/^href="(https?:\/\/[^"\/]*)?\///; s/\/?"$//' | sort -u); do
       base=$(printf '%s' "$path" | sed -E 's/-[a-zA-Z0-9]{5,12}$//; s/-(19|20)[0-9]{2}$//')
       [ "$(flat "$base")" = "$want" ] && { url="$MKV/$path"; break; }
@@ -44,7 +46,7 @@ while IFS='|' read -r id name title; do
   fi
   max=""
   if [ -n "$url" ]; then
-    page=$(get "$url") || { PROBLEM="$ERR"; break; }
+    page=$(get "$url") || { PROBLEM="$(why)"; break; }
     m=$(printf '%s' "$page" | sed -e 's/<[^>]*>/ /g' | grep -oiE 'Episodes? *0*[0-9]+( *(-|–|—|to) *0*[0-9]+)?' | head -1)
     max=$(printf '%s' "$m" | grep -oE '[0-9]+' | sed 's/^0*//' | sort -n | tail -1)
   fi

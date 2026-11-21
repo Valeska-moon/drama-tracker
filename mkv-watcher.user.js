@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.3
+// @version      1.4
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -92,13 +92,12 @@
       box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b>${cur ? 'серия ' + cur : 'серии не найдены'}</b></div>
         <div style="margin-bottom:8px;opacity:.8">Ждать серию №
           <input id="bl-n" type="number" min="1" value="${cur ? cur + 1 : ''}" style="width:52px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:3px 6px"></div>
-        ${btn('bl-go', 'Следить', true)} ${btn('bl-test', 'Проверить сигнал')} ${btn('bl-set', '⚙')}
+        ${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}
         <div id="bl-cfg" style="display:none;margin-top:8px">
           <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           ${btn('bl-save', 'Сохранить', true)}
         </div>`;
-      box.querySelector('#bl-test').onclick = () => alertUser(cur || 0);
       box.querySelector('#bl-set').onclick = () => { const c = box.querySelector('#bl-cfg'); c.style.display = c.style.display === 'none' ? 'block' : 'none'; box.querySelector('#bl-tok').value = GM_getValue('tgToken', ''); box.querySelector('#bl-chat').value = GM_getValue('tgChat', ''); };
       box.querySelector('#bl-save').onclick = () => { GM_setValue('tgToken', box.querySelector('#bl-tok').value.trim()); GM_setValue('tgChat', box.querySelector('#bl-chat').value.trim()); box.querySelector('#bl-cfg').style.display = 'none'; };
       box.querySelector('#bl-go').onclick = () => {

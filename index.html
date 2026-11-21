@@ -272,7 +272,7 @@
 
   /* окно добавления */
   dialog { color: var(--bone); background: #130e12; border: 1px solid var(--line); border-radius: 30px; padding: 0;
-    width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); }
+    width: min(640px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }
   dialog::backdrop { background: rgba(5,3,6,.78); backdrop-filter: blur(5px); }
   .dlg { padding: 28px 26px 22px; background: radial-gradient(360px 260px at 100% 0, rgba(210,80,160,.22), transparent 70%); }
   .dlg h2 { color: var(--pink); margin-bottom: 6px; }
@@ -281,17 +281,49 @@
     width: 100%; font: inherit; color: var(--bone); background: var(--glass); border: 1px solid var(--line);
     border-radius: 14px; padding: 10px 14px; color-scheme: dark; }
   input:focus, textarea:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,138,196,.2); }
-  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-  .days { display: flex; flex-wrap: wrap; gap: 7px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .three label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
   .days label { margin: 0; color: var(--bone); }
   .days input { position: absolute; opacity: 0; pointer-events: none; }
-  .days span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); cursor: pointer; }
+  .days span { display: block; text-align: center; padding: 9px 0; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); cursor: pointer; }
   .days input:checked + span { background: var(--pink); color: var(--deep); border-color: var(--pink); font-weight: 600; }
   .days input:focus-visible + span { outline: 2px solid var(--pink); outline-offset: 2px; }
   details summary { cursor: pointer; color: var(--pink); margin-top: 14px; }
   .dlg .chip { background: var(--glass2); color: var(--bone); }
   .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; max-height: 120px; overflow: auto; }
   .dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
+  #dlg[open] { display: flex; flex-direction: column; overflow: hidden; }
+  .dlg { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 0; }
+  .dlghead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 26px 6px; flex: none; }
+  .dlghead h2 { margin: 0; }
+  .dlgx { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--glass); color: var(--bone); font-size: 16px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .dlgx:hover { border-color: var(--pink); color: var(--pink); }
+  .dlgbody { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 26px 8px; }
+  .dlg-foot { flex: none; margin: 0; padding: 14px 26px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #130e12; }
+  body:has(dialog[open]) { overflow: hidden; }
+  @media (max-width: 640px) {
+    dialog { width: 100vw; max-width: 100vw; max-height: 94dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; border-bottom: 0; }
+    #dlg[open] { height: 94dvh; }
+    .dlghead { padding: 16px 16px 4px; }
+    .dlg h2 { font-size: 19px; }
+    .dlgbody { padding: 0 16px 10px; }
+    .dlg-foot { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); flex-wrap: nowrap; }
+    .dlg-foot .btn { flex: 1; }
+    label { margin: 12px 0 4px; font-size: 13px; }
+    input[type=text], input[type=url], input[type=number], input[type=date], input[type=time], input[type=password], textarea { font-size: 16px; padding: 10px 12px; border-radius: 13px; min-height: 44px; }
+    .hint { font-size: 12.5px; line-height: 1.4; margin: 6px 0 0; }
+    .coverpick { gap: 12px; }
+    .coverprev { width: 60px; height: 80px; }
+    .coverpick .btn { white-space: nowrap; }
+    .two { gap: 10px; }
+    .days { gap: 5px; }
+    .days span { padding: 10px 0; font-size: 13.5px; }
+    .three label { font-size: 12px; }
+    .three input { padding-left: 10px; padding-right: 6px; text-align: center; }
+    .preview { max-height: 84px; }
+  }
 
   /* панель сохранения */
   .savebar { position: fixed; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom)); max-width: 780px; margin: 0 auto; background: var(--pink); color: var(--deep);
@@ -360,12 +392,13 @@
 
 <dialog id="dlg">
   <form id="f" class="dlg">
-    <h2 id="formTitle">Новый сериал</h2>
+    <div class="dlghead"><h2 id="formTitle">Новый сериал</h2><button type="button" class="dlgx" id="dlgx" aria-label="Закрыть">✕</button></div>
+    <div class="dlgbody">
     <label>Обложка</label>
     <div class="coverpick">
       <div class="coverprev" id="coverPrev"></div>
       <div><button class="btn small" type="button" id="coverBtn">Выбрать картинку</button> <button class="btn small ghost" type="button" id="coverDel" hidden>Убрать</button>
-        <p class="hint">Постер сериала. Он появится в календаре и в списках, чтобы сразу узнавать сериал.</p></div>
+        <p class="hint">Постер появится в календаре и в списках.</p></div>
       <input type="file" id="coverFile" accept="image/*" hidden>
     </div>
     <label>Название</label>
@@ -373,20 +406,20 @@
     <label>Русское название, если нужно</label>
     <input type="text" id="ruTitle" placeholder="Например: Запах кармы">
     <label class="chk"><input type="checkbox" id="ruMain"> Показывать русское название главным</label>
-    <p class="hint">Русское название участвует в поиске по списку. Если сделать его главным, английское будет написано под ним бледным шрифтом.</p>
-    <label>Название на MyAsianTV, если оно отличается от названия выше</label>
+    <p class="hint">Русское название работает в поиске. Если сделать его главным, английское будет написано под ним бледным шрифтом.</p>
+    <label>Название на MyAsianTV, если отличается</label>
     <input type="text" id="site" placeholder="Например: Ao to Midori">
-    <p class="hint">По названию приложение находит новые серии на сайте. Если сериал записан по-русски, впишите сюда английское название, как на MyAsianTV.</p>
+    <p class="hint">По этому названию бот ищет серии на сайте. Если сериал записан по-русски, впишите английское название.</p>
     <div class="two">
       <div><label>Дата премьеры</label><input type="date" id="start" required></div>
-      <div><label>Время выхода (по Минску)</label><input type="time" id="time" value="20:00" required></div>
-      <div><label>Всего серий</label><input type="number" id="total" min="1" max="200" required></div>
+      <div><label>Время (по Минску)</label><input type="time" id="time" value="20:00" required></div>
     </div>
     <label>Дни недели, когда выходят серии</label>
     <div class="days" id="days"></div>
-    <div class="two">
-      <div><label>Серий в день премьеры</label><input type="number" id="batch" min="1" value="1"></div>
-      <div><label>Серий в обычный день выхода</label><input type="number" id="perday" min="1" value="1"></div>
+    <div class="three">
+      <div><label>Всего серий</label><input type="number" id="total" min="1" max="200" inputmode="numeric" required></div>
+      <div><label>В день премьеры</label><input type="number" id="batch" min="1" value="1" inputmode="numeric"></div>
+      <div><label>В обычный день</label><input type="number" id="perday" min="1" value="1" inputmode="numeric"></div>
     </div>
     <details><summary>Перерыв или перенос серии</summary>
       <label>Пропущенные даты выхода (по одной в строке, ГГГГ-ММ-ДД). Остальные серии сдвинутся.</label>
@@ -394,8 +427,9 @@
       <label>Другая дата или время для конкретной серии («5 2026-12-04» или «5 2026-12-04 21:30»)</label>
       <textarea id="ovr" rows="2"></textarea>
     </details>
-    <p class="hint">Если дни недели не выбраны, серии выходят в тот же день недели, что и премьера.</p>
+    <p class="hint">Если дни недели не выбраны, серии выходят в тот же день, что и премьера.</p>
     <div class="preview" id="preview"></div>
+    </div>
     <div class="dlg-foot">
       <button class="btn ghost" type="button" id="cancel">Отмена</button>
       <button class="btn main" type="submit" id="saveBtn">Добавить</button>
@@ -722,6 +756,8 @@ function resetForm() {
 }
 $('addBtn').onclick = () => { resetForm(); $('dlg').showModal(); };
 $('cancel').onclick = () => $('dlg').close();
+$('dlgx').onclick = () => $('dlg').close();
+$('dlg').addEventListener('click', (ev) => { if (ev.target === $('dlg')) $('dlg').close(); });
 // ---------- правки графика «в моменте» ----------
 const epOf = (id, n) => { const s = shows.find(x => x.id === id); return { s, e: generateEpisodes(s).find(x => x.n == n) }; };
 function nextReleaseDate(s, from) {

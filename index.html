@@ -178,13 +178,6 @@
 <dialog id="dlg">
   <form id="f" class="dlg">
     <h2 id="formTitle">Новый сериал</h2>
-    <details id="mdlBox" open><summary>Заполнить по странице MyDramaList</summary>
-      <p class="hint">Откройте сериал на MyDramaList, выделите всю страницу (Cmd+A), скопируйте (Cmd+C) и вставьте сюда.</p>
-      <textarea id="mdlText" rows="3" placeholder="Вставьте текст страницы…"></textarea>
-      <div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button type="button" class="btn small" id="mdlFill">Заполнить поля</button><span class="hint" id="mdlRes"></span>
-      </div>
-    </details>
     <label>Название</label>
     <input type="text" id="title" required>
     <div class="two">
@@ -377,34 +370,8 @@ function renderPreview() {
 ['title','start','time','total','batch','perday','skip','ovr'].forEach(i => $(i).addEventListener('input', renderPreview));
 $('days').addEventListener('change', renderPreview);
 
-// ---------- разбор текста страницы MyDramaList ----------
-const MON = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
-const WDN = { sunday:0, monday:1, tuesday:2, wednesday:3, thursday:4, friday:5, saturday:6 };
-function parseMdl(t) {
-  const r = {};
-  let m = t.match(/Episodes:\s*\**\s*(\d+)/i); if (m) r.total = +m[1];
-  m = t.match(/Aired:\s*\**\s*([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),\s*(\d{4})/i);
-  if (m && MON[m[1].toLowerCase()]) r.start = `${m[3]}-${String(MON[m[1].toLowerCase()]).padStart(2, '0')}-${String(m[2]).padStart(2, '0')}`;
-  m = t.match(/Aired On:\s*\**\s*([^\n·|]+)/i);
-  if (m) r.days = [...new Set([...m[1].toLowerCase().matchAll(/sunday|monday|tuesday|wednesday|thursday|friday|saturday/g)].map(x => WDN[x[0]]))];
-  m = t.match(/^\s*#?\s*(.{2,90}?)\s*\((\d{4})\)\s*$/m); if (m) r.title = m[1].trim();
-  return r;
-}
-$('mdlFill').onclick = () => {
-  const r = parseMdl($('mdlText').value), got = [];
-  if (r.title && !$('title').value.trim()) { $('title').value = r.title; got.push('название'); }
-  if (r.total) { $('total').value = r.total; got.push(r.total + ' ' + plural(r.total, ['серия','серии','серий'])); }
-  if (r.start) { $('start').value = r.start; got.push('премьера ' + r.start.split('-').reverse().join('.')); }
-  if (r.days && r.days.length) {
-    document.querySelectorAll('#days input').forEach(i => i.checked = r.days.includes(+i.value));
-    got.push('дни: ' + (r.days.length === 7 ? 'каждый день' : ORDER.filter(d => r.days.includes(d)).map(d => DAYN[d]).join(', ')));
-  }
-  $('mdlRes').textContent = got.length ? 'Найдено: ' + got.join(', ') + '. Проверьте время выхода.' : 'Не нашла нужных данных. Вставьте текст страницы целиком.';
-  renderPreview();
-};
-
 function resetForm() {
-  editing = null; $('f').reset(); $('mdlRes').textContent = ''; $('time').value = '20:00'; $('batch').value = 1; $('perday').value = 1;
+  editing = null; $('f').reset(); $('time').value = '20:00'; $('batch').value = 1; $('perday').value = 1;
   $('formTitle').textContent = 'Новый сериал'; $('saveBtn').textContent = 'Добавить'; renderPreview();
 }
 $('addBtn').onclick = () => { resetForm(); $('dlg').showModal(); };

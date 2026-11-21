@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0126">
+<meta name="build" content="20261122-0222">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -985,7 +985,7 @@ async function checkUpdate() {
     if ($('dlg').open || $('mv').open || dirty) return;
     const cur = document.querySelector('meta[name=build]').content;
     const r = await fetch(location.pathname + '?chk=' + Date.now(), { cache: 'no-store' });
-    const m = (await r.text()).match(/<meta name="build" content="20261122-0126"]+)"/);
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
     if (m && m[1] !== cur && sessionStorage.getItem('triedBuild') !== m[1]) {
       sessionStorage.setItem('triedBuild', m[1]);
       const u = new URL(location.href); u.searchParams.set('v', m[1]); location.replace(u.toString());

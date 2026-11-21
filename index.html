@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261121-2347">
+<meta name="build" content="20261122-0119">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -255,7 +255,6 @@
   .cline { display: none; }
   .srcols .cn { display: inline-flex; align-items: center; gap: 6px; }
   .apic .af { position: absolute; right: 8px; top: 8px; border: 1.5px solid rgba(10,8,9,.7); }
-  .tile .tf { position: absolute; left: 3px; bottom: 3px; width: 15px; height: 15px; border: 1px solid rgba(10,8,9,.65); }
   .row .n small .sm { margin-right: 6px; margin-top: -2px; }
   select { width: 100%; font: inherit; font-size: 15px; color: var(--bone); background: var(--glass); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; color-scheme: dark; }
   .srcols span + span { margin-left: 12px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,.22); }
@@ -333,7 +332,6 @@
     input::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
     select { -webkit-appearance: none; appearance: none; }
     select { font-size: 16px; min-height: 44px; }
-    .tile .tf { width: 11px; height: 11px; left: 2px; bottom: 2px; }
     .apic .af { width: 24px; height: 24px; }
     dialog { width: 100vw; max-width: 100vw; max-height: 94dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; border-bottom: 0; }
     #dlg[open] { height: 94dvh; }
@@ -667,7 +665,7 @@ function renderCal() {
     const rng = (a) => { const n = a.map(x => x.e.n).sort((p, q) => p - q); return n.length === 1 ? n[0] : n.every((v, k) => k === 0 || v === n[k - 1] + 1) ? n[0] + '–' + n[n.length - 1] : n.join(','); };
     const gv = groups.length > 4 ? groups.slice(0, 3) : groups;
     const minis = gv.map(g => { const cv = coverSrc(g.s), past = g.eps.every(x => x.ms < now);
-      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(mainName(g.s))}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}${flagSvg(countryOf(g.s), 15, 'tf')}<b>${rng(g.eps)}</b></span>`; }).join('')
+      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(mainName(g.s))}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
       + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
     cells += `<button type="button" class="cell${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;

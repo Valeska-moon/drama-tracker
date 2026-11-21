@@ -62,6 +62,69 @@ async function findShowPage(sl) {
   return null;
 }
 
+// ---------- второй сайт: MKVDrama ----------
+// У сериала там одна страница вида /teach-me-touch-me-26kcfzlw с блоком «Episode 01 - 06»: когда выходит серия, цифры меняются.
+const MKV = process.env.MKV_URL || 'https://mkvdrama.net/';
+const UA = { 'user-agent': 'Mozilla/5.0 (compatible; drama-tracker)', 'accept-language': 'en' };
+async function mkvGet(u) {
+  const r = await fetch(new URL(u, MKV).href, { headers: UA, signal: AbortSignal.timeout(20000) });
+  if (!r.ok) throw new Error('код ' + r.status);
+  return r.text();
+}
+async function mkvFind(sl, title) {
+  const q = String(title).toLowerCase().replace(/[’‘`'"]/g, '').replace(/\(\d{4}\)/g, ' ').replace(/[^a-z0-9]+/g, '+').replace(/^\++|\++$/g, '');
+  const html = await mkvGet('/search?q=' + q);
+  for (const m of html.matchAll(/href="(?:https?:\/\/[^"\/]*)?\/([a-z0-9][a-z0-9-]*)\/?"/gi)) {
+    const base = m[1].replace(/-[a-z0-9]{5,12}$/i, '');
+    if (matches(base.toLowerCase(), sl)) return new URL('/' + m[1], MKV).href;
+  }
+  return null;
+}
+// «Episode 01 - 06» -> 6;  «Episode 7» -> 7
+async function mkvEpisodes(url) {
+  const text = (await mkvGet(url)).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
+  const m = text.match(/Episodes?\s*0*(\d+)(?:\s*(?:[-–—]|to)\s*0*(\d+))?/i); // первое упоминание на странице
+  return m ? Math.max(+m[1], +(m[2] || 0)) : null;
+}
+async function checkMkv(tracked, state) {
+  state.mkv = state.mkv || {};
+  const list = tracked.filter(t => t.slug);
+  let problem = '';
+  const msgs = [], foundNow = [], missingNow = [], created = [];
+  for (const t of list) {
+    const rec = state.mkv[t.s.id];
+    try {
+      let url = rec && rec.url;
+      if (!url) {
+        url = await mkvFind(t.slug, t.s.siteName || t.s.title);
+        if (!url) { if (!rec) { state.mkv[t.s.id] = { url: null, max: null }; created.push(t.s.id); missingNow.push(t); } continue; }
+      }
+      const max = await mkvEpisodes(url);
+      if (!rec) { state.mkv[t.s.id] = { url, max }; created.push(t.s.id); foundNow.push({ t, url, max }); continue; }
+      if (!rec.url) { // раньше страницы не было, теперь появилась
+        state.mkv[t.s.id] = { url, max }; msgs.push(`Сериал «${t.s.title}» появился на MKVDrama${max ? ` (серии до ${max})` : ''}\n${url}`); continue;
+      }
+      if (max && rec.max && max > rec.max) msgs.push(`На MKVDrama ${max - rec.max > 1 ? `вышли серии ${rec.max + 1}–${max}` : `вышла серия ${max}`} «${t.s.title}»\n${url}`);
+      if (max && max !== rec.max) rec.max = max;
+      else if (max && !rec.max) rec.max = max;
+    } catch (e) { problem = e.message; break; }
+  }
+  if (problem) {
+    console.log('MKVDrama:', problem);
+    created.forEach(id => delete state.mkv[id]); // не запоминаем половину списка: сообщение отправим целиком, когда сайт заработает
+    if (!state.mkvDown) { await tg(`MKVDrama сейчас недоступен для слежки: ${problem}. Напишу, когда заработает.`); state.mkvDown = true; }
+    return;
+  }
+  if (state.mkvDown) { await tg('MKVDrama снова доступен.'); state.mkvDown = false; }
+  if (foundNow.length || missingNow.length) {
+    let m = 'MKVDrama, слежка включена.';
+    if (foundNow.length) m += `\n\nНашла страницы:\n${foundNow.map(x => `• ${x.t.s.title}${x.max ? ` (сейчас серии до ${x.max})` : ' (номер серии не распознала)'}`).join('\n')}`;
+    if (missingNow.length) m += `\n\nПока нет на MKVDrama (напишу, когда появятся):\n${missingNow.map(t => '• ' + t.s.title).join('\n')}`;
+    await tg(m);
+  }
+  for (const m of msgs) await tg(m);
+}
+
 async function main() {
   const shows = (JSON.parse(fs.readFileSync(SHOWS_FILE, 'utf8')).shows || []);
   let state = {};
@@ -83,6 +146,7 @@ async function main() {
   if (problem) {
     console.log('Проблема:', problem);
     if (!state.down) { await tg(`Слежка за MyAsianTV не работает: ${problem}. Напишу, когда заработает.`); state.down = true; }
+    await checkMkv(tracked, state).catch(e => console.log('MKVDrama, ошибка:', e.message));
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2)); return;
   }
   if (state.down) { await tg('MyAsianTV снова доступен, слежка работает.'); state.down = false; }
@@ -123,6 +187,7 @@ async function main() {
     if (!addedIds.has(t.s.id)) await tg(`Вышла серия ${e.n} «${t.s.title}» (${e.kind})\n${e.url}`);
   }
   for (const t of tracked) if (t.slug) state.shows[t.s.id] = status[t.s.id].on;
+  await checkMkv(tracked, state).catch(e => console.log('MKVDrama, ошибка:', e.message));
   const now = new Date().toISOString();
   for (const e of mine) state.seen[`${e.name}|${e.n}|${e.kind}`] = state.seen[`${e.name}|${e.n}|${e.kind}`] || now;
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));

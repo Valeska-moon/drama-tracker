@@ -106,11 +106,11 @@
           `DTSTAMP:${stamp}`,
           `DTSTART:${start}`,
           `DTEND:${end}`,
-          `SUMMARY:${esc(`${show.title} — серия ${e.n}/${show.totalEpisodes}`)}`,
+          `SUMMARY:${esc(`${show.ruMain && show.ruTitle ? show.ruTitle : show.title} — серия ${e.n}/${show.totalEpisodes}`)}`,
           ...(desc ? [`DESCRIPTION:${esc(desc)}`] : []),
           'BEGIN:VALARM',
           'ACTION:DISPLAY',
-          `DESCRIPTION:${esc(`Через час: ${show.title}, серия ${e.n}`)}`,
+          `DESCRIPTION:${esc(`Через час: ${show.ruMain && show.ruTitle ? show.ruTitle : show.title}, серия ${e.n}`)}`,
           `TRIGGER:-PT${REMIND_MINUTES}M`,
           'END:VALARM',
           'END:VEVENT'

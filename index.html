@@ -216,6 +216,10 @@
   .srp b { position: absolute; right: 5px; bottom: 5px; min-width: 24px; height: 24px; padding: 0 5px; border-radius: 8px; background: var(--pink); color: var(--deep); display: grid; place-items: center; font-family: var(--display); font-size: 12px; font-weight: 700; }
   .srm { flex: 1; min-width: 0; }
   .srn { font-weight: 600; font-size: 16px; line-height: 1.25; margin-bottom: 6px; overflow-wrap: anywhere; }
+  .srn small { display: block; font-size: 12.5px; font-weight: 500; color: rgba(247,241,244,.5); margin-top: 2px; }
+  .srn { margin-bottom: 8px; }
+  .chk { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 14px; color: var(--bone); cursor: pointer; }
+  .chk input { width: 18px; height: 18px; accent-color: var(--pink); }
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
   .srcols span { white-space: nowrap; }
   @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 58px; height: 76px; } }
@@ -347,6 +351,10 @@
     </div>
     <label>Название</label>
     <input type="text" id="title" required>
+    <label>Русское название, если нужно</label>
+    <input type="text" id="ruTitle" placeholder="Например: Запах кармы">
+    <label class="chk"><input type="checkbox" id="ruMain"> Показывать русское название главным</label>
+    <p class="hint">Русское название участвует в поиске по списку. Если сделать его главным, английское будет написано под ним бледным шрифтом.</p>
     <label>Название на MyAsianTV, если оно отличается от названия выше</label>
     <input type="text" id="site" placeholder="Например: Ao to Midori">
     <p class="hint">По названию приложение находит новые серии на сайте. Если сериал записан по-русски, впишите сюда английское название, как на MyAsianTV.</p>
@@ -411,6 +419,8 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 const plural = (n, f) => f[(n % 10 === 1 && n % 100 !== 11) ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
 const PAL = ['#ff8ac4', '#b9a6ff', '#ffb38a', '#8fe3c8', '#8cc8ff', '#ffe08a'];
 const showColor = (s) => PAL[Math.max(0, shows.findIndex(x => x.id === s.id)) % PAL.length];
+const mainName = (s) => (s.ruMain && s.ruTitle ? s.ruTitle : s.title);
+const subName = (s) => (s.ruTitle ? (s.ruMain ? s.title : s.ruTitle) : '');
 const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
 const bgi = (u) => `background-image:url('${esc(u)}')`;
 const thumb = (s, n) => { const cv = coverSrc(s); return cv ? `<span class="cv" style="${bgi(cv)}"><i>${n}</i></span>` : `<span class="num">${n}</span>`; };
@@ -473,7 +483,7 @@ function renderHero() {
     val = 'через ' + (d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`);
   }
   $('hero').className = 'hero';
-  $('hero').innerHTML = `${orb}<div class="htext"><h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
+  $('hero').innerHTML = `${orb}<div class="htext"><h2 class="name">${esc(mainName(next.s))}<span>${val}</span></h2>
     <div class="meta2"><div class="mc"><i>Серия</i><b>${next.e.n} из ${next.s.totalEpisodes}</b></div><div class="mc"><i>Когда</i><b>${heroWhen(next.e.date)}</b></div><div class="mc"><i>Время</i><b>${next.e.time || next.s.time}</b></div><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
     ${epButtons(next.s.id, next.e.n)}</div>`;
 }
@@ -495,7 +505,7 @@ function renderSub() {
 
 // ---------- списки ----------
 const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
-  <span class="n"><b>${esc(x.s.title)}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+  <span class="n"><b>${esc(mainName(x.s))}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
 const upcomingNow = (x) => x.ms > Date.now() - 3 * 3600e3;
 function renderUpcoming() {
   $('vCal').classList.toggle('on', view === 'cal'); $('vList').classList.toggle('on', view === 'list');
@@ -507,8 +517,8 @@ function renderUpcoming() {
   const shortDay = (ds) => { const d = new Date(ds + 'T00:00:00Z'), diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
     return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
-    return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
-      <div class="abody"><div class="atitle">${esc(g.s.title)}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
+    return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
+      <div class="abody"><div class="atitle">${esc(mainName(g.s))}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
   $('upcoming').innerHTML = `<div class="agenda">${cards}</div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
 }
 const MONTHN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -529,7 +539,7 @@ function renderCal() {
     const rng = (a) => { const n = a.map(x => x.e.n).sort((p, q) => p - q); return n.length === 1 ? n[0] : n.every((v, k) => k === 0 || v === n[k - 1] + 1) ? n[0] + '–' + n[n.length - 1] : n.join(','); };
     const gv = groups.length > 4 ? groups.slice(0, 3) : groups;
     const minis = gv.map(g => { const cv = coverSrc(g.s), past = g.eps.every(x => x.ms < now);
-      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(g.s.title)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
+      return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(mainName(g.s))}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
       + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
     cells += `<button type="button" class="cell${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
@@ -576,7 +586,7 @@ function renderList() {
   const nRun = info.filter(i => !i.done).length, nDone = info.length - nRun;
   document.querySelector('#lf [data-f="run"]').textContent = `Идут · ${nRun}`;
   document.querySelector('#lf [data-f="done"]').textContent = `Завершены · ${nDone}`;
-  const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.siteName || '')).toLowerCase().includes(q)));
+  const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.ruTitle || '') + ' ' + (i.s.siteName || '')).toLowerCase().includes(q)));
   if (!vis.length) { $('list').innerHTML = `<p class="hint">${q ? 'Ничего не нашлось.' : lf === 'done' ? 'Завершённых сериалов пока нет.' : 'Сейчас нет идущих сериалов.'}</p>`; return; }
   const cards = vis.map(({ s, eps, aired, done }) => {
     const tot = eps.length || 1, isOpen = openId === s.id;
@@ -600,7 +610,7 @@ function renderList() {
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
         <div class="srp" style="${coverSrc(s) ? bgi(coverSrc(s)) : ''}"><b>${eps.length}</b></div>
-        <div class="srm"><div class="srn">${esc(s.title)}</div>
+        <div class="srm"><div class="srn">${esc(mainName(s))}${subName(s) ? `<small>${esc(subName(s))}</small>` : ''}</div>
           <div class="srcols">${dayTxt ? `<span>${dayTxt}</span>` : ''}<span>${esc(s.time)}</span></div>
           <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
           <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div></div>
@@ -640,7 +650,7 @@ function readForm() {
   });
   return {
     id: editing || 's' + Date.now().toString(36),
-    title: $('title').value.trim(), siteName: $('site').value.trim(),
+    title: $('title').value.trim(), ruTitle: $('ruTitle').value.trim(), ruMain: $('ruMain').checked && !!$('ruTitle').value.trim(), siteName: $('site').value.trim(),
     startDate: $('start').value, time: $('time').value || '20:00', totalEpisodes: +$('total').value || 0,
     weekdays: [...document.querySelectorAll('#days input:checked')].map(i => +i.value),
     premiereBatch: +$('batch').value || 1, perDay: +$('perday').value || 1,
@@ -692,7 +702,7 @@ function nextReleaseDate(s, from) {
 }
 function skipEpisode(id, n) {
   const { s, e } = epOf(id, n);
-  if (!confirm(`«${s.title}», серия ${n} не выйдет ${dayLabel(e.date).toLowerCase()}.\nЭта и все следующие серии сдвинутся на следующий день выхода. Продолжить?`)) return;
+  if (!confirm(`«${mainName(s)}», серия ${n} не выйдет ${dayLabel(e.date).toLowerCase()}.\nЭта и все следующие серии сдвинутся на следующий день выхода. Продолжить?`)) return;
   s.overrides = s.overrides || {};
   let date = e.date;
   if (s.overrides[n]) { // у серии уже был перенос: считаем от даты по графику
@@ -706,7 +716,7 @@ function skipEpisode(id, n) {
 let mvTarget = null;
 function openMove(id, n) {
   const { s, e } = epOf(id, n); mvTarget = { id, n };
-  $('mvTitle').textContent = `${s.title}, серия ${n}`;
+  $('mvTitle').textContent = `${mainName(s)}, серия ${n}`;
   $('mvDate').value = e.date; $('mvTime').value = e.time || s.time;
   $('mvReset').hidden = !(s.overrides && s.overrides[n]);
   $('mv').showModal();
@@ -751,7 +761,7 @@ $('lq').addEventListener('input', (ev) => { lq = ev.target.value; renderList(); 
 $('lf').addEventListener('click', (ev) => { const b = ev.target.closest('[data-f]'); if (b) { lf = b.dataset.f; renderList(); } });
 function startEdit(id) {
   const s = shows.find(x => x.id === id); resetForm(); editing = id;
-  $('title').value = s.title; $('site').value = s.siteName || '';
+  $('title').value = s.title; $('ruTitle').value = s.ruTitle || ''; $('ruMain').checked = !!s.ruMain; $('site').value = s.siteName || '';
   $('start').value = s.startDate; $('time').value = s.time; $('total').value = s.totalEpisodes;
   $('batch').value = s.premiereBatch || 1; $('perday').value = s.perDay || 1;
   document.querySelectorAll('#days input').forEach(i => i.checked = (s.weekdays || []).includes(+i.value));

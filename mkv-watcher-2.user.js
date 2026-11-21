@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.13
+// @version      1.14
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -105,8 +105,8 @@
     const st = GM_getValue(KEY, null);
     const eps = episodes(), cur = maxEp(eps);
     if (!st) {
-      box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b id="bl-cur">${cur ? ser(cur) : 'ищу серии…'}</b></div>
-        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.13</span></div>
+      box.innerHTML = `<div style="margin-bottom:8px"><div style="font-size:11px;opacity:.55">сейчас на странице</div><div id="bl-cur" style="font-size:18px;font-weight:700">${cur ? ser(cur) : 'ищу серии…'}</div></div>
+        <div style="display:flex;align-items:center;gap:6px">${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}<span style="margin-left:auto;opacity:.4;font-size:10px">v1.14</span></div>
         <div id="bl-cfg" style="display:none;margin-top:8px">
           <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
@@ -142,8 +142,10 @@
     const mins = Math.floor((Date.now() - st.since) / 60000);
     let seen = cur;
     const draw = left => {
-      box.innerHTML = `<div style="margin-bottom:6px">👀 Слежу за новой серией<br>
-        <span style="opacity:.75">сейчас на странице: ${seen ? ser(seen) : '—'} · следим ${mins} мин<br>обновление через ${Math.max(0, Math.ceil(left))} с</span></div>${btn('bl-stop', 'Остановить')}`;
+      box.innerHTML = `<div style="margin-bottom:8px">👀 Слежу за новой серией
+        <div style="font-size:11px;opacity:.55;margin-top:4px">сейчас на странице</div>
+        <div style="font-size:18px;font-weight:700">${seen ? ser(seen) : '—'}</div>
+        <div style="font-size:11px;opacity:.55">следим ${mins} мин · обновление через ${Math.max(0, Math.ceil(left))} с</div></div>${btn('bl-stop', 'Остановить')}`;
       box.querySelector('#bl-stop').onclick = () => { GM_deleteValue(KEY); location.reload(); };
     };
     draw((deadline - Date.now()) / 1000);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.1
+// @version      1.2
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -69,7 +69,7 @@
     const title = document.title;
     const msg = ep ? `Вышла серия ${ep}!` : 'На странице появилось новое!';
     try { GM_notification({ title: 'Сторож серии', text: msg + '\n' + (document.title || ''), timeout: 0, highlight: true, onclick: () => window.focus() }); } catch (e) {}
-    tg('🔔 ' + msg + '\n' + (document.title || '') + '\n' + location.href);
+    tg('🔔 На MkvDrama вышла серия!\n' + location.href);
     sound();
     let on = true;
     setInterval(() => { document.title = on ? '🔔 ' + msg : title; on = !on; }, 800);

@@ -11,12 +11,15 @@ const TOKEN = process.env.TELEGRAM_TOKEN, CHAT = process.env.TELEGRAM_CHAT_ID;
 // «Ao to Midori (2026)» -> «ao-to-midori»
 const slug = (s) => String(s || '').toLowerCase().replace(/[’‘`'"]/g, '').replace(/\(\d{4}\)/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-async function tg(text) {
-  console.log('Telegram:', text.replace(/\n/g, ' | '));
+const h = (x) => String(x ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// raw=true: текст уже размечен (<b>, <a>), динамические части экранированы через h()
+async function tg(text, raw = false) {
+  const body = raw ? text : h(text);
+  console.log('Telegram:', body.replace(/\n/g, ' | '));
   if (!TOKEN || !CHAT) return;
   const r = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ chat_id: CHAT, text }),
+    body: JSON.stringify({ chat_id: CHAT, text: body, parse_mode: 'HTML', disable_web_page_preview: true }),
   });
   if (!r.ok) console.log('Telegram error', r.status, await r.text());
 }
@@ -184,15 +187,15 @@ async function main() {
   const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'], MONRU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   const dateRu = (d) => { const m = String(d).match(/^([A-Za-z]{3})\.? (\d{1,2}), (\d{4})$/), i = m ? MON.indexOf(m[1].toLowerCase()) : -1; return i >= 0 ? `${+m[2]} ${MONRU[i]} ${m[3]}` : (d || 'дата не указана'); };
   const baseline = tracked.filter(t => t.slug && ((info[t.s.id].on && !state.eps[t.s.id]) || !(t.s.id in state.shows)));
+  const range = (a) => { const out = []; for (let i = 0; i < a.length; i++) { let j = i; while (j + 1 < a.length && a[j + 1] === a[j] + 1) j++; out.push(j > i ? `${a[i]}–${a[j]}` : `${a[i]}`); i = j; } return out.join(', '); };
   if (baseline.length) {
-    const lines = baseline.map(t => {
-      const i = info[t.s.id];
-      if (!i.on) return `• ${t.s.title}: страницы на сайте пока нет (напишу, когда появится)`;
-      const sn = nums(i.sub), nx = nums(i.next);
-      const was = state.shows[t.s.id] === false ? ' появился на сайте;' : '';
-      return `• ${t.s.title}${i.country ? ` (${i.country})` : ''}:${was} ${sn.length ? `с английскими сабами вышло серий: ${sn.length}, последняя ${sn[sn.length - 1]}` : 'серий с английскими сабами пока нет'}${nx.length ? `; анонс: серия ${nx[0]}, ${dateRu(i.next[nx[0]])}` : ''}`;
+    const blocks = baseline.map(t => {
+      const i = info[t.s.id], head = `<b>${h(t.s.title)}</b>${i.country ? ` · ${h(i.country)}` : ''}`;
+      if (!i.on) return `${head}\n⏳ страницы на сайте пока нет, напишу, когда появится`;
+      const sn = nums(i.sub), nx = nums(i.next), was = state.shows[t.s.id] === false ? '🆕 появился на сайте\n' : '';
+      return `${head}\n${was}${sn.length ? `✅ серии ${range(sn)}, английские субтитры` : '— серий с английскими субтитрами пока нет'}${nx.length ? `\n🗓 анонс: серия ${nx[0]}, ${dateRu(i.next[nx[0]])}` : ''}`;
     });
-    await tg(`${state.started ? 'Слежка по страницам сериалов:' : 'Слежка за MyAsianTV включена.'}\n\n${lines.join('\n')}`);
+    await tg(`${state.started ? '<b>Слежка по страницам сериалов</b>' : '<b>Слежка за MyAsianTV включена</b>'}\n\n${blocks.join('\n\n')}`, true);
     state.started = true;
   }
   if (noLatin.length && !state.warnedNoLatin) { await tg(`Не могу следить за: ${noLatin.join(', ')}. Впишите английское название, как на MyAsianTV, в поле «Название на MyAsianTV».`); state.warnedNoLatin = true; }
@@ -200,15 +203,15 @@ async function main() {
   for (const t of tracked) {
     if (!t.slug) continue;
     const i = info[t.s.id], base = baseline.includes(t);
-    if (!base && state.shows[t.s.id] === false && i.on) await tg(`Сериал «${t.s.title}» появился на сайте\n${i.url}`);
+    if (!base && state.shows[t.s.id] === false && i.on) await tg(`🆕 <b>${h(t.s.title)}</b>${i.country ? ` · ${h(i.country)}` : ''}\nпоявился на сайте\n<a href="${h(i.url)}">Открыть страницу</a>`, true);
     if (i.on) {
       const prev = state.eps[t.s.id];
       if (prev && !base) {
-        for (const n of nums(i.sub)) if (!prev.sub.includes(n)) await tg(`Вышла серия ${n} «${t.s.title}» с английскими субтитрами${i.country ? ` (${i.country})` : ''}\n${i.sub[n].url}`);
+        for (const n of nums(i.sub)) if (!prev.sub.includes(n)) await tg(`✅ <b>Серия ${n}</b> · ${h(t.s.title)}${i.country ? ` · ${h(i.country)}` : ''}\nАнглийские субтитры\n<a href="${h(i.sub[n].url)}">Смотреть</a>`, true);
         for (const n of nums(i.next)) {
           if (prev.sub.includes(n)) continue;
-          if (!(n in prev.next)) await tg(`Серия ${n} «${t.s.title}» анонсирована на сайте: ${dateRu(i.next[n])} (видео пока нет)`);
-          else if (prev.next[n] !== i.next[n]) await tg(`У серии ${n} «${t.s.title}» изменилась дата на сайте: было ${dateRu(prev.next[n])}, стало ${dateRu(i.next[n])}`);
+          if (!(n in prev.next)) await tg(`🗓 <b>Анонс · серия ${n}</b> · ${h(t.s.title)}\n${h(dateRu(i.next[n]))}, видео пока нет`, true);
+          else if (prev.next[n] !== i.next[n]) await tg(`🗓 <b>Дата изменилась · серия ${n}</b> · ${h(t.s.title)}\nбыло: ${h(dateRu(prev.next[n]))}\nстало: ${h(dateRu(i.next[n]))}`, true);
         }
       }
       state.eps[t.s.id] = { sub: nums(i.sub), next: i.next };

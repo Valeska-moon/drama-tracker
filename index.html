@@ -123,8 +123,11 @@
   .seg button.on { background: var(--pink); color: var(--deep); font-weight: 600; }
   .calhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
   .calhead b { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .025em; font-size: 15px; text-align: center; flex: 1; }
-  .calhead .btn { padding: 6px 14px; }
-  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .calhead { margin-bottom: 16px; }
+  .calhead b { font-size: 30px; text-align: left; letter-spacing: .02em; }
+  .calhead b i { font-style: normal; color: var(--pink); font-weight: 700; font-size: 16px; margin-left: 10px; letter-spacing: .08em; }
+  .calhead .btn { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
   .cal .wd { text-align: center; color: var(--ash); font-size: 12.5px; padding-bottom: 2px; }
   .cell { position: relative; aspect-ratio: 3 / 4; min-height: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px;
     display: flex; flex-direction: column; gap: 5px; cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
@@ -137,7 +140,8 @@
   /* один сериал в день занимает всю рамку; несколько делят её на части с зазором */
   .minis { flex: 1; min-height: 0; width: 100%; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 4px; }
   .tile { position: relative; border-radius: 11px; background-size: cover; background-position: center top; overflow: hidden; display: block; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
-  .minis.n3 .tile:last-child { grid-column: 1 / -1; }
+  .minis.n2, .minis.n3, .minis.n4 { grid-template-rows: repeat(2, minmax(0, 1fr)); }  /* 2 и больше сериалов: плитки сверху вполовину высоты */
+  .minis.n3 .tile:last-child { grid-column: 1 / -1; justify-self: center; width: calc(50% - 2px); }  /* третий по центру снизу */
   .tile.past { opacity: .4; }
   .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 26px var(--display); color: var(--deep); opacity: .5; }
   .tile b { position: absolute; right: 4px; bottom: 4px; min-width: 20px; padding: 2px 5px; border-radius: 7px; background: var(--pink); color: var(--deep);
@@ -230,6 +234,7 @@
     .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
     .top .btn { padding: 9px 14px; font-size: 14px; }
     .cell { border-radius: 12px; padding: 4px; gap: 3px; } .cell .d { font-size: 11px; } .tile { border-radius: 8px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 16px; } .more { border-radius: 8px; } .cal { gap: 4px; }
+    .minis.n2 { grid-template-rows: minmax(0, 1fr); }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -357,7 +362,7 @@ const showColor = (s) => PAL[Math.max(0, shows.findIndex(x => x.id === s.id)) % 
 const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
 const bgi = (u) => `background-image:url('${esc(u)}')`;
 const thumb = (s, n) => { const cv = coverSrc(s); return cv ? `<span class="cv" style="${bgi(cv)}"><i>${n}</i></span>` : `<span class="num">${n}</span>`; };
-let view = ls.get('view') || (matchMedia('(max-width: 640px)').matches ? 'list' : 'cal'), span = ls.get('span') === 'month' ? 'month' : 'weeks', calY, calM, calSel, calStart, agendaN = 3;
+let view = ls.get('view') || (matchMedia('(max-width: 640px)').matches ? 'list' : 'cal'), span = 'month', calY, calM, calSel, calStart, agendaN = 3;
 
 // момент выхода серии (в мс, UTC)
 function epMs(show, e) {
@@ -475,8 +480,7 @@ function renderCal() {
   const title = weeks ? `${dd(base)} – ${dd(base + 13 * 864e5)}` : `${MONTHN[calM]} ${calY}`;
   const atStart = weeks ? calStart <= mon0 : isCur;
   $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Назад" ${atStart ? 'disabled style="visibility:hidden"' : ''}>←</button>
-    <b>${title}</b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>
-    <div class="agbtns"><button type="button" class="btn small ghost" data-span="${weeks ? 'month' : 'weeks'}">${weeks ? 'Показать весь месяц' : 'Свернуть до двух недель'}</button></div>${panel}`;
+    <b>${weeks ? title : `${MONTHN[calM].toUpperCase()}<i>${calY}</i>`}</b><button type="button" class="btn small" data-cal="1" aria-label="Вперёд">→</button></div><div class="cal">${cells}</div>${panel}`;
 }
 const mondayOf = (ds) => { const d = DramaLib.parseDate(ds), dow = (d.getUTCDay() + 6) % 7; return fmtDate(new Date(d.getTime() - dow * 864e5)); };
 function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; calStart = mondayOf(ds); }

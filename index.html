@@ -124,7 +124,13 @@
   .savebar span.ok { color: var(--ok); } .savebar span.bad { color: var(--bad); }
   footer { color: var(--mist); font-size: 14px; }
   footer .box { margin-top: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 4px 18px 18px; }
-  @media (max-width: 520px) { .hero { padding: 26px 20px; } .hero .moon { width: 70px; height: 70px; right: 16px; top: 16px; box-shadow: inset -18px -5px 0 0 var(--moon); }
+  .ra { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
+  .row { align-items: center; }
+  .hero .ra { margin: 18px 0 0; }
+  .edits { margin: 4px 0 10px; }
+  .chip button { background: none; border: 0; color: var(--mist); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
+  .chip button:hover { color: var(--peony); }
+  @media (max-width: 520px) { .ra { width: 100%; margin-left: 60px; } .hero { padding: 26px 20px; } .hero .moon { width: 70px; height: 70px; right: 16px; top: 16px; box-shadow: inset -18px -5px 0 0 var(--moon); }
     .row { flex-wrap: wrap; } .row .e { width: 100%; padding-left: 60px; } }
 </style>
 </head>
@@ -204,6 +210,22 @@
   </form>
 </dialog>
 
+<dialog id="mv">
+  <form id="mvf" class="dlg">
+    <h2 id="mvTitle">Перенести серию</h2>
+    <div class="two">
+      <div><label>Новая дата</label><input type="date" id="mvDate" required></div>
+      <div><label>Время (по Минску)</label><input type="time" id="mvTime" required></div>
+    </div>
+    <p class="hint">Меняется только эта серия, остальные остаются как были.</p>
+    <div class="dlg-foot">
+      <button class="btn ghost" type="button" id="mvReset">Вернуть по графику</button>
+      <button class="btn ghost" type="button" id="mvCancel">Отмена</button>
+      <button class="btn main" type="submit">Перенести</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="lib.js"></script>
 <script>
 const { generateEpisodes, fmtDate } = DramaLib;
@@ -267,8 +289,10 @@ function renderHero() {
   $('hero').innerHTML = `<div class="moon"></div><p class="lead">Следующая серия</p>
     <h2 class="name">${esc(next.s.title)}</h2>
     <div class="when">${when}</div>
-    <div class="at">Серия ${next.e.n} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}</div>`;
+    <div class="at">Серия ${next.e.n} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}</div>
+    ${epButtons(next.s.id, next.e.n)}`;
 }
+const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
 
 // ---------- подписка ----------
 function renderSub() {
@@ -289,7 +313,7 @@ function renderUpcoming() {
   for (const x of items) {
     if (x.e.date !== cur) { if (cur) html += '</div>'; cur = x.e.date; html += `<div class="day"><h3>${dayLabel(cur)}</h3>`; }
     html += `<div class="row" style="--c:${colorOf(x.s)}"><span class="t">${x.e.time || x.s.time}</span>
-      <span class="n">${esc(x.s.title)}</span><span class="e">серия ${x.e.n} из ${x.s.totalEpisodes}</span></div>`;
+      <span class="n">${esc(x.s.title)}</span><span class="e">серия ${x.e.n} из ${x.s.totalEpisodes}</span>${epButtons(x.s.id, x.e.n)}</div>`;
   }
   $('upcoming').innerHTML = html + '</div>';
 }
@@ -300,12 +324,17 @@ function renderList() {
     const eps = generateEpisodes(s), aired = eps.filter(e => epMs(s, e) <= now).length, tot = eps.length || 1;
     const nextEps = eps.filter(e => epMs(s, e) > now).slice(0, 4);
     const days = (s.weekdays && s.weekdays.length ? ORDER.filter(d => s.weekdays.includes(d)) : []).map(d => DAYN[d]).join(', ');
+    const edits = [
+      ...(s.skipDates || []).map(d => `<span class="chip">пропуск ${short(d)}<button data-us="${s.id}|${d}" aria-label="Убрать пропуск">✕</button></span>`),
+      ...Object.entries(s.overrides || {}).map(([n, v]) => `<span class="chip">серия ${esc(n)} → ${esc(v)}<button data-uo="${s.id}|${n}" aria-label="Убрать перенос">✕</button></span>`),
+    ];
     return `<article class="card" style="--c:${colorOf(s)}">
       <h3>${esc(s.title)}</h3>
       <div class="meta">${eps.length} ${plural(eps.length, ['серия','серии','серий'])}${days ? ' · ' + days : ''} · в ${esc(s.time)}</div>
       <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
       <div class="prog">${aired >= eps.length && eps.length ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div>
       <div class="chips">${nextEps.map(e => `<span class="chip">${e.n}: ${short(e.date)}</span>`).join('') || ''}</div>
+      ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
       <div class="links">${s.mdlUrl ? `<a href="${esc(s.mdlUrl)}" target="_blank" rel="noopener">MyDramaList</a>` : ''}${s.asiantvUrl ? `<a href="${esc(s.asiantvUrl)}" target="_blank" rel="noopener">MyAsianTV</a>` : ''}</div>
       <div class="acts"><button class="btn small" data-e="${s.id}">Изменить</button><button class="btn small ghost" data-d="${s.id}">Удалить</button></div>
     </article>`;
@@ -347,8 +376,57 @@ function resetForm() {
 }
 $('addBtn').onclick = () => { resetForm(); $('dlg').showModal(); };
 $('cancel').onclick = () => $('dlg').close();
+// ---------- правки графика «в моменте» ----------
+const epOf = (id, n) => { const s = shows.find(x => x.id === id); return { s, e: generateEpisodes(s).find(x => x.n == n) }; };
+function nextReleaseDate(s, from) {
+  const base = DramaLib.parseDate(from), wd = s.weekdays && s.weekdays.length ? s.weekdays.map(Number) : [base.getUTCDay()];
+  for (let i = 1; i <= 14; i++) { const d = new Date(base.getTime() + i * 864e5); if (wd.includes(d.getUTCDay())) return fmtDate(d); }
+  return from;
+}
+function skipEpisode(id, n) {
+  const { s, e } = epOf(id, n);
+  if (!confirm(`«${s.title}», серия ${n} не выйдет ${dayLabel(e.date).toLowerCase()}.\nЭта и все следующие серии сдвинутся на следующий день выхода. Продолжить?`)) return;
+  s.overrides = s.overrides || {};
+  let date = e.date;
+  if (s.overrides[n]) { // у серии уже был перенос: считаем от даты по графику
+    const copy = { ...s, overrides: { ...s.overrides } }; delete copy.overrides[n];
+    date = generateEpisodes(copy).find(x => x.n == n).date; delete s.overrides[n];
+  }
+  if (date === s.startDate) s.startDate = nextReleaseDate(s, date);
+  else s.skipDates = [...new Set([...(s.skipDates || []), date])].sort();
+  markDirty(); renderAll();
+}
+let mvTarget = null;
+function openMove(id, n) {
+  const { s, e } = epOf(id, n); mvTarget = { id, n };
+  $('mvTitle').textContent = `${s.title}, серия ${n}`;
+  $('mvDate').value = e.date; $('mvTime').value = e.time || s.time;
+  $('mvReset').hidden = !(s.overrides && s.overrides[n]);
+  $('mv').showModal();
+}
+$('mvCancel').onclick = () => $('mv').close();
+$('mvf').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const s = shows.find(x => x.id === mvTarget.id); s.overrides = s.overrides || {};
+  s.overrides[mvTarget.n] = $('mvDate').value + ' ' + $('mvTime').value;
+  $('mv').close(); markDirty(); renderAll();
+});
+$('mvReset').onclick = () => {
+  const s = shows.find(x => x.id === mvTarget.id); delete s.overrides[mvTarget.n];
+  $('mv').close(); markDirty(); renderAll();
+};
+function onEpClick(ev) {
+  const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.skip) { const [id, n] = b.dataset.skip.split('|'); skipEpisode(id, n); }
+  if (b.dataset.move) { const [id, n] = b.dataset.move.split('|'); openMove(id, n); }
+}
+$('upcoming').addEventListener('click', onEpClick);
+$('hero').addEventListener('click', onEpClick);
+
 $('list').addEventListener('click', (ev) => {
   const e = ev.target.dataset.e, d = ev.target.dataset.d;
+  if (ev.target.dataset.us) { const [id, date] = ev.target.dataset.us.split('|'); const s = shows.find(x => x.id === id); s.skipDates = (s.skipDates || []).filter(x => x !== date); markDirty(); renderAll(); }
+  if (ev.target.dataset.uo) { const [id, n] = ev.target.dataset.uo.split('|'); const s = shows.find(x => x.id === id); delete s.overrides[n]; markDirty(); renderAll(); }
   if (e) startEdit(e);
   if (d && confirm('Удалить сериал? Его серии пропадут из календаря после сохранения.')) { shows = shows.filter(s => s.id !== d); markDirty(); renderAll(); }
 });

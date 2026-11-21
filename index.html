@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0119">
+<meta name="build" content="20261122-0121">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -333,8 +333,8 @@
     select { -webkit-appearance: none; appearance: none; }
     select { font-size: 16px; min-height: 44px; }
     .apic .af { width: 24px; height: 24px; }
-    dialog { width: 100vw; max-width: 100vw; max-height: 94dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; border-bottom: 0; }
-    #dlg[open] { height: 94dvh; }
+    dialog { width: calc(100vw - 20px); max-width: calc(100vw - 20px); max-height: calc(94dvh - env(safe-area-inset-bottom)); margin: auto 10px calc(8px + env(safe-area-inset-bottom)); border-radius: 26px; border-bottom: 1px solid var(--line); }
+    #dlg[open] { height: calc(94dvh - env(safe-area-inset-bottom)); }
     .dlghead { padding: 16px 16px 4px; }
     .dlg h2 { font-size: 19px; }
     .dlgbody { padding: 0 16px 10px; }

@@ -89,6 +89,40 @@
   .row .n small { color: var(--ash); font-size: 13.5px; }
   .row .t { font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: .02em; color: var(--pink); font-variant-numeric: tabular-nums; }
 
+  /* календарь */
+  .sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .sechead h2 { margin: 0; }
+  .seg { display: inline-flex; background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .seg button { font: inherit; font-size: 13.5px; font-weight: 500; color: var(--ash); background: none; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .seg button.on { background: var(--pink); color: var(--deep); font-weight: 600; }
+  .calhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .calhead b { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .025em; font-size: 15px; text-align: center; flex: 1; }
+  .calhead .btn { padding: 6px 14px; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+  .cal .wd { text-align: center; color: var(--ash); font-size: 12.5px; padding-bottom: 2px; }
+  .cell { min-height: 82px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
+    cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
+  .cell:hover { border-color: rgba(255,138,196,.5); }
+  .cell.out { opacity: .32; }
+  .cell.today { border-color: rgba(255,138,196,.65); }
+  .cell.today .d { color: var(--pink); }
+  .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); }
+  .cell .d { font-size: 12.5px; font-weight: 600; line-height: 1; }
+  .minis { display: flex; flex-wrap: wrap; gap: 3px; }
+  .mini { width: 26px; height: 26px; border-radius: 8px; background-size: cover; background-position: center; display: grid; place-items: center; font: 700 11px var(--display); color: var(--deep); }
+  .mini.past { opacity: .4; }
+  .more { font-size: 11px; color: var(--ash); align-self: center; }
+  .daypanel { margin-top: 18px; }
+  .cv { flex: none; position: relative; width: 46px; height: 62px; border-radius: 14px; background-size: cover; background-position: center; border: 1px solid var(--line); }
+  .cv i { position: absolute; right: -6px; bottom: -6px; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 8px; background: var(--pink); color: var(--deep);
+    display: grid; place-items: center; font: 700 11px var(--display); font-style: normal; }
+  .card .cover { position: relative; height: 170px; border-radius: 18px; margin: -6px -6px 16px; background-size: cover; background-position: center 25%; border: 1px solid var(--line); }
+  .card .cover .badge2 { position: absolute; left: 10px; bottom: 10px; margin: 0; }
+  .coverpick { display: flex; gap: 14px; align-items: center; margin-top: 4px; }
+  .coverprev { flex: none; width: 66px; height: 88px; border-radius: 14px; border: 1px dashed var(--line); background: var(--glass) center/cover; }
+  .coverprev.has { border-style: solid; }
+  .coverpick .hint { margin: 8px 0 0; }
+
   /* сериалы */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
   .card { color: var(--bone); border: 1px solid var(--line); border-radius: 26px; padding: 20px 20px 18px;
@@ -149,6 +183,7 @@
   @media (max-width: 520px) {
     .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
     .top .btn { padding: 9px 14px; font-size: 14px; }
+    .cell { min-height: 64px; padding: 5px; gap: 4px; border-radius: 13px; } .mini { width: 20px; height: 20px; border-radius: 6px; font-size: 9.5px; } .cal { gap: 4px; }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -166,7 +201,8 @@
   <div class="sub" id="subCard"></div>
 
   <section>
-    <h2>Ближайшие серии</h2>
+    <div class="sechead"><h2>Ближайшие серии</h2>
+      <div class="seg" role="group" aria-label="Вид"><button type="button" id="vCal">Календарь</button><button type="button" id="vList">Список</button></div></div>
     <div id="upcoming"></div>
   </section>
 
@@ -198,6 +234,13 @@
 <dialog id="dlg">
   <form id="f" class="dlg">
     <h2 id="formTitle">Новый сериал</h2>
+    <label>Обложка</label>
+    <div class="coverpick">
+      <div class="coverprev" id="coverPrev"></div>
+      <div><button class="btn small" type="button" id="coverBtn">Выбрать картинку</button> <button class="btn small ghost" type="button" id="coverDel" hidden>Убрать</button>
+        <p class="hint">Постер сериала. Он появится в календаре и в списках, чтобы сразу узнавать сериал.</p></div>
+      <input type="file" id="coverFile" accept="image/*" hidden>
+    </div>
     <label>Название</label>
     <input type="text" id="title" required>
     <label>Название на MyAsianTV, если оно отличается от названия выше</label>
@@ -262,8 +305,12 @@ const ls = {
 };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const plural = (n, f) => f[(n % 10 === 1 && n % 100 !== 11) ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
-const TILES = ['#ffb6d6', '#ff86c1', '#f7dcec', '#ffffff'];
-const colorOf = (s) => TILES[Math.max(0, shows.findIndex(x => x.id === s.id)) % TILES.length];
+const PAL = ['#ff8ac4', '#b9a6ff', '#ffb38a', '#8fe3c8', '#8cc8ff', '#ffe08a'];
+const showColor = (s) => PAL[Math.max(0, shows.findIndex(x => x.id === s.id)) % PAL.length];
+const coverSrc = (s) => s._coverData || (s.cover ? s.cover + '?v=' + (s.coverV || '') : '');
+const bgi = (u) => `background-image:url('${esc(u)}')`;
+const thumb = (s, n) => { const cv = coverSrc(s); return cv ? `<span class="cv" style="${bgi(cv)}"><i>${n}</i></span>` : `<span class="num">${n}</span>`; };
+let view = ls.get('view') === 'list' ? 'list' : 'cal', calY, calM, calSel;
 
 // момент выхода серии (в мс, UTC)
 function epMs(show, e) {
@@ -290,11 +337,14 @@ function allEpisodes() {
 // ---------- главный экран ----------
 function renderHero() {
   const now = Date.now(), next = allEpisodes().find(x => x.ms >= now - 3 * 3600e3);
+  const cv = next ? coverSrc(next.s) : '';
+  const center = cv
+    ? `<circle cx="62" cy="62" r="40" fill="#ff8ac4"/><image href="${esc(cv)}" x="22" y="22" width="80" height="80" preserveAspectRatio="xMidYMid slice" clip-path="url(#cvclip)"/><circle cx="62" cy="62" r="40" fill="none" stroke="#ff8ac4" stroke-width="2"/>`
+    : `<circle cx="62" cy="62" r="34" fill="#ff8ac4"/><path d="M62 42 L67 57 L82 62 L67 67 L62 82 L57 67 L42 62 L57 57Z" fill="#1a0f17"/>`;
   const orb = `<svg class="orb" viewBox="0 0 124 124" aria-hidden="true">
-    <defs><path id="ringp" d="M62 62 m-53 0 a53 53 0 1 1 106 0 a53 53 0 1 1 -106 0"/></defs>
+    <defs><path id="ringp" d="M62 62 m-53 0 a53 53 0 1 1 106 0 a53 53 0 1 1 -106 0"/><clipPath id="cvclip"><circle cx="62" cy="62" r="40"/></clipPath></defs>
     <g class="ring"><text font-family="Montserrat, sans-serif" font-size="10.5" font-weight="500" fill="#ff8ac4"><textPath href="#ringp" textLength="328" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ • СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
-    <circle cx="62" cy="62" r="34" fill="#ff8ac4"/>
-    <path d="M62 42 L67 57 L82 62 L67 67 L62 82 L57 67 L42 62 L57 57Z" fill="#1a0f17"/></svg>`;
+    ${center}</svg>`;
   if (!next) {
     $('hero').className = 'hero empty';
     $('hero').innerHTML = `${orb}<h2 class="name">Следующая серия<span>пока не запланирована</span></h2>
@@ -328,17 +378,53 @@ function renderSub() {
 }
 
 // ---------- списки ----------
+const rowHtml = (x, withBtns = true) => `<div class="row">${thumb(x.s, x.e.n)}
+  <span class="n"><b>${esc(x.s.title)}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, x.e.n) : ''}</div>`;
+const upcomingNow = (x) => x.ms > Date.now() - 3 * 3600e3;
 function renderUpcoming() {
+  $('vCal').classList.toggle('on', view === 'cal'); $('vList').classList.toggle('on', view === 'list');
+  $('vCal').setAttribute('aria-pressed', view === 'cal'); $('vList').setAttribute('aria-pressed', view === 'list');
+  if (view === 'cal') return renderCal();
   const t = todayStr(), items = allEpisodes().filter(x => x.e.date >= t).slice(0, 14);
   if (!items.length) { $('upcoming').innerHTML = '<p class="hint">Здесь появятся ближайшие серии.</p>'; return; }
   let html = '', cur = '';
   for (const x of items) {
     if (x.e.date !== cur) { if (cur) html += '</div>'; cur = x.e.date; html += `<div class="day"><h3>${dayLabel(cur)}</h3>`; }
-    html += `<div class="row"><span class="num">${x.e.n}</span>
-      <span class="n"><b>${esc(x.s.title)}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${epButtons(x.s.id, x.e.n)}</div>`;
+    html += rowHtml(x);
   }
   $('upcoming').innerHTML = html + '</div>';
 }
+const MONTHN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function renderCal() {
+  const by = {}; allEpisodes().forEach(x => (by[x.e.date] = by[x.e.date] || []).push(x));
+  const lead = (new Date(Date.UTC(calY, calM, 1)).getUTCDay() + 6) % 7;
+  const dim = new Date(Date.UTC(calY, calM + 1, 0)).getUTCDate(), total = Math.ceil((lead + dim) / 7) * 7;
+  const t = todayStr(), now = Date.now();
+  let cells = ['пн','вт','ср','чт','пт','сб','вс'].map(w => `<div class="wd">${w}</div>`).join('');
+  for (let i = 0; i < total; i++) {
+    const d = new Date(Date.UTC(calY, calM, 1 - lead + i)), ds = fmtDate(d), list = by[ds] || [];
+    const vis = list.length > 4 ? list.slice(0, 3) : list;
+    const minis = vis.map(x => { const cv = coverSrc(x.s);
+      return `<span class="mini${x.ms < now ? ' past' : ''}" style="${cv ? bgi(cv) : 'background:' + showColor(x.s)}">${cv ? '' : x.e.n}</span>`; }).join('')
+      + (list.length > 4 ? `<span class="more">+${list.length - 3}</span>` : '');
+    const label = list.length ? `, серий: ${list.length}` : '';
+    cells += `<button type="button" class="cell${d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis">${minis}</span></button>`;
+  }
+  const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
+  const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`
+    + (sel.length ? sel.map(x => rowHtml(x, upcomingNow(x))).join('') : '<p class="hint">В этот день серий нет.</p>') + '</div>';
+  $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Прошлый месяц">←</button>
+    <b>${MONTHN[calM]} ${calY}</b><button type="button" class="btn small" data-cal="1" aria-label="Следующий месяц">→</button></div><div class="cal">${cells}</div>${panel}`;
+}
+function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; }
+goDate(todayStr());
+$('vCal').onclick = () => { view = 'cal'; ls.set('view', view); renderUpcoming(); };
+$('vList').onclick = () => { view = 'list'; ls.set('view', view); renderUpcoming(); };
+$('upcoming').addEventListener('click', (ev) => {
+  const c = ev.target.closest('[data-cal]'), cell = ev.target.closest('.cell');
+  if (c) { calM += +c.dataset.cal; if (calM < 0) { calM = 11; calY--; } if (calM > 11) { calM = 0; calY++; } renderCal(); }
+  else if (cell) { goDate(cell.dataset.date); renderCal(); }
+});
 function renderList() {
   if (!shows.length) { $('list').innerHTML = '<p class="hint">Список пуст. Нажмите «Добавить сериал».</p>'; return; }
   const now = Date.now();
@@ -351,7 +437,7 @@ function renderList() {
       ...Object.entries(s.overrides || {}).map(([n, v]) => `<span class="chip">серия ${esc(n)} → ${esc(v)}<button data-uo="${s.id}|${n}" aria-label="Убрать перенос">✕</button></span>`),
     ];
     return `<article class="card">
-      <div class="badge2">${eps.length}</div>
+      ${coverSrc(s) ? `<div class="cover" style="${bgi(coverSrc(s))}"><div class="badge2">${eps.length}</div></div>` : `<div class="badge2">${eps.length}</div>`}
       <h3>${esc(s.title)}</h3>
       <div class="meta">${eps.length} ${plural(eps.length, ['серия','серии','серий'])}${days ? ' · ' + days : ''} · в ${esc(s.time)}</div>
       <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
@@ -392,8 +478,29 @@ function renderPreview() {
 ['title','start','time','total','batch','perday','skip','ovr'].forEach(i => $(i).addEventListener('input', renderPreview));
 $('days').addEventListener('change', renderPreview);
 
+let pendingCover = null; // dataURL новой картинки, 'remove' или null
+function setCoverPrev(src) { $('coverPrev').style.backgroundImage = src ? `url('${src}')` : ''; $('coverPrev').classList.toggle('has', !!src); $('coverDel').hidden = !src; }
+function shrinkImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const W = 360, H = 480, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d'); x.fillStyle = '#0a0809'; x.fillRect(0, 0, W, H);
+      const k = Math.max(W / im.width, H / im.height), w = im.width * k, h = im.height * k;
+      x.drawImage(im, (W - w) / 2, (H - h) * 0.3, w, h); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', .85));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad image')); };
+    im.src = url;
+  });
+}
+$('coverBtn').onclick = () => $('coverFile').click();
+$('coverDel').onclick = () => { pendingCover = 'remove'; setCoverPrev(''); $('coverFile').value = ''; };
+$('coverFile').onchange = async () => {
+  const f = $('coverFile').files[0]; if (!f) return;
+  try { pendingCover = await shrinkImage(f); setCoverPrev(pendingCover); } catch { alert('Не удалось открыть эту картинку. Попробуйте другой файл (JPG или PNG).'); }
+};
 function resetForm() {
-  editing = null; $('f').reset(); $('time').value = '20:00'; $('batch').value = 1; $('perday').value = 1;
+  editing = null; pendingCover = null; setCoverPrev(''); $('f').reset(); $('time').value = '20:00'; $('batch').value = 1; $('perday').value = 1;
   $('formTitle').textContent = 'Новый сериал'; $('saveBtn').textContent = 'Добавить'; renderPreview();
 }
 $('addBtn').onclick = () => { resetForm(); $('dlg').showModal(); };
@@ -460,12 +567,16 @@ function startEdit(id) {
   document.querySelectorAll('#days input').forEach(i => i.checked = (s.weekdays || []).includes(+i.value));
   $('skip').value = (s.skipDates || []).join('\n');
   $('ovr').value = Object.entries(s.overrides || {}).map(([k, v]) => k + ' ' + v).join('\n');
+  setCoverPrev(coverSrc(s));
   $('formTitle').textContent = 'Изменить сериал'; $('saveBtn').textContent = 'Сохранить изменения';
   renderPreview(); $('dlg').showModal();
 }
 $('f').addEventListener('submit', (ev) => {
   ev.preventDefault();
-  const s = readForm(), i = shows.findIndex(x => x.id === s.id);
+  const s = readForm(), i = shows.findIndex(x => x.id === s.id), old = shows[i];
+  if (old) { ['cover', 'coverV', '_coverData', '_coverNew'].forEach(k => { if (old[k] !== undefined) s[k] = old[k]; }); }
+  if (pendingCover === 'remove') ['cover', 'coverV', '_coverData', '_coverNew'].forEach(k => delete s[k]);
+  else if (pendingCover) { s.cover = 'covers/' + s.id + '.jpg'; s.coverV = Date.now(); s._coverData = pendingCover; s._coverNew = true; }
   if (i >= 0) shows[i] = s; else shows.push(s);
   $('dlg').close(); markDirty(); renderAll();
 });
@@ -480,7 +591,7 @@ window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault()
 $('ghSave').onclick = () => { ls.set('ghRepo', $('ghRepo').value.trim()); ls.set('ghToken', $('ghToken').value.trim()); $('cfgStatus').textContent = 'Настройки запомнены.'; };
 $('dl').onclick = () => {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({ shows }, null, 2)], { type: 'application/json' }));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ shows }, (k, v) => (k[0] === '_' ? undefined : v), 2)], { type: 'application/json' }));
   a.download = 'shows.json'; a.click();
 };
 $('pushBtn').onclick = async () => {
@@ -489,17 +600,18 @@ $('pushBtn').onclick = async () => {
   setStatus('Сохраняю…');
   try {
     const h = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
-    const putFile = async (path, text) => {
+    const putB64 = async (path, b64) => {
       const url = `https://api.github.com/repos/${repo}/contents/${path}`;
       const cur = await fetch(url, { headers: h });
       const sha = cur.ok ? (await cur.json()).sha : undefined;
-      const bytes = new TextEncoder().encode(text);
-      let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
-      const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Обновлён ' + path, sha, content: btoa(bin) }) });
+      const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Обновлён ' + path, sha, content: b64 }) });
       if (!r.ok) throw new Error((await r.json()).message || r.status);
     };
-    await putFile('shows.json', JSON.stringify({ shows }, null, 2));
+    const putFile = (path, text) => { let bin = ''; new TextEncoder().encode(text).forEach(b => bin += String.fromCharCode(b)); return putB64(path, btoa(bin)); };
+    for (const s of shows) if (s._coverNew && s._coverData) await putB64(s.cover, s._coverData.split(',')[1]);
+    await putFile('shows.json', JSON.stringify({ shows }, (k, v) => (k[0] === '_' ? undefined : v), 2));
     await putFile('calendar.ics', DramaLib.buildICS(shows));
+    shows.forEach(s => delete s._coverNew);
     dirty = false; ls.set('draft', '');
     setStatus('Сохранено. Календарь обновится в течение пары минут.', 'ok');
     setTimeout(() => { if (!dirty) $('savebar').hidden = true; }, 6000);
@@ -518,6 +630,7 @@ $('pushBtn').onclick = async () => {
       else ls.set('draft', '');
     } catch {}
   }
+  const nx = allEpisodes().find(x => x.ms > Date.now() - 3 * 3600e3); if (nx) goDate(nx.e.date);
   renderAll(); renderPreview();
 })();
 </script>

@@ -7,154 +7,147 @@
 <title>Дорамы · график серий</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #0a0a0c;          /* фон */
-    --coal: #151216;         /* панели */
-    --coal2: #1f1a22;        /* поля, плашки */
-    --line: #2d2631;
-    --bone: #f6f0f3;         /* текст */
-    --ash: #a99ead;          /* второстепенный текст */
-    --pink: #ffb6d6;        /* светло-розовый */
-    --hot: #ff86c1;          /* насыщенный розовый */
-    --pale: #f7dcec;
+    --ink: #0a0809;
+    --glass: rgba(255,255,255,.045);
+    --glass2: rgba(255,255,255,.08);
+    --line: rgba(255,255,255,.10);
+    --bone: #f7f1f4;
+    --ash: #a99da8;
+    --pink: #ff8ac4;         /* основной розовый, как на плитках референса */
+    --pale: #ffc2e0;
+    --deep: #1a0f17;         /* тёмный на розовом */
     --ok: #7fe3b0; --bad: #ff7d7d;
-    --display: "Oswald", "Arial Narrow", Impact, sans-serif;
+    --display: "Unbounded", "Onest", system-ui, sans-serif;
     --text: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
   html { background: var(--ink); }
   body {
-    margin: 0; color: var(--bone); font: 16px/1.5 var(--text); min-height: 100vh;
+    margin: 0; color: var(--bone); font: 16px/1.55 var(--text); min-height: 100vh;
     background:
-      radial-gradient(760px 520px at 92% -140px, rgba(200,70,150,.38), transparent 70%),
-      radial-gradient(620px 520px at -8% 42%, rgba(120,40,105,.30), transparent 70%),
+      radial-gradient(620px 520px at 100% -40px, rgba(196,72,148,.55), transparent 70%),
+      radial-gradient(560px 560px at -6% 108%, rgba(150,58,122,.50), transparent 70%),
+      radial-gradient(420px 420px at 8% 28%, rgba(120,40,100,.22), transparent 70%),
       var(--ink);
     background-attachment: fixed;
   }
-  main { max-width: 980px; margin: 0 auto; padding: 22px 18px 130px; }
+  main { max-width: 960px; margin: 0 auto; padding: 22px 18px 130px; }
   a { color: var(--pink); }
-  h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
-  h2 { font-size: clamp(28px, 5vw, 40px); margin-bottom: 16px; }
-  :focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; border-radius: 8px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; letter-spacing: -.01em; line-height: 1.18; }
+  h2 { font-size: clamp(22px, 3.6vw, 30px); margin-bottom: 18px; }
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-radius: 8px; }
 
   /* шапка */
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo svg { width: 30px; height: 30px; fill: var(--pink); }
-  .top h1 { font-size: 30px; }
-  .btn { white-space: nowrap; font: inherit; font-weight: 500; color: var(--bone); background: var(--coal2); border: 1px solid var(--line);
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 26px; }
+  .logo { display: flex; align-items: center; gap: 9px; }
+  .logo svg { width: 20px; height: 20px; fill: var(--pink); }
+  .top h1 { font-size: 16px; font-weight: 500; }
+  .btn { white-space: nowrap; font: inherit; font-weight: 500; color: var(--bone); background: var(--glass); border: 1px solid var(--line);
     padding: 10px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
   .btn:hover { border-color: var(--pink); }
-  .btn.main { background: var(--pink); color: #17080f; border-color: var(--pink); font-weight: 600; }
-  .btn.main:hover { background: #ffc9e1; }
+  .btn.main { background: var(--pink); color: var(--deep); border-color: var(--pink); font-weight: 600; }
+  .btn.main:hover { background: var(--pale); border-color: var(--pale); }
   .btn.small { padding: 6px 14px; font-size: 14px; }
   .btn.ghost { background: transparent; }
 
-  /* главный экран */
-  .hero { display: grid; grid-template-columns: 1.6fr 1fr; border-radius: 28px; overflow: hidden; margin-bottom: 20px; background: #000; }
-  .hl { padding: 30px 28px 34px; position: relative; min-width: 0; }
-  .lead { margin: 0 0 14px; color: var(--bone); font-size: 15px; }
-  .name { color: var(--pink); font-size: clamp(46px, 9vw, 92px); line-height: .92; overflow-wrap: anywhere; margin: 0; }
-  .name.lg { font-size: clamp(38px, 7vw, 70px); }
-  .name.xl { font-size: clamp(30px, 5.4vw, 52px); }
-  .stickers { display: flex; flex-wrap: wrap; gap: 4px 0; margin-top: 12px; padding-left: 4px; }
-  .pill { display: inline-block; font-weight: 600; font-size: 17px; padding: 9px 22px; border-radius: 999px; color: #111; white-space: nowrap; position: relative; }
-  .pill.w { background: #fff; transform: rotate(-5deg); }
-  .pill.p { background: var(--hot); transform: rotate(7deg); margin-left: -10px; }
-  .hr { background: var(--pink); color: #14060d; padding: 28px 26px 26px; position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 300px; }
-  .badge { position: absolute; top: 18px; right: 18px; width: 88px; height: 88px; }
-  .badge .ring { animation: spin 28s linear infinite; transform-origin: 50px 50px; }
+  /* главный экран — как обложка слайда */
+  .hero { position: relative; overflow: hidden; text-align: center; padding: 38px 24px 40px; margin-bottom: 22px;
+    border-radius: 30px; border: 1px solid var(--line);
+    background:
+      radial-gradient(420px 320px at 100% 0, rgba(210,80,160,.42), transparent 70%),
+      radial-gradient(380px 320px at 0 100%, rgba(150,58,122,.40), transparent 70%),
+      #0d0a0c; }
+  .orb { width: 124px; height: 124px; margin: 0 auto 22px; display: block; }
+  .orb .ring { animation: spin 30s linear infinite; transform-origin: 62px 62px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .badge .ring { animation: none; } }
-  .hr .before { font-weight: 500; font-size: 18px; margin: 0 0 4px; }
-  .when { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(40px, 5.8vw, 60px); line-height: .95; }
-  .hr .ra { margin: 18px 0 0; }
-  .hr .btn { color: #14060d; background: transparent; border-color: rgba(20,6,13,.4); }
-  .hr .btn:hover { background: #14060d; color: var(--pink); border-color: #14060d; }
-  .hero.empty .when { font-size: clamp(30px, 5vw, 44px); }
+  @media (prefers-reduced-motion: reduce) { .orb .ring { animation: none; } }
+  .name { font-size: clamp(24px, 4.6vw, 46px); max-width: 17em; margin: 0 auto; text-wrap: balance; overflow-wrap: anywhere; }
+  .name span { color: var(--pink); display: block; }
+  .sub2 { color: var(--bone); opacity: .8; font-size: 15px; margin: 18px 0 0; }
+  .hero .ra { justify-content: center; margin-top: 22px; }
 
   /* подписка */
   .sub { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap;
-    background: var(--coal); border: 1px solid var(--line); border-radius: 20px; padding: 14px 20px; margin-bottom: 38px; }
+    background: var(--glass); border: 1px solid var(--line); border-radius: 22px; padding: 14px 20px; margin-bottom: 44px; }
   .sub p { margin: 0; color: var(--ash); font-size: 14px; max-width: 48em; }
   .sub b { color: var(--bone); font-weight: 600; }
-  code { background: var(--coal2); border-radius: 6px; padding: 2px 7px; font-size: 13px; word-break: break-all; color: var(--pink); }
+  code { background: var(--glass2); border-radius: 6px; padding: 2px 7px; font-size: 13px; word-break: break-all; color: var(--pink); }
 
   /* ближайшие серии */
-  section { margin-bottom: 40px; }
+  section { margin-bottom: 44px; }
   .day { margin-bottom: 16px; }
-  .day h3 { font-family: var(--text); text-transform: none; font-size: 15px; font-weight: 600; color: var(--pink); margin-bottom: 8px; letter-spacing: 0; }
-  .row { display: flex; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; margin-bottom: 8px; background: var(--coal); border-radius: 20px; }
-  .num { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--c, var(--pink)); color: #17080f;
-    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 22px; }
+  .day h3 { font-family: var(--text); font-size: 15px; font-weight: 600; color: var(--pink); margin-bottom: 8px; letter-spacing: 0; }
+  .row { display: flex; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; margin-bottom: 8px;
+    background: var(--glass); border: 1px solid var(--line); border-radius: 22px; }
+  .num { flex: none; width: 46px; height: 46px; border-radius: 15px; background: var(--pink); color: var(--deep);
+    display: grid; place-items: center; font-family: var(--display); font-weight: 500; font-size: 17px; }
   .row .n { flex: 1; min-width: 0; }
   .row .n b { display: block; font-weight: 600; overflow-wrap: anywhere; }
   .row .n small { color: var(--ash); font-size: 13.5px; }
-  .row .t { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--pink); font-variant-numeric: tabular-nums; }
+  .row .t { font-family: var(--display); font-weight: 400; font-size: 18px; color: var(--pink); font-variant-numeric: tabular-nums; }
 
   /* сериалы */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-  .card { background: var(--c, var(--pink)); color: #14060d; border-radius: 26px; padding: 20px 20px 18px; }
-  .card h3 { font-size: 30px; line-height: .98; margin: 0 0 8px; overflow-wrap: anywhere; }
-  .meta { color: rgba(20,6,13,.72); font-size: 14px; }
-  .bar { height: 8px; background: rgba(20,6,13,.16); border-radius: 9px; margin: 16px 0 7px; overflow: hidden; }
-  .bar i { display: block; height: 100%; background: #14060d; border-radius: 9px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+  .card { background: var(--pink); color: var(--deep); border-radius: 26px; padding: 20px 20px 18px; }
+  .card .badge2 { width: 46px; height: 46px; border-radius: 15px; background: var(--deep); color: var(--pink); display: grid; place-items: center;
+    font-family: var(--display); font-size: 16px; font-weight: 500; margin-bottom: 14px; }
+  .card h3 { font-family: var(--text); font-weight: 600; font-size: 19px; line-height: 1.25; margin: 0 0 6px; overflow-wrap: anywhere; }
+  .meta { color: rgba(26,15,23,.72); font-size: 14px; }
+  .bar { height: 8px; background: rgba(26,15,23,.16); border-radius: 9px; margin: 16px 0 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--deep); border-radius: 9px; }
   .prog { font-size: 14.5px; font-weight: 600; }
   .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0; }
-  .chip { font-size: 12.5px; background: rgba(20,6,13,.09); border-radius: 999px; padding: 3px 10px; color: #14060d; white-space: nowrap; }
+  .chip { font-size: 12.5px; background: rgba(26,15,23,.10); border-radius: 999px; padding: 3px 10px; color: var(--deep); white-space: nowrap; }
   .chip.past { opacity: .4; }
-  .chip button { background: none; border: 0; color: rgba(20,6,13,.65); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
-  .chip button:hover { color: #14060d; }
+  .chip button { background: none; border: 0; color: rgba(26,15,23,.65); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
+  .chip button:hover { color: var(--deep); }
   .acts { display: flex; gap: 8px; margin-top: 6px; }
-  .card .btn { color: #14060d; background: transparent; border-color: rgba(20,6,13,.4); }
-  .card .btn:hover { background: #14060d; color: var(--pink); border-color: #14060d; }
+  .card .btn { color: var(--deep); background: transparent; border-color: rgba(26,15,23,.4); }
+  .card .btn:hover { background: var(--deep); color: var(--pink); border-color: var(--deep); }
   .edits { margin: 4px 0 8px; }
   .hint { color: var(--ash); font-size: 14px; }
   .ra { display: flex; gap: 6px; flex-shrink: 0; }
 
   /* окно добавления */
-  dialog { color: var(--bone); background: var(--coal); border: 1px solid var(--line); border-radius: 28px; padding: 0;
+  dialog { color: var(--bone); background: #130e12; border: 1px solid var(--line); border-radius: 30px; padding: 0;
     width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); }
-  dialog::backdrop { background: rgba(5,3,8,.78); backdrop-filter: blur(5px); }
-  .dlg { padding: 26px 26px 22px; }
+  dialog::backdrop { background: rgba(5,3,6,.78); backdrop-filter: blur(5px); }
+  .dlg { padding: 28px 26px 22px; background: radial-gradient(360px 260px at 100% 0, rgba(210,80,160,.22), transparent 70%); }
   .dlg h2 { color: var(--pink); margin-bottom: 6px; }
   label { display: block; font-size: 13.5px; color: var(--ash); margin: 14px 0 5px; }
   input[type=text], input[type=url], input[type=number], input[type=date], input[type=time], input[type=password], textarea {
-    width: 100%; font: inherit; color: var(--bone); background: var(--coal2); border: 1px solid var(--line);
+    width: 100%; font: inherit; color: var(--bone); background: var(--glass); border: 1px solid var(--line);
     border-radius: 14px; padding: 10px 14px; color-scheme: dark; }
-  input:focus, textarea:focus { outline: none; border-color: var(--hot); box-shadow: 0 0 0 3px rgba(255,134,193,.2); }
+  input:focus, textarea:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,138,196,.2); }
   .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
   .days { display: flex; flex-wrap: wrap; gap: 7px; }
   .days label { margin: 0; color: var(--bone); }
   .days input { position: absolute; opacity: 0; pointer-events: none; }
-  .days span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--coal2); cursor: pointer; }
-  .days input:checked + span { background: var(--pink); color: #17080f; border-color: var(--pink); font-weight: 600; }
-  .days input:focus-visible + span { outline: 2px solid var(--hot); outline-offset: 2px; }
+  .days span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); cursor: pointer; }
+  .days input:checked + span { background: var(--pink); color: var(--deep); border-color: var(--pink); font-weight: 600; }
+  .days input:focus-visible + span { outline: 2px solid var(--pink); outline-offset: 2px; }
   details summary { cursor: pointer; color: var(--pink); margin-top: 14px; }
-  .dlg .chip { background: var(--coal2); color: var(--bone); }
+  .dlg .chip { background: var(--glass2); color: var(--bone); }
   .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; max-height: 120px; overflow: auto; }
   .dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
 
   /* панель сохранения */
-  .savebar { position: fixed; left: 12px; right: 12px; bottom: 14px; max-width: 780px; margin: 0 auto; background: var(--pink); color: #14060d;
+  .savebar { position: fixed; left: 12px; right: 12px; bottom: 14px; max-width: 780px; margin: 0 auto; background: var(--pink); color: var(--deep);
     border-radius: 999px; padding: 10px 10px 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
     box-shadow: 0 12px 44px rgba(0,0,0,.6); font-weight: 500; }
   .savebar[hidden] { display: none; }
-  .savebar .btn.main { background: #14060d; color: var(--pink); border-color: #14060d; }
+  .savebar .btn.main { background: var(--deep); color: var(--pink); border-color: var(--deep); }
   .savebar span.ok { color: #0b5a30; } .savebar span.bad { color: #9a1c1c; }
   footer { color: var(--ash); font-size: 14px; }
-  footer .box { margin-top: 10px; background: var(--coal); border: 1px solid var(--line); border-radius: 20px; padding: 4px 20px 18px; }
+  footer .box { margin-top: 10px; background: var(--glass); border: 1px solid var(--line); border-radius: 22px; padding: 4px 20px 18px; }
 
-  @media (max-width: 760px) {
-    .hero { grid-template-columns: 1fr; }
-    .hr { min-height: 240px; }
-  }
   @media (max-width: 520px) {
-    .hl { padding: 24px 20px 28px; } .hr { padding: 24px 20px; } .badge { width: 76px; height: 76px; }
-    .top .btn { padding: 9px 14px; font-size: 14px; } .top h1 { font-size: 26px; }
-    .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 22px; }
+    .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
+    .top .btn { padding: 9px 14px; font-size: 14px; }
+    .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
 </style>
@@ -295,30 +288,29 @@ function allEpisodes() {
 // ---------- главный экран ----------
 function renderHero() {
   const now = Date.now(), next = allEpisodes().find(x => x.ms >= now - 3 * 3600e3);
-  const badge = `<svg class="badge" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#14060d"/>
-    <defs><path id="ringp" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"/></defs>
-    <g class="ring"><text font-family="Onest, sans-serif" font-size="11" font-weight="600" fill="#ffb6d6"><textPath href="#ringp" textLength="226" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
-    <path d="M50 33 L55 45 L67 50 L55 55 L50 67 L45 55 L33 50 L45 45Z" fill="#ffb6d6"/></svg>`;
+  const orb = `<svg class="orb" viewBox="0 0 124 124" aria-hidden="true">
+    <defs><path id="ringp" d="M62 62 m-53 0 a53 53 0 1 1 106 0 a53 53 0 1 1 -106 0"/></defs>
+    <g class="ring"><text font-family="Onest, sans-serif" font-size="10.5" font-weight="500" fill="#ff8ac4"><textPath href="#ringp" textLength="328" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ • СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
+    <circle cx="62" cy="62" r="34" fill="#ff8ac4"/>
+    <path d="M62 42 L67 57 L82 62 L67 67 L62 82 L57 67 L42 62 L57 57Z" fill="#1a0f17"/></svg>`;
   if (!next) {
     $('hero').className = 'hero empty';
-    $('hero').innerHTML = `<div class="hl"><p class="lead">Следующая серия</p><h2 class="name">Пока пусто</h2></div>
-      <div class="hr">${badge}<div class="when">Добавьте первый сериал</div></div>`;
+    $('hero').innerHTML = `${orb}<h2 class="name">Следующая серия<span>пока не запланирована</span></h2>
+      <p class="sub2">Добавьте первый сериал, и здесь появится отсчёт до выхода серии.</p>`;
     return;
   }
   const diff = next.ms - now;
-  let before = 'Через', val;
-  if (diff <= 0) { before = ''; val = 'Выходит сейчас'; }
+  let val;
+  if (diff <= 0) val = 'выходит сейчас';
   else {
     const min = Math.floor(diff / 60000), d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
     const dd = `${d} ${plural(d, ['день','дня','дней'])}`;
-    val = d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`;
+    val = 'через ' + (d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`);
   }
-  const len = next.s.title.length, cls = len > 26 ? 'xl' : len > 15 ? 'lg' : '';
   $('hero').className = 'hero';
-  $('hero').innerHTML = `<div class="hl"><p class="lead">${dayLabel(next.e.date)}</p>
-      <h2 class="name ${cls}">${esc(next.s.title)}</h2>
-      <div class="stickers"><span class="pill w">Серия ${next.e.n} из ${next.s.totalEpisodes}</span><span class="pill p">${next.e.time || next.s.time}</span></div></div>
-    <div class="hr">${badge}${before ? `<p class="before">${before}</p>` : ''}<div class="when">${val}</div>${epButtons(next.s.id, next.e.n)}</div>`;
+  $('hero').innerHTML = `${orb}<h2 class="name">${esc(next.s.title)}<span>${val}</span></h2>
+    <p class="sub2">Серия ${next.e.n} из ${next.s.totalEpisodes} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}</p>
+    ${epButtons(next.s.id, next.e.n)}`;
 }
 const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
 
@@ -340,7 +332,7 @@ function renderUpcoming() {
   let html = '', cur = '';
   for (const x of items) {
     if (x.e.date !== cur) { if (cur) html += '</div>'; cur = x.e.date; html += `<div class="day"><h3>${dayLabel(cur)}</h3>`; }
-    html += `<div class="row" style="--c:${colorOf(x.s)}"><span class="num">${x.e.n}</span>
+    html += `<div class="row"><span class="num">${x.e.n}</span>
       <span class="n"><b>${esc(x.s.title)}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${epButtons(x.s.id, x.e.n)}</div>`;
   }
   $('upcoming').innerHTML = html + '</div>';
@@ -356,7 +348,8 @@ function renderList() {
       ...(s.skipDates || []).map(d => `<span class="chip">пропуск ${short(d)}<button data-us="${s.id}|${d}" aria-label="Убрать пропуск">✕</button></span>`),
       ...Object.entries(s.overrides || {}).map(([n, v]) => `<span class="chip">серия ${esc(n)} → ${esc(v)}<button data-uo="${s.id}|${n}" aria-label="Убрать перенос">✕</button></span>`),
     ];
-    return `<article class="card" style="--c:${colorOf(s)}">
+    return `<article class="card">
+      <div class="badge2">${eps.length}</div>
       <h3>${esc(s.title)}</h3>
       <div class="meta">${eps.length} ${plural(eps.length, ['серия','серии','серий'])}${days ? ' · ' + days : ''} · в ${esc(s.time)}</div>
       <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>

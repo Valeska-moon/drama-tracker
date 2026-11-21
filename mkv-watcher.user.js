@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.0
+// @version      1.1
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -10,6 +10,8 @@
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @grant        GM_notification
+// @grant        GM_xmlhttpRequest
+// @connect      api.telegram.org
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -54,10 +56,20 @@
       }
     } catch (e) {}
   }
+  function tg(text) {
+    const tok = GM_getValue('tgToken', ''), chat = GM_getValue('tgChat', '');
+    if (!tok || !chat) return;
+    try {
+      GM_xmlhttpRequest({ method: 'POST', url: 'https://api.telegram.org/bot' + tok + '/sendMessage',
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }) });
+    } catch (e) {}
+  }
   function alertUser(ep) {
     const title = document.title;
     const msg = ep ? `Вышла серия ${ep}!` : 'На странице появилось новое!';
     try { GM_notification({ title: 'Сторож серии', text: msg + '\n' + (document.title || ''), timeout: 0, highlight: true, onclick: () => window.focus() }); } catch (e) {}
+    tg('🔔 ' + msg + '\n' + (document.title || '') + '\n' + location.href);
     sound();
     let on = true;
     setInterval(() => { document.title = on ? '🔔 ' + msg : title; on = !on; }, 800);
@@ -77,7 +89,15 @@
       box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b>${cur ? 'серия ' + cur : 'серии не найдены'}</b></div>
         <div style="margin-bottom:8px;opacity:.8">Ждать серию №
           <input id="bl-n" type="number" min="1" value="${cur ? cur + 1 : ''}" style="width:52px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:3px 6px"></div>
-        ${btn('bl-go', 'Следить', true)}`;
+        ${btn('bl-go', 'Следить', true)} ${btn('bl-test', 'Проверить сигнал')} ${btn('bl-set', '⚙')}
+        <div id="bl-cfg" style="display:none;margin-top:8px">
+          <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
+          <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
+          ${btn('bl-save', 'Сохранить', true)}
+        </div>`;
+      box.querySelector('#bl-test').onclick = () => alertUser(cur || 0);
+      box.querySelector('#bl-set').onclick = () => { const c = box.querySelector('#bl-cfg'); c.style.display = c.style.display === 'none' ? 'block' : 'none'; box.querySelector('#bl-tok').value = GM_getValue('tgToken', ''); box.querySelector('#bl-chat').value = GM_getValue('tgChat', ''); };
+      box.querySelector('#bl-save').onclick = () => { GM_setValue('tgToken', box.querySelector('#bl-tok').value.trim()); GM_setValue('tgChat', box.querySelector('#bl-chat').value.trim()); box.querySelector('#bl-cfg').style.display = 'none'; };
       box.querySelector('#bl-go').onclick = () => {
         const n = +box.querySelector('#bl-n').value || (cur ? cur + 1 : 0);
         GM_setValue(KEY, { target: n, base: cur, links: document.querySelectorAll('a').length, since: Date.now() });

@@ -27,7 +27,10 @@ function parseEpisodes(html) {
   for (const m of html.matchAll(/href="([^"]*\/ep\/([^"\/?#]+)\/?)[^"]*"/g)) {
     const mm = m[2].match(/^(.*?)-episode-(\d+)(?:-(.*))?$/);
     if (!mm) continue;
-    const kind = /subbed/.test(mm[3] || '') ? 'SUB' : 'RAW';
+    // нужны только английские и тайские субтитры; версии без субтитров (RAW) и с другими языками пропускаем
+    const suf = (mm[3] || '').toLowerCase();
+    const kind = /thai/.test(suf) ? 'тайские субтитры' : /english|^subbed/.test(suf) ? 'английские субтитры' : null;
+    if (!kind) continue;
     const key = `${mm[1]}|${mm[2]}|${kind}`;
     const url = m[1].startsWith('http') ? m[1] : new URL(m[1], SITE).href;
     if (!out.has(key)) out.set(key, { name: mm[1], n: +mm[2], kind, url });

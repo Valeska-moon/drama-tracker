@@ -6,8 +6,69 @@
     "the-scent-of-karma-2026|1|английские субтитры": "2026-11-21T18:09:44.180Z"
   },
   "started": true,
-  "shows": {},
+  "shows": {
+    "smwqoeznv": true,
+    "smwqoisuc": true,
+    "smwqonc4m": false,
+    "smwqopgtl": true,
+    "smwqorxej": true,
+    "smwqp3byh": true,
+    "smwqp6vy0": false,
+    "smwqp9ciq": true
+  },
   "mkv": {},
   "mkvDown": true,
-  "eps": {}
+  "eps": {
+    "smwqoeznv": {
+      "sub": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "next": {}
+    },
+    "smwqoisuc": {
+      "sub": [],
+      "next": {
+        "1": "Nov. 16, 2026"
+      }
+    },
+    "smwqopgtl": {
+      "sub": [
+        1,
+        2,
+        3
+      ],
+      "next": {
+        "4": "Nov. 24, 2026"
+      }
+    },
+    "smwqorxej": {
+      "sub": [
+        1,
+        2
+      ],
+      "next": {}
+    },
+    "smwqp3byh": {
+      "sub": [
+        1,
+        2,
+        3
+      ],
+      "next": {}
+    },
+    "smwqp9ciq": {
+      "sub": [],
+      "next": {
+        "1": "Nov. 22, 2026",
+        "2": "Nov. 22, 2026",
+        "3": "Nov. 22, 2026",
+        "4": "Nov. 22, 2026"
+      }
+    }
+  }
 }

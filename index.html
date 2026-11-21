@@ -7,138 +7,163 @@
 <title>Дорамы · график серий</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --night: #120e1b;      /* фон */
-    --panel: #1b1527;      /* карточки */
-    --panel2: #241c33;     /* поля, плашки */
-    --line: #33284a;
-    --moon: #ece6f7;       /* основной текст */
-    --mist: #9d92b5;       /* второстепенный текст */
-    --peony: #ff8fb4;      /* главный акцент */
-    --lilac: #b9a6ff;      /* второй акцент */
+    --ink: #0a0a0c;          /* фон */
+    --coal: #151216;         /* панели */
+    --coal2: #1f1a22;        /* поля, плашки */
+    --line: #2d2631;
+    --bone: #f6f0f3;         /* текст */
+    --ash: #a99ead;          /* второстепенный текст */
+    --pink: #ffb6d6;        /* светло-розовый */
+    --hot: #ff86c1;          /* насыщенный розовый */
+    --pale: #f7dcec;
     --ok: #7fe3b0; --bad: #ff7d7d;
-    --display: "Unbounded", "Onest", system-ui, sans-serif;
+    --display: "Oswald", "Arial Narrow", Impact, sans-serif;
     --text: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
-  html { background: var(--night); }
+  html { background: var(--ink); }
   body {
-    margin: 0; color: var(--moon); font: 16px/1.5 var(--text);
+    margin: 0; color: var(--bone); font: 16px/1.5 var(--text); min-height: 100vh;
     background:
-      radial-gradient(900px 500px at 85% -120px, rgba(185,166,255,.14), transparent 70%),
-      radial-gradient(700px 420px at -10% 10%, rgba(255,143,180,.08), transparent 70%),
-      var(--night);
-    min-height: 100vh;
+      radial-gradient(760px 520px at 92% -140px, rgba(200,70,150,.38), transparent 70%),
+      radial-gradient(620px 520px at -8% 42%, rgba(120,40,105,.30), transparent 70%),
+      var(--ink);
+    background-attachment: fixed;
   }
-  main { max-width: 940px; margin: 0 auto; padding: 22px 18px 120px; }
-  a { color: var(--lilac); }
-  h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; letter-spacing: -.01em; }
-  h2 { font-size: 19px; margin-bottom: 14px; }
-  :focus-visible { outline: 2px solid var(--peony); outline-offset: 2px; border-radius: 6px; }
+  main { max-width: 980px; margin: 0 auto; padding: 22px 18px 130px; }
+  a { color: var(--pink); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
+  h2 { font-size: clamp(28px, 5vw, 40px); margin-bottom: 16px; }
+  :focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; border-radius: 8px; }
 
   /* шапка */
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
-  .top h1 { font-size: 22px; }
-  .btn { font: inherit; font-weight: 500; color: var(--moon); background: var(--panel2); border: 1px solid var(--line);
-    padding: 10px 16px; border-radius: 12px; cursor: pointer; transition: border-color .15s, background .15s; }
-  .btn:hover { border-color: var(--lilac); }
-  .btn.main { background: var(--peony); color: #2a0f1b; border-color: var(--peony); font-weight: 600; }
-  .btn.main:hover { background: #ffa3c1; }
-  .btn.small { padding: 6px 11px; font-size: 14px; border-radius: 9px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo svg { width: 30px; height: 30px; fill: var(--pink); }
+  .top h1 { font-size: 30px; }
+  .btn { white-space: nowrap; font: inherit; font-weight: 500; color: var(--bone); background: var(--coal2); border: 1px solid var(--line);
+    padding: 10px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .btn:hover { border-color: var(--pink); }
+  .btn.main { background: var(--pink); color: #17080f; border-color: var(--pink); font-weight: 600; }
+  .btn.main:hover { background: #ffc9e1; }
+  .btn.small { padding: 6px 14px; font-size: 14px; }
   .btn.ghost { background: transparent; }
 
-  /* главный экран: следующая серия */
-  .hero { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 26px;
-    padding: 34px 30px 32px; margin-bottom: 26px;
-    background: linear-gradient(160deg, #221a33 0%, #181222 70%); }
-  .hero .moon { position: absolute; right: 26px; top: 22px; width: 118px; height: 118px; border-radius: 50%;
-    box-shadow: inset -30px -8px 0 0 var(--moon); filter: drop-shadow(0 0 26px rgba(185,166,255,.45)); opacity: .95; }
-  .hero .lead { color: var(--mist); margin: 0 0 6px; }
-  .hero .name { font-size: clamp(22px, 5vw, 34px); max-width: 15em; margin-bottom: 18px; line-height: 1.2; }
-  .hero .when { font-family: var(--display); font-weight: 700; color: var(--peony); font-size: clamp(30px, 7vw, 52px); line-height: 1.1; }
-  .hero .at { color: var(--mist); margin-top: 10px; }
-  .hero.empty .name { margin-bottom: 8px; }
+  /* главный экран */
+  .hero { display: grid; grid-template-columns: 1.6fr 1fr; border-radius: 28px; overflow: hidden; margin-bottom: 20px; background: #000; }
+  .hl { padding: 30px 28px 34px; position: relative; min-width: 0; }
+  .lead { margin: 0 0 14px; color: var(--bone); font-size: 15px; }
+  .name { color: var(--pink); font-size: clamp(46px, 9vw, 92px); line-height: .92; overflow-wrap: anywhere; margin: 0; }
+  .name.lg { font-size: clamp(38px, 7vw, 70px); }
+  .name.xl { font-size: clamp(30px, 5.4vw, 52px); }
+  .stickers { display: flex; flex-wrap: wrap; gap: 4px 0; margin-top: 12px; padding-left: 4px; }
+  .pill { display: inline-block; font-weight: 600; font-size: 17px; padding: 9px 22px; border-radius: 999px; color: #111; white-space: nowrap; position: relative; }
+  .pill.w { background: #fff; transform: rotate(-5deg); }
+  .pill.p { background: var(--hot); transform: rotate(7deg); margin-left: -10px; }
+  .hr { background: var(--pink); color: #14060d; padding: 28px 26px 26px; position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 300px; }
+  .badge { position: absolute; top: 18px; right: 18px; width: 88px; height: 88px; }
+  .badge .ring { animation: spin 28s linear infinite; transform-origin: 50px 50px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .badge .ring { animation: none; } }
+  .hr .before { font-weight: 500; font-size: 18px; margin: 0 0 4px; }
+  .when { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(40px, 5.8vw, 60px); line-height: .95; }
+  .hr .ra { margin: 18px 0 0; }
+  .hr .btn { color: #14060d; background: transparent; border-color: rgba(20,6,13,.4); }
+  .hr .btn:hover { background: #14060d; color: var(--pink); border-color: #14060d; }
+  .hero.empty .when { font-size: clamp(30px, 5vw, 44px); }
 
   /* подписка */
   .sub { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 14px 18px; margin-bottom: 30px; }
-  .sub p { margin: 0; color: var(--mist); font-size: 14px; max-width: 46em; }
-  .sub b { color: var(--moon); font-weight: 500; }
-  code { background: var(--panel2); border-radius: 6px; padding: 2px 7px; font-size: 13px; word-break: break-all; }
+    background: var(--coal); border: 1px solid var(--line); border-radius: 20px; padding: 14px 20px; margin-bottom: 38px; }
+  .sub p { margin: 0; color: var(--ash); font-size: 14px; max-width: 48em; }
+  .sub b { color: var(--bone); font-weight: 600; }
+  code { background: var(--coal2); border-radius: 6px; padding: 2px 7px; font-size: 13px; word-break: break-all; color: var(--pink); }
 
   /* ближайшие серии */
-  section { margin-bottom: 34px; }
-  .day { margin-bottom: 14px; }
-  .day h3 { font-size: 14px; color: var(--lilac); margin-bottom: 6px; font-family: var(--text); font-weight: 600; }
-  .row { display: flex; align-items: baseline; gap: 12px; padding: 10px 14px; margin-bottom: 6px;
-    background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--c, var(--lilac)); border-radius: 12px; }
-  .row .t { color: var(--mist); min-width: 48px; font-variant-numeric: tabular-nums; }
-  .row .n { flex: 1; }
-  .row .e { color: var(--mist); font-size: 14px; white-space: nowrap; }
+  section { margin-bottom: 40px; }
+  .day { margin-bottom: 16px; }
+  .day h3 { font-family: var(--text); text-transform: none; font-size: 15px; font-weight: 600; color: var(--pink); margin-bottom: 8px; letter-spacing: 0; }
+  .row { display: flex; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; margin-bottom: 8px; background: var(--coal); border-radius: 20px; }
+  .num { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--c, var(--pink)); color: #17080f;
+    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 22px; }
+  .row .n { flex: 1; min-width: 0; }
+  .row .n b { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  .row .n small { color: var(--ash); font-size: 13.5px; }
+  .row .t { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--pink); font-variant-numeric: tabular-nums; }
 
   /* сериалы */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 18px; position: relative; overflow: hidden; }
-  .card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--c); }
-  .card h3 { font-size: 16px; line-height: 1.3; margin: 4px 0 6px; font-family: var(--text); font-weight: 600; }
-  .meta { color: var(--mist); font-size: 14px; }
-  .bar { height: 7px; background: var(--panel2); border-radius: 9px; margin: 14px 0 6px; overflow: hidden; }
-  .bar i { display: block; height: 100%; background: var(--c); border-radius: 9px; }
-  .prog { font-size: 14px; color: var(--moon); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .card { background: var(--c, var(--pink)); color: #14060d; border-radius: 26px; padding: 20px 20px 18px; }
+  .card h3 { font-size: 30px; line-height: .98; margin: 0 0 8px; overflow-wrap: anywhere; }
+  .meta { color: rgba(20,6,13,.72); font-size: 14px; }
+  .bar { height: 8px; background: rgba(20,6,13,.16); border-radius: 9px; margin: 16px 0 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #14060d; border-radius: 9px; }
+  .prog { font-size: 14.5px; font-weight: 600; }
   .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0; }
-  .chip { font-size: 12.5px; background: var(--panel2); border-radius: 7px; padding: 2px 8px; color: var(--moon); white-space: nowrap; }
+  .chip { font-size: 12.5px; background: rgba(20,6,13,.09); border-radius: 999px; padding: 3px 10px; color: #14060d; white-space: nowrap; }
   .chip.past { opacity: .4; }
-  .links { font-size: 14px; display: flex; gap: 12px; margin-bottom: 12px; }
-  .acts { display: flex; gap: 8px; }
-  .hint { color: var(--mist); font-size: 14px; }
+  .chip button { background: none; border: 0; color: rgba(20,6,13,.65); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
+  .chip button:hover { color: #14060d; }
+  .acts { display: flex; gap: 8px; margin-top: 6px; }
+  .card .btn { color: #14060d; background: transparent; border-color: rgba(20,6,13,.4); }
+  .card .btn:hover { background: #14060d; color: var(--pink); border-color: #14060d; }
+  .edits { margin: 4px 0 8px; }
+  .hint { color: var(--ash); font-size: 14px; }
+  .ra { display: flex; gap: 6px; flex-shrink: 0; }
 
   /* окно добавления */
-  dialog { color: var(--moon); background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 0;
+  dialog { color: var(--bone); background: var(--coal); border: 1px solid var(--line); border-radius: 28px; padding: 0;
     width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 24px); }
-  dialog::backdrop { background: rgba(8,5,14,.72); backdrop-filter: blur(4px); }
-  .dlg { padding: 24px 24px 20px; }
-  .dlg h2 { margin-bottom: 4px; }
-  label { display: block; font-size: 13.5px; color: var(--mist); margin: 14px 0 5px; }
+  dialog::backdrop { background: rgba(5,3,8,.78); backdrop-filter: blur(5px); }
+  .dlg { padding: 26px 26px 22px; }
+  .dlg h2 { color: var(--pink); margin-bottom: 6px; }
+  label { display: block; font-size: 13.5px; color: var(--ash); margin: 14px 0 5px; }
   input[type=text], input[type=url], input[type=number], input[type=date], input[type=time], input[type=password], textarea {
-    width: 100%; font: inherit; color: var(--moon); background: var(--panel2); border: 1px solid var(--line);
-    border-radius: 11px; padding: 10px 12px; color-scheme: dark; }
-  input:focus, textarea:focus { outline: none; border-color: var(--peony); box-shadow: 0 0 0 3px rgba(255,143,180,.18); }
+    width: 100%; font: inherit; color: var(--bone); background: var(--coal2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 10px 14px; color-scheme: dark; }
+  input:focus, textarea:focus { outline: none; border-color: var(--hot); box-shadow: 0 0 0 3px rgba(255,134,193,.2); }
   .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
   .days { display: flex; flex-wrap: wrap; gap: 7px; }
-  .days label { margin: 0; color: var(--moon); }
+  .days label { margin: 0; color: var(--bone); }
   .days input { position: absolute; opacity: 0; pointer-events: none; }
-  .days span { display: inline-block; padding: 7px 13px; border-radius: 20px; border: 1px solid var(--line); background: var(--panel2); cursor: pointer; }
-  .days input:checked + span { background: var(--lilac); color: #1a1030; border-color: var(--lilac); font-weight: 600; }
-  .days input:focus-visible + span { outline: 2px solid var(--peony); outline-offset: 2px; }
-  details summary { cursor: pointer; color: var(--lilac); margin-top: 14px; }
+  .days span { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--coal2); cursor: pointer; }
+  .days input:checked + span { background: var(--pink); color: #17080f; border-color: var(--pink); font-weight: 600; }
+  .days input:focus-visible + span { outline: 2px solid var(--hot); outline-offset: 2px; }
+  details summary { cursor: pointer; color: var(--pink); margin-top: 14px; }
+  .dlg .chip { background: var(--coal2); color: var(--bone); }
   .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 14px; max-height: 120px; overflow: auto; }
-  .dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .dlg-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; flex-wrap: wrap; }
 
   /* панель сохранения */
-  .savebar { position: fixed; left: 12px; right: 12px; bottom: 12px; max-width: 760px; margin: 0 auto;
-    background: #2a2040; border: 1px solid var(--lilac); border-radius: 16px; padding: 12px 14px 12px 18px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .savebar { position: fixed; left: 12px; right: 12px; bottom: 14px; max-width: 780px; margin: 0 auto; background: var(--pink); color: #14060d;
+    border-radius: 999px; padding: 10px 10px 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    box-shadow: 0 12px 44px rgba(0,0,0,.6); font-weight: 500; }
   .savebar[hidden] { display: none; }
-  .savebar span.ok { color: var(--ok); } .savebar span.bad { color: var(--bad); }
-  footer { color: var(--mist); font-size: 14px; }
-  footer .box { margin-top: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 4px 18px 18px; }
-  .ra { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
-  .row { align-items: center; }
-  .hero .ra { margin: 18px 0 0; }
-  .edits { margin: 4px 0 10px; }
-  .chip button { background: none; border: 0; color: var(--mist); cursor: pointer; padding: 0 0 0 5px; font: inherit; }
-  .chip button:hover { color: var(--peony); }
-  @media (max-width: 520px) { .ra { width: 100%; margin-left: 60px; } .hero { padding: 26px 20px; } .hero .moon { width: 70px; height: 70px; right: 16px; top: 16px; box-shadow: inset -18px -5px 0 0 var(--moon); }
-    .row { flex-wrap: wrap; } .row .e { width: 100%; padding-left: 60px; } }
+  .savebar .btn.main { background: #14060d; color: var(--pink); border-color: #14060d; }
+  .savebar span.ok { color: #0b5a30; } .savebar span.bad { color: #9a1c1c; }
+  footer { color: var(--ash); font-size: 14px; }
+  footer .box { margin-top: 10px; background: var(--coal); border: 1px solid var(--line); border-radius: 20px; padding: 4px 20px 18px; }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; }
+    .hr { min-height: 240px; }
+  }
+  @media (max-width: 520px) {
+    .hl { padding: 24px 20px 28px; } .hr { padding: 24px 20px; } .badge { width: 76px; height: 76px; }
+    .top .btn { padding: 9px 14px; font-size: 14px; } .top h1 { font-size: 26px; }
+    .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 22px; }
+    .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
+  }
 </style>
 </head>
 <body>
 <main>
   <div class="top">
-    <h1>Дорамы</h1>
-    <button class="btn main" id="addBtn" type="button">Добавить сериал</button>
+    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>Дорамы</h1></div>
+    <button class="btn main" id="addBtn" type="button">+ Добавить сериал</button>
   </div>
 
   <div class="hero" id="hero"></div>
@@ -183,7 +208,6 @@
     <label>Название на MyAsianTV, если оно отличается от названия выше</label>
     <input type="text" id="site" placeholder="Например: Ao to Midori">
     <p class="hint">По названию приложение находит новые серии на сайте. Если сериал записан по-русски, впишите сюда английское название, как на MyAsianTV.</p>
-    <div class="two">
     <div class="two">
       <div><label>Дата премьеры</label><input type="date" id="start" required></div>
       <div><label>Время выхода (по Минску)</label><input type="time" id="time" value="20:00" required></div>
@@ -243,8 +267,8 @@ const ls = {
 };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const plural = (n, f) => f[(n % 10 === 1 && n % 100 !== 11) ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
-const hueOf = (s) => { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };
-const colorOf = (s) => `hsl(${hueOf(s.id + s.title)} 78% 72%)`;
+const TILES = ['#ffb6d6', '#ff86c1', '#f7dcec', '#ffffff'];
+const colorOf = (s) => TILES[Math.max(0, shows.findIndex(x => x.id === s.id)) % TILES.length];
 
 // момент выхода серии (в мс, UTC)
 function epMs(show, e) {
@@ -271,26 +295,30 @@ function allEpisodes() {
 // ---------- главный экран ----------
 function renderHero() {
   const now = Date.now(), next = allEpisodes().find(x => x.ms >= now - 3 * 3600e3);
+  const badge = `<svg class="badge" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#14060d"/>
+    <defs><path id="ringp" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"/></defs>
+    <g class="ring"><text font-family="Onest, sans-serif" font-size="11" font-weight="600" fill="#ffb6d6"><textPath href="#ringp" textLength="226" lengthAdjust="spacing">СЛЕДУЮЩАЯ СЕРИЯ •</textPath></text></g>
+    <path d="M50 33 L55 45 L67 50 L55 55 L50 67 L45 55 L33 50 L45 45Z" fill="#ffb6d6"/></svg>`;
   if (!next) {
     $('hero').className = 'hero empty';
-    $('hero').innerHTML = `<div class="moon"></div><p class="lead">Следующая серия</p>
-      <h2 class="name">Пока ничего не запланировано</h2><p class="hint">Добавьте сериал, и здесь появится отсчёт до ближайшей серии.</p>`;
+    $('hero').innerHTML = `<div class="hl"><p class="lead">Следующая серия</p><h2 class="name">Пока пусто</h2></div>
+      <div class="hr">${badge}<div class="when">Добавьте первый сериал</div></div>`;
     return;
   }
   const diff = next.ms - now;
-  let when;
-  if (diff <= 0) when = 'Выходит сейчас';
+  let before = 'Через', val;
+  if (diff <= 0) { before = ''; val = 'Выходит сейчас'; }
   else {
     const min = Math.floor(diff / 60000), d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
     const dd = `${d} ${plural(d, ['день','дня','дней'])}`;
-    when = 'Через ' + (d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`);
+    val = d > 0 ? (h > 0 ? `${dd} ${h} ч` : dd) : h > 0 ? `${h} ч ${m} мин` : `${Math.max(m, 1)} мин`;
   }
+  const len = next.s.title.length, cls = len > 26 ? 'xl' : len > 15 ? 'lg' : '';
   $('hero').className = 'hero';
-  $('hero').innerHTML = `<div class="moon"></div><p class="lead">Следующая серия</p>
-    <h2 class="name">${esc(next.s.title)}</h2>
-    <div class="when">${when}</div>
-    <div class="at">Серия ${next.e.n} · ${dayLabel(next.e.date)}, в ${next.e.time || next.s.time}</div>
-    ${epButtons(next.s.id, next.e.n)}`;
+  $('hero').innerHTML = `<div class="hl"><p class="lead">${dayLabel(next.e.date)}</p>
+      <h2 class="name ${cls}">${esc(next.s.title)}</h2>
+      <div class="stickers"><span class="pill w">Серия ${next.e.n} из ${next.s.totalEpisodes}</span><span class="pill p">${next.e.time || next.s.time}</span></div></div>
+    <div class="hr">${badge}${before ? `<p class="before">${before}</p>` : ''}<div class="when">${val}</div>${epButtons(next.s.id, next.e.n)}</div>`;
 }
 const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button><button class="btn small ghost" data-move="${id}|${n}">Перенести</button></span>`;
 
@@ -312,8 +340,8 @@ function renderUpcoming() {
   let html = '', cur = '';
   for (const x of items) {
     if (x.e.date !== cur) { if (cur) html += '</div>'; cur = x.e.date; html += `<div class="day"><h3>${dayLabel(cur)}</h3>`; }
-    html += `<div class="row" style="--c:${colorOf(x.s)}"><span class="t">${x.e.time || x.s.time}</span>
-      <span class="n">${esc(x.s.title)}</span><span class="e">серия ${x.e.n} из ${x.s.totalEpisodes}</span>${epButtons(x.s.id, x.e.n)}</div>`;
+    html += `<div class="row" style="--c:${colorOf(x.s)}"><span class="num">${x.e.n}</span>
+      <span class="n"><b>${esc(x.s.title)}</b><small>серия ${x.e.n} из ${x.s.totalEpisodes}</small></span><span class="t">${x.e.time || x.s.time}</span>${epButtons(x.s.id, x.e.n)}</div>`;
   }
   $('upcoming').innerHTML = html + '</div>';
 }

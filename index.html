@@ -400,8 +400,10 @@ function renderCal() {
   const lead = (new Date(Date.UTC(calY, calM, 1)).getUTCDay() + 6) % 7;
   const dim = new Date(Date.UTC(calY, calM + 1, 0)).getUTCDate(), total = Math.ceil((lead + dim) / 7) * 7;
   const t = todayStr(), now = Date.now();
+  const [ty, tm, td] = t.split('-').map(Number), isCur = ty === calY && tm - 1 === calM;
+  const startRow = isCur ? Math.floor((td - 1 + lead) / 7) : 0; // в текущем месяце начинаем с недели, где «сегодня»
   let cells = ['пн','вт','ср','чт','пт','сб','вс'].map(w => `<div class="wd">${w}</div>`).join('');
-  for (let i = 0; i < total; i++) {
+  for (let i = startRow * 7; i < total; i++) {
     const d = new Date(Date.UTC(calY, calM, 1 - lead + i)), ds = fmtDate(d), list = by[ds] || [];
     const vis = list.length > 4 ? list.slice(0, 3) : list;
     const minis = vis.map(x => { const cv = coverSrc(x.s);
@@ -413,7 +415,7 @@ function renderCal() {
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`
     + (sel.length ? sel.map(x => rowHtml(x, upcomingNow(x))).join('') : '<p class="hint">В этот день серий нет.</p>') + '</div>';
-  $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Прошлый месяц">←</button>
+  $('upcoming').innerHTML = `<div class="calhead"><button type="button" class="btn small" data-cal="-1" aria-label="Прошлый месяц" ${isCur ? 'disabled style="visibility:hidden"' : ''}>←</button>
     <b>${MONTHN[calM]} ${calY}</b><button type="button" class="btn small" data-cal="1" aria-label="Следующий месяц">→</button></div><div class="cal">${cells}</div>${panel}`;
 }
 function goDate(ds) { const [y, m] = ds.split('-').map(Number); calY = y; calM = m - 1; calSel = ds; }

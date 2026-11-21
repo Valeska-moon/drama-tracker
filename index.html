@@ -110,25 +110,37 @@
   .calhead .btn { padding: 6px 14px; }
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
   .cal .wd { text-align: center; color: var(--ash); font-size: 12.5px; padding-bottom: 2px; }
-  .cell { position: relative; aspect-ratio: 1 / 1; min-height: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 0; display: block;
-    cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
+  .cell { position: relative; aspect-ratio: 3 / 4; min-height: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px;
+    display: flex; flex-direction: column; gap: 5px; cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
   .cell:hover { border-color: rgba(255,138,196,.5); }
   .cell.out { opacity: .32; }
   .cell.today { border-color: rgba(255,138,196,.65); }
   .cell.today .d { color: var(--pink); }
-  .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink) inset; }
-  .cell .d { position: absolute; left: 6px; top: 5px; z-index: 2; font-size: 12.5px; font-weight: 600; line-height: 1; padding: 3px 6px; border-radius: 8px; }
-  .cell.has .d { background: rgba(10,8,9,.66); color: var(--bone); }
-  .cell.has.today .d { color: var(--pink); }
-  /* один сериал в день занимает всю рамку; несколько делят её на части */
-  .minis { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 2px; }
-  .tile { position: relative; background-size: cover; background-position: center top; overflow: hidden; display: block; }
+  .cell.sel { background: rgba(255,138,196,.17); border-color: var(--pink); }
+  .cell .d { flex: none; font-size: 12.5px; font-weight: 600; line-height: 1; }
+  /* один сериал в день занимает всю рамку; несколько делят её на части с зазором */
+  .minis { flex: 1; min-height: 0; width: 100%; display: grid; grid-template-columns: repeat(var(--c, 1), minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 4px; }
+  .tile { position: relative; border-radius: 11px; background-size: cover; background-position: center top; overflow: hidden; display: block; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
   .minis.n3 .tile:last-child { grid-column: 1 / -1; }
   .tile.past { opacity: .4; }
-  .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 28px var(--display); color: var(--deep); opacity: .5; }
+  .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 26px var(--display); color: var(--deep); opacity: .5; }
   .tile b { position: absolute; right: 4px; bottom: 4px; min-width: 20px; padding: 2px 5px; border-radius: 7px; background: var(--pink); color: var(--deep);
     font: 700 11px/1.2 var(--display); text-align: center; white-space: nowrap; }
-  .more { display: grid; place-items: center; font: 700 13px var(--display); color: var(--bone); background: rgba(255,255,255,.1); }
+  .more { display: grid; place-items: center; font: 700 13px var(--display); color: var(--bone); background: rgba(255,255,255,.1); border-radius: 11px; }
+  /* ближайшие серии: карточки по горизонтали */
+  .agenda { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -18px; padding: 0 18px 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .agenda::-webkit-scrollbar { display: none; }
+  .acard { flex: 0 0 min(43vw, 200px); scroll-snap-align: start; border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
+    background: radial-gradient(240px 200px at 100% 0, rgba(255,138,196,.22), transparent 70%), #141012; display: flex; flex-direction: column; }
+  .apic { position: relative; aspect-ratio: 3 / 4; background-size: cover; background-position: center top; display: grid; place-items: center; }
+  .apic u { text-decoration: none; font: 800 44px var(--display); color: var(--deep); opacity: .5; }
+  .apic b { position: absolute; left: 8px; bottom: 8px; min-width: 28px; padding: 4px 8px; border-radius: 10px; background: var(--pink); color: var(--deep); font: 700 13px/1.2 var(--display); text-align: center; }
+  .apic span { position: absolute; left: 8px; top: 8px; padding: 4px 9px; border-radius: 999px; background: rgba(10,8,9,.7); backdrop-filter: blur(4px); font-size: 12px; font-weight: 600; }
+  .abody { padding: 10px 10px 0; flex: 1; }
+  .atitle { font-weight: 600; font-size: 14.5px; line-height: 1.25; overflow-wrap: anywhere; }
+  .atime { color: var(--pink); font: 500 14px var(--display); margin-top: 4px; }
+  .acard .ra { padding: 10px 10px 12px; gap: 6px; }
+  .acard .btn.small { flex: 1; padding: 6px 4px; font-size: 12px; }
   .daypanel { margin-top: 18px; }
   .agbtns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
   .cv { flex: none; position: relative; width: 46px; height: 62px; border-radius: 14px; background-size: cover; background-position: center; border: 1px solid var(--line); }
@@ -201,7 +213,7 @@
   @media (max-width: 520px) {
     .hero { padding: 30px 16px 32px; } .orb { width: 104px; height: 104px; }
     .top .btn { padding: 9px 14px; font-size: 14px; }
-    .cell { border-radius: 12px; } .cell .d { left: 3px; top: 3px; font-size: 11px; padding: 2px 4px; border-radius: 6px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 16px; } .cal { gap: 4px; }
+    .cell { border-radius: 12px; padding: 4px; gap: 3px; } .cell .d { font-size: 11px; } .tile { border-radius: 8px; } .tile b { right: 2px; bottom: 2px; min-width: 0; padding: 1px 3px; font-size: 9px; border-radius: 5px; } .tile u { font-size: 16px; } .more { border-radius: 8px; } .cal { gap: 4px; }
     .row { flex-wrap: wrap; } .row .ra { width: 100%; padding-left: 60px; } .row .t { font-size: 16px; }
     .savebar { border-radius: 24px; flex-direction: column; align-items: stretch; text-align: center; padding: 12px; }
   }
@@ -407,12 +419,15 @@ function renderUpcoming() {
   $('vCal').classList.toggle('on', view === 'cal'); $('vList').classList.toggle('on', view === 'list');
   $('vCal').setAttribute('aria-pressed', view === 'cal'); $('vList').setAttribute('aria-pressed', view === 'list');
   if (view === 'cal') return renderCal();
-  const t = todayStr(), items = allEpisodes().filter(x => x.e.date >= t && upcomingNow(x));
+  const items = allEpisodes().filter(upcomingNow);
   if (!items.length) { $('upcoming').innerHTML = '<p class="hint">Здесь появятся ближайшие серии.</p>'; return; }
-  const dates = [...new Set(items.map(x => x.e.date))], shownDates = dates.slice(0, agendaN);
-  let html = shownDates.map(d => `<div class="day"><h3>${dayLabel(d)}</h3>${items.filter(x => x.e.date === d).map(x => rowHtml(x)).join('')}</div>`).join('');
-  html += `<div class="agbtns">${dates.length > agendaN ? '<button type="button" class="btn small ghost" data-more="1">Показать ещё</button>' : ''}<button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
-  $('upcoming').innerHTML = html;
+  const groups = []; items.forEach(x => { let g = groups.find(g => g.s.id === x.s.id && g.date === x.e.date); if (!g) groups.push(g = { s: x.s, date: x.e.date, eps: [] }); g.eps.push(x); });
+  const shortDay = (ds) => { const d = new Date(ds + 'T00:00:00Z'), diff = Math.round((d - new Date(todayStr() + 'T00:00:00Z')) / 864e5);
+    return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
+  const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
+    return `<article class="acard"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span><b>${lab}</b></div>
+      <div class="abody"><div class="atitle">${esc(g.s.title)}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div></div>${epButtons(g.s.id, f.e.n)}</article>`; }).join('');
+  $('upcoming').innerHTML = `<div class="agenda">${cards}</div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
 }
 const MONTHN = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 function renderCal() {
@@ -435,7 +450,7 @@ function renderCal() {
       return `<span class="tile${past ? ' past' : ''}${cv ? '' : ' nocv'}" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}" title="${esc(g.s.title)}">${cv ? '' : `<u>${esc([...g.s.title.trim()][0] || '')}</u>`}<b>${rng(g.eps)}</b></span>`; }).join('')
       + (groups.length > 4 ? `<span class="more">+${groups.length - 3}</span>` : '');
     const label = list.length ? `, серий: ${list.length}` : '';
-    cells += `<button type="button" class="cell${list.length ? ' has' : ''}${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
+    cells += `<button type="button" class="cell${!weeks && d.getUTCMonth() !== calM ? ' out' : ''}${ds === t ? ' today' : ''}${ds === calSel ? ' sel' : ''}" data-date="${ds}" aria-label="${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}${label}"><span class="d">${d.getUTCDate()}</span><span class="minis n${Math.min(groups.length, 4)}" style="--c:${groups.length > 1 ? 2 : 1}">${minis}</span></button>`;
   }
   const sel = (by[calSel] || []).sort((a, b) => a.ms - b.ms);
   const panel = `<div class="daypanel"><div class="day"><h3>${dayLabel(calSel)}</h3></div>`

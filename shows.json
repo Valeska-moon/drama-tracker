@@ -1,3 +1,140 @@
 {
-  "shows": []
+  "shows": [
+    {
+      "id": "smwqoeznv",
+      "title": "Teach Me, Touch Me",
+      "siteName": "",
+      "startDate": "2026-10-14",
+      "time": "16:00",
+      "totalEpisodes": 10,
+      "weekdays": [
+        3
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqoeznv.jpg",
+      "coverV": 1795281775627
+    },
+    {
+      "id": "smwqoisuc",
+      "title": "Love Game with My Enemy",
+      "siteName": "",
+      "startDate": "2026-11-17",
+      "time": "17:00",
+      "totalEpisodes": 14,
+      "weekdays": [
+        2
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqoisuc.jpg",
+      "coverV": 1795281953413
+    },
+    {
+      "id": "smwqonc4m",
+      "title": "Gun Shot",
+      "siteName": "",
+      "startDate": "2026-11-23",
+      "time": "16:30",
+      "totalEpisodes": 10,
+      "weekdays": [
+        1
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqonc4m.jpg",
+      "coverV": 1795282165030
+    },
+    {
+      "id": "smwqopgtl",
+      "title": "The Last Lock of Love",
+      "siteName": "",
+      "startDate": "2026-11-03",
+      "time": "18:30",
+      "totalEpisodes": 10,
+      "weekdays": [
+        2
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqopgtl.jpg",
+      "coverV": 1795282264425
+    },
+    {
+      "id": "smwqorxej",
+      "title": "My Secret Boyfriends",
+      "siteName": "",
+      "startDate": "2026-11-11",
+      "time": "16:00",
+      "totalEpisodes": 12,
+      "weekdays": [
+        3
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqorxej.jpg",
+      "coverV": 1795282379227
+    },
+    {
+      "id": "smwqp3byh",
+      "title": "It’s Just Business",
+      "siteName": "",
+      "startDate": "2026-11-04",
+      "time": "18:30",
+      "totalEpisodes": 10,
+      "weekdays": [
+        3
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqp3byh.jpg",
+      "coverV": 1795282911305
+    },
+    {
+      "id": "smwqp6vy0",
+      "title": "The Grim Lover",
+      "siteName": "",
+      "startDate": "2026-11-28",
+      "time": "18:15",
+      "totalEpisodes": 13,
+      "weekdays": [
+        6
+      ],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqp6vy0.jpg",
+      "coverV": 1795283077176
+    },
+    {
+      "id": "smwqp9ciq",
+      "title": "The Scent of Karma",
+      "siteName": "",
+      "startDate": "2026-11-22",
+      "time": "19:00",
+      "totalEpisodes": 10,
+      "weekdays": [
+        0
+      ],
+      "premiereBatch": 3,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "cover": "covers/smwqp9ciq.jpg",
+      "coverV": 1795283191970
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Сторож серии (MKVDrama)
 // @namespace    bl-tracker
-// @version      1.9
+// @version      1.10
 // @description  По кнопке сам обновляет страницу сериала и сигналит, когда появилась новая серия. После сигнала выключается.
 // @match        *://*.mkvdrama.net/*
 // @match        *://*.mkvdrama.org/*
@@ -104,10 +104,11 @@
     const st = GM_getValue(KEY, null);
     const eps = episodes(), cur = maxEp(eps);
     if (!st) {
-      box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b>${cur ? 'серия ' + cur : 'серии не найдены'}</b></div>
+      box.innerHTML = `<div style="margin-bottom:6px">Сейчас на странице: <b id="bl-cur">${cur ? 'серия ' + cur : 'ищу серии…'}</b></div>
         <div style="margin-bottom:8px;opacity:.8">Ждать серию №
           <input id="bl-n" type="number" min="1" value="${cur ? cur + 1 : ''}" style="width:52px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:3px 6px"></div>
         ${btn('bl-go', 'Следить', true)} ${btn('bl-set', '⚙')}
+        <div style="opacity:.4;font-size:10px;margin-top:6px">v1.10</div>
         <div id="bl-cfg" style="display:none;margin-top:8px">
           <input id="bl-tok" placeholder="токен бота" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
           <input id="bl-chat" placeholder="chat id" style="width:100%;box-sizing:border-box;margin-bottom:4px;border-radius:8px;border:1px solid #555;background:#0a0809;color:#fff;padding:4px 6px">
@@ -120,30 +121,44 @@
         GM_setValue(KEY, { target: n, base: cur, links: document.querySelectorAll('a').length, since: Date.now() });
         location.reload();
       };
+      // контент сайта может подгружаться позже: перепроверяем, пока панель открыта
+      const poll = setInterval(() => {
+        if (!document.getElementById('bl-cur')) { clearInterval(poll); return; }
+        const c = maxEp(episodes());
+        const el = document.getElementById('bl-cur');
+        el.textContent = c ? 'серия ' + c : (Date.now() - T0 > 8000 ? 'серии не найдены' : 'ищу серии…');
+        const inp = document.getElementById('bl-n');
+        if (c && inp && !inp.dataset.touched && +inp.value !== c + 1) inp.value = c + 1;
+      }, 1000);
+      box.querySelector('#bl-n').oninput = e => { e.target.dataset.touched = 1; };
       return;
     }
     // режим слежения
-    const hit = (cur && st.target && cur >= st.target) || (cur && st.base && cur > st.base) || (!cur && !st.base && document.querySelectorAll('a').length > st.links + 2);
-    if (hit) {
+    const isHit = c => (c && st.target && c >= st.target) || (c && st.base && c > st.base) || (!c && !st.base && document.querySelectorAll('a').length > st.links + 2);
+    const fire = c => {
       GM_deleteValue(KEY);
-      box.innerHTML = `<div style="font-size:15px;margin-bottom:8px">🔔 <b>${cur ? 'Серия ' + cur + ' вышла' : 'Что-то новое'}!</b></div><div id="bl-tg" style="font-size:12px;margin-bottom:8px"></div>${btn('bl-ok', 'Готово', true)}`;
+      box.innerHTML = `<div style="font-size:15px;margin-bottom:8px">🔔 <b>${c ? 'Серия ' + c + ' вышла' : 'Что-то новое'}!</b></div><div id="bl-tg" style="font-size:12px;margin-bottom:8px"></div>${btn('bl-ok', 'Готово', true)}`;
       box.style.borderColor = '#7dffb0';
       box.querySelector('#bl-ok').onclick = () => { render(); };
-      alertUser(cur);
-      return;
-    }
+      alertUser(c);
+    };
+    if (cur && isHit(cur)) { fire(cur); return; }
     const deadline = Date.now() + (MIN_S + Math.random() * (MAX_S - MIN_S)) * 1000;
-    let left = 0;
     const mins = Math.floor((Date.now() - st.since) / 60000);
-    const draw = () => {
+    let seen = cur;
+    const draw = left => {
       box.innerHTML = `<div style="margin-bottom:6px">👀 Слежу за серией <b>${st.target || '?'}</b><br>
-        <span style="opacity:.75">на странице: ${cur ? 'серия ' + cur : '—'} · следим ${mins} мин<br>обновление через ${Math.ceil(left)} с</span></div>${btn('bl-stop', 'Остановить')}`;
+        <span style="opacity:.75">на странице: ${seen ? 'серия ' + seen : '—'} · следим ${mins} мин<br>обновление через ${Math.max(0, Math.ceil(left))} с</span></div>${btn('bl-stop', 'Остановить')}`;
       box.querySelector('#bl-stop').onclick = () => { GM_deleteValue(KEY); location.reload(); };
     };
-    draw();
+    draw((deadline - Date.now()) / 1000);
     const timer = setInterval(() => {
-      left = (deadline - Date.now()) / 1000; if (left <= 0) { clearInterval(timer); location.reload(); } else draw();
+      const c = maxEp(episodes()); seen = c;
+      if (c && isHit(c)) { clearInterval(timer); fire(c); return; }
+      const left = (deadline - Date.now()) / 1000;
+      if (left <= 0) { clearInterval(timer); location.reload(); } else draw(left);
     }, 1000);
   }
+  const T0 = Date.now();
   render();
 })();

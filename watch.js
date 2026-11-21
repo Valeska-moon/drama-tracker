@@ -56,7 +56,7 @@ async function findShowPage(sl) {
       const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (compatible; drama-tracker)' }, signal: AbortSignal.timeout(15000) });
       if (!r.ok) continue;
       const html = await r.text();
-      if (/Total Episodes|Original name|Description:|\/ep\//i.test(html)) return { url, html };
+      if (/Total Episodes|Original name|Description:/i.test(html)) return { url, html }; // у несуществующих страниц сайт отдаёт заглушку без этих слов
     } catch {}
   }
   return null;
@@ -129,7 +129,8 @@ const COUNTRY = { thai: 'Таиланд', korean: 'Корея', chinese: 'Кит
 // Страница сериала: серии с плашкой SUB уже вышли с английскими субтитрами, с плашкой NEXT только анонсированы (видео ещё нет).
 function parseShowPage(html, sl) {
   const sub = {}, next = {};
-  for (const m of html.matchAll(/<a\b[^>]*href="([^"]*\/ep\/([^"\/?#]+)[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi)) {
+  for (const m of html.matchAll(/<a\b[^>]*?href=(?:"([^"]*\/ep\/([^"\/?#]+)[^"]*)"|'([^']*\/ep\/([^'\/?#]+)[^']*)')[^>]*>([\s\S]*?)<\/a>/gi)) {
+    m[1] = m[1] || m[3]; m[2] = m[2] || m[4]; m[3] = m[5]; // сайт пишет и "..." и '...'
     const nm = m[2].match(/^(.*?)-episode-\d+/);
     if (!nm || !matches(nm[1], sl)) continue; // ссылки на серии других сериалов (боковая колонка) пропускаем
     const text = m[3].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();

@@ -726,10 +726,11 @@ UID:smwqp3byh-ep1@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261104T153000Z
 DTEND:20261104T163000Z
-SUMMARY:It’s Just Business — серия 1/10
+SUMMARY:Потому что это бизнес — серия 1/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 1
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -738,10 +739,11 @@ UID:smwqp3byh-ep2@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261111T153000Z
 DTEND:20261111T163000Z
-SUMMARY:It’s Just Business — серия 2/10
+SUMMARY:Потому что это бизнес — серия 2/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 2
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -750,10 +752,11 @@ UID:smwqp3byh-ep3@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261118T153000Z
 DTEND:20261118T163000Z
-SUMMARY:It’s Just Business — серия 3/10
+SUMMARY:Потому что это бизнес — серия 3/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 3
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -762,10 +765,11 @@ UID:smwqp3byh-ep4@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261125T153000Z
 DTEND:20261125T163000Z
-SUMMARY:It’s Just Business — серия 4/10
+SUMMARY:Потому что это бизнес — серия 4/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 4
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -774,10 +778,11 @@ UID:smwqp3byh-ep5@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261202T153000Z
 DTEND:20261202T163000Z
-SUMMARY:It’s Just Business — серия 5/10
+SUMMARY:Потому что это бизнес — серия 5/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 5
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -786,10 +791,11 @@ UID:smwqp3byh-ep6@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261209T153000Z
 DTEND:20261209T163000Z
-SUMMARY:It’s Just Business — серия 6/10
+SUMMARY:Потому что это бизнес — серия 6/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 6
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -798,10 +804,11 @@ UID:smwqp3byh-ep7@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261216T153000Z
 DTEND:20261216T163000Z
-SUMMARY:It’s Just Business — серия 7/10
+SUMMARY:Потому что это бизнес — серия 7/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 7
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -810,10 +817,11 @@ UID:smwqp3byh-ep8@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261223T153000Z
 DTEND:20261223T163000Z
-SUMMARY:It’s Just Business — серия 8/10
+SUMMARY:Потому что это бизнес — серия 8/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 8
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -822,10 +830,11 @@ UID:smwqp3byh-ep9@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20261230T153000Z
 DTEND:20261230T163000Z
-SUMMARY:It’s Just Business — серия 9/10
+SUMMARY:Потому что это бизнес — серия 9/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 9
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -834,10 +843,11 @@ UID:smwqp3byh-ep10@drama-tracker
 DTSTAMP:20261121T090000Z
 DTSTART:20270106T153000Z
 DTEND:20270106T163000Z
-SUMMARY:It’s Just Business — серия 10/10
+SUMMARY:Потому что это бизнес — серия 10/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: It’s Just Business\, серия 10
+DESCRIPTION:Через час: Потому что это бизнес\, 
+ серия 10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

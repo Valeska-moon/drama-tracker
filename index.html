@@ -207,9 +207,9 @@
   .lbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   .lsearch { flex: 1; min-width: 180px; display: flex; align-items: center; gap: 9px; background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 0 16px; color: var(--ash); }
   .lsearch input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--bone); font: inherit; font-size: 14.5px; padding: 11px 0; }
-  .srgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 10px; align-items: start; }
+  .srgrid { display: flex; gap: 10px; align-items: flex-start; }
+  .scol { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
   .sr { border: 1px solid var(--line); border-radius: 20px; background: radial-gradient(260px 200px at 100% 0, rgba(255,138,196,.16), transparent 70%), #141012; color: var(--bone); }
-  .sr.open { grid-column: 1 / -1; }
   .srh { display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 12px; cursor: pointer; }
   .srh:focus-visible { outline: 2px solid var(--pink); outline-offset: -2px; border-radius: 20px; }
   .srp { position: relative; flex: none; width: 64px; height: 82px; border-radius: 13px; background: linear-gradient(160deg, #6b3a58, #2a1622) center/cover; border: 1px solid var(--line); }
@@ -236,7 +236,7 @@
   .tl strong { display: block; font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1.1; }
   .tl em { display: block; font-style: normal; font-size: 11.5px; color: var(--ash); margin-top: 4px; line-height: 1.25; }
   .tl em u { text-decoration: none; }
-  @media (max-width: 640px) { .tl em span { display: block; } .tl em u { display: none; } }
+  .tiles.stk .tl em span { display: block; } .tiles.stk .tl em u { display: none; }
   .tl.past { opacity: .45; }
   .tl.nx { background: var(--pink); border-color: var(--pink); color: var(--deep); }
   .tl.nx em { color: #5a2f47; }
@@ -578,7 +578,7 @@ function renderList() {
   document.querySelector('#lf [data-f="done"]').textContent = `Завершены · ${nDone}`;
   const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.siteName || '')).toLowerCase().includes(q)));
   if (!vis.length) { $('list').innerHTML = `<p class="hint">${q ? 'Ничего не нашлось.' : lf === 'done' ? 'Завершённых сериалов пока нет.' : 'Сейчас нет идущих сериалов.'}</p>`; return; }
-  $('list').innerHTML = vis.map(({ s, eps, aired, done }) => {
+  const cards = vis.map(({ s, eps, aired, done }) => {
     const tot = eps.length || 1, isOpen = openId === s.id;
     const days = (s.weekdays && s.weekdays.length ? ORDER.filter(d => s.weekdays.includes(d)) : []);
     const ne = eps.find(e => epMs(s, e) > now) || eps[eps.length - 1];
@@ -606,7 +606,9 @@ function renderList() {
           <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div></div>
         <svg class="srch" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </div>${body}</article>`;
-  }).join('');
+  });
+  const ncol = matchMedia('(min-width: 861px)').matches ? 2 : 1;
+  $('list').innerHTML = Array.from({ length: ncol }, (_, c) => `<div class="scol">${cards.filter((_, i) => i % ncol === c).join('')}</div>`).join('');
   initTiles();
 }
 function tileArrows(sc) {
@@ -615,6 +617,8 @@ function tileArrows(sc) {
 }
 function initTiles() {
   document.querySelectorAll('.tiles').forEach(sc => {
+    const w = sc.clientWidth, n = Math.max(3, Math.min(6, Math.floor((w + 8) / 86)));
+    sc.style.setProperty('--n', n); sc.classList.toggle('stk', (w - (n - 1) * 8) / n < 100);
     const t = sc.children; const step = t.length > 1 ? t[1].offsetLeft - t[0].offsetLeft : 0;
     const saved = tw[sc.dataset.sid];
     sc.style.scrollBehavior = 'auto'; sc.scrollLeft = saved != null ? saved : step * (+sc.dataset.ref); sc.style.scrollBehavior = '';
@@ -742,6 +746,7 @@ $('list').addEventListener('click', (ev) => {
   else if (tg) { openId = openId === tg.dataset.tog ? null : tg.dataset.tog; renderList(); }
 });
 $('list').addEventListener('keydown', (ev) => { const tg = ev.target.closest && ev.target.closest('.srh'); if (tg && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); tg.click(); } });
+matchMedia('(min-width: 861px)').addEventListener('change', () => renderList());
 $('lq').addEventListener('input', (ev) => { lq = ev.target.value; renderList(); });
 $('lf').addEventListener('click', (ev) => { const b = ev.target.closest('[data-f]'); if (b) { lf = b.dataset.f; renderList(); } });
 function startEdit(id) {

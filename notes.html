@@ -159,6 +159,7 @@
     .dlg-foot .btn { flex:1; } .dlghead h2 { font-size:17px; }
     .head .acts { width:100%; } .head .acts .btn { flex:1; }
   }
+.ib.txt{width:auto;padding:0 8px;font-size:11px;font-weight:600}
 </style>
 </head>
 <body>
@@ -215,7 +216,7 @@
     <div class="prev" id="gPrev"></div>
     <p class="hint">«Копировать подпись» кладёт текст в буфер обмена. «Сохранить в «Подписи»» добавляет заметку; если подпись этого сериала уже есть, обновляет её.</p>
   </div>
-  <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить в «Подписи»</button><button class="btn main" type="button" id="gCopy">Копировать подпись</button></div>
+  <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить в «Подписи»</button><button class="btn ghost" type="button" id="gCopyT">Название</button><button class="btn ghost" type="button" id="gCopyR">Остальное</button><button class="btn main" type="button" id="gCopy">Всё</button></div>
 </form></dialog>
 <div class="toast" id="toast" hidden></div>
 
@@ -358,11 +359,13 @@ function genHtml(n, editBtn) {
     <button type="button" class="btn main gcopy" data-gcopy="${n.id}">Скопировать готовую команду</button></article>`;
 }
 function genRefresh(id) { const n = notes.find(x => x.id === id), el = document.querySelector(`[data-gout="${id}"]`); if (n && el) el.textContent = genOut(n).text; }
+function capSplit(t) { const i = t.indexOf('\n\n'); return i < 0 ? [t, ''] : [t.slice(0, i), t.slice(i + 2)]; }
+function isCap(n) { return /\|\s*Русские субтитры/.test((n.body || '').split('\n')[0]) && (n.body || '').includes('\n\n'); }
 function noteHtml(n0) {
   const n = n0, o = orig(n0);
   const editBtn = `<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button>`;
   if (n.kind === 'gen') return genHtml(n, editBtn);
-  if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
+  if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact">${isCap(n) ? `<button type="button" class="ib sm txt" data-cpt="${n.id}|0" title="Копировать только название">Назв.</button><button type="button" class="ib sm txt" data-cpt="${n.id}|1" title="Копировать всё остальное">Опис.</button>` : ''}<button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
   const ro = ordMode && !words().length, arrows = (k, v) => ro ? `<span class="mvs"><button type="button" class="ib xs" data-${k}="${v}|-1" aria-label="Выше">↑</button><button type="button" class="ib xs" data-${k}="${v}|1" aria-label="Ниже">↓</button></span>` : '';
   if (n.kind === 'code') body = '<div class="cbl">' + (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc || ro ? `<div class="cdesc">${hl(b.desc || '')}${arrows('bmv', n.id + '|' + bi)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('') + '</div>';
@@ -402,6 +405,7 @@ $('grid').addEventListener('click', (e) => {
   if (mvB) { const [id, i, d] = mvB.dataset.bmv.split('|'); if (swap(notes.find(x => x.id === id).blocks, +i, +d)) { scheduleSave(); render(); } return; }
   if (mvG) { const [id, i, d] = mvG.dataset.gmv.split('|'); if (swap(notes.find(x => x.id === id).groups, +i, +d)) { scheduleSave(); render(); } return; }
   const cl = e.target.closest('pre.clamp'); if (cl) { cl.classList.toggle('open'); return; }
+  const ct = e.target.closest('[data-cpt]'); if (ct) { e.stopPropagation(); const [id, k] = ct.dataset.cpt.split('|'); copy(capSplit(notes.find(x => x.id === id).body)[+k]); ct.classList.add('done'); setTimeout(() => ct.classList.remove('done'), 900); return; }
   const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]'), tl = e.target.closest('[data-tile]');
   if (ed) openEdit(ed.dataset.edit);
   else if (c) { copy(notes.find(x => x.id === c.dataset.copy).body); }
@@ -495,6 +499,8 @@ const renameSec = () => { const nv = $('sName').value.trim(); if (!nv || nv === 
 $('sOk').onclick = renameSec; $('sName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); renameSec(); } });
 $('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (e) => { if (e.target === $('gdlg')) $('gdlg').close(); });
 $('gCopy').onclick = () => copy(caption());
+$('gCopyT').onclick = () => copy(capSplit(caption())[0]);
+$('gCopyR').onclick = () => copy(capSplit(caption())[1]);
 $('gSave').onclick = () => {
   const ru = $('gRu').value.trim() || $('gOrig').value.trim(); if (!ru) { toast('Впишите название', 'bad', 2000); return; }
   const key = (t) => t.toLowerCase().replace(/[^a-zа-яё0-9]+/g, ''), ex = notes.find(n => n.section === 'Подписи' && key(n.title) === key(ru));

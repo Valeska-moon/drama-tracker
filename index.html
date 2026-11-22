@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0352">
+<meta name="build" content="20261122-0358">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -1043,6 +1043,7 @@ async function doSave(auto) {
     await putFile('shows.json', JSON.stringify({ shows }, (k, v) => (k[0] === '_' ? undefined : v), 2));
     await putFile('calendar.ics', DramaLib.buildICS(shows));
     shows.forEach(s => delete s._coverNew);
+    try { ls.set('lastSave', JSON.stringify({ t: Date.now(), shows }, (k, v) => (k[0] === '_' ? undefined : v))); } catch {}
     dirty = false; ls.set('draft', '');
     if (auto) { if (!undoActive) toast('Сохранено, календарь обновится через пару минут', 'ok', 3500); }
     else { setStatus('Сохранено. Календарь обновится в течение пары минут.', 'ok'); setTimeout(() => { if (!dirty) $('savebar').hidden = true; }, 6000); }
@@ -1074,6 +1075,8 @@ checkUpdate();
 (async function init() {
   renderSub();
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
+  // GitHub Pages обновляется с задержкой ~1–2 мин: сразу после сохранения берём свою свежую копию, чтобы не потерять отметки
+  try { const L = JSON.parse(ls.get('lastSave') || 'null'); if (L && Date.now() - L.t < 20 * 60e3 && Array.isArray(L.shows)) shows = L.shows; } catch {}
   try { const r = await fetch('state.json?' + Date.now()); if (r.ok) { const j = await r.json(); autoC = j.countries || {}; autoL = j.links || {}; } } catch {}
   const draft = ls.get('draft');
   if (draft) {

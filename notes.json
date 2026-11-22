@@ -6,7 +6,7 @@
       "kind": "gen",
       "title": "Сохранить субтитры из буфера",
       "desc": "",
-      "body": "pbpaste > \"$HOME/Downloads/{{lang=En|Thai|Ch}}_Sub_{{name}}.vtt\""
+      "body": "pbpaste > \"$HOME/Downloads/{{lang=En|Thai|Ch|Tw|Kr|Jp}}_Sub_{{name}}.vtt\""
     },
     {
       "id": "seed1",

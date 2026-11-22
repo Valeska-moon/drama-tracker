@@ -56,6 +56,9 @@
   .gr { display:flex; gap:14px; align-items:flex-start; }
   .col { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
   .note { border:1px solid var(--line); border-radius:22px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:16px 18px; }
+  .np { position:relative; }
+  .np .nh { position:absolute; top:12px; right:14px; z-index:1; }
+  .np .tgroups { margin-top:4px; }
   .nh { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .nh h3 { margin:0; font-size:16px; font-weight:600; line-height:1.35; }
   .nact { display:flex; gap:6px; flex:none; }
@@ -74,11 +77,12 @@
   .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
   .tgroup { min-width:0; display:flex; flex-direction:column; gap:6px; }
-  .gt { font-size:16px; font-weight:700; color:var(--pink); margin:0 0 4px 2px; }
+  .gt { font-size:16px; font-weight:700; color:var(--bone); margin:0 0 4px 2px; }
   .tg { display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:14px; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:9px 14px; cursor:pointer; }
   .tg:hover { border-color:var(--pink); }
   .tg span { font-size:14.5px; font-weight:500; color:var(--bone); min-width:0; }
-  .tg code { font:12px/1.4 var(--mono); color:var(--ash); white-space:nowrap; margin-left:auto; max-width:46%; line-height:1.25; white-space:normal; overflow-wrap:anywhere; text-align:right; }
+  .tg code { font:12px/1.4 var(--mono); color:var(--ash); white-space:nowrap; margin-left:auto; max-width:46%; line-height:1.25; white-space:nowrap; text-align:right; }
+  .tg code.lg { white-space:normal; overflow-wrap:anywhere; }
   .tg code::-webkit-scrollbar { display:none; }
   @media (max-width:560px) { .tg code { max-width:62%; } }
   .tg.done { border-color:var(--ok); }
@@ -293,8 +297,8 @@ function noteHtml(n0) {
   if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
   if (n.kind === 'code') body = (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc ? `<div class="cdesc">${hl(b.desc)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('');
-  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code>${hl(p[0]).replace(/\\/g, '<wbr>\\')}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
-  return `<article class="note" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
+  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code class="${p[0].length > 22 ? 'lg' : ''}">${p[0].length > 22 ? hl(p[0]).replace(/\\/g, '<wbr>\\') : hl(p[0])}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
+  return `<article class="note${n.kind === 'pairs' ? ' np' : ''}" data-id="${n.id}"><div class="nh"><h3>${n.kind === 'pairs' ? '' : hl(n.title)}</h3><div class="nact">${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
 }
 function render() {
   const secs = sections(), ws = words(), searching = ws.length > 0;

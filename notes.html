@@ -50,6 +50,8 @@
   .search:focus, input:focus, textarea:focus, select:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(255,138,196,.2); }
   .chips { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 20px; }
   .chip { font:inherit; font-size:14px; color:var(--ash); background:var(--glass); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; }
+  .chip.add { color:var(--pink); border-style:dashed; border-color:rgba(255,138,196,.45); background:none; }
+  .chip.add:hover { background:rgba(255,138,196,.1); }
   .chip b { font-weight:500; opacity:.6; margin-left:4px; }
   .chip.on { background:var(--pink); border-color:var(--pink); color:var(--deep); font-weight:600; }
   #grid { display:flex; flex-direction:column; gap:14px; }
@@ -304,7 +306,7 @@ function render() {
   const secs = sections(), ws = words(), searching = ws.length > 0;
   if (!secs.includes(sec)) sec = secs[0] || '';
   $('chips').classList.toggle('srch', searching);
-  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
+  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="chip add" id="secAdd" title="Добавить заметку в раздел «${esc(sec)}»">+ Заметка</button><button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
   const base = searching ? notes : notes.filter(n => n.section === sec);
   const list = base.map(filterNote).filter(Boolean);
   if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? (searching ? 'Ничего не найдено.' : 'В этом разделе пока пусто.') : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
@@ -322,7 +324,7 @@ function render() {
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
   const cl = e.target.closest('pre.clamp'); if (cl) { cl.classList.toggle('open'); return; }
   const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]'), tl = e.target.closest('[data-tile]');
@@ -355,14 +357,14 @@ function applyKind() {
   if (k === 'pairs' && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());
 }
 $('nKind').onchange = applyKind;
-function openEdit(id) {
-  editing = id; const n = id ? notes.find(x => x.id === id) : null;
+function openEdit(id, pre) {
+  editing = id; const n = id ? notes.find(x => x.id === id) : null; pre = pre || {};
   $('ft').textContent = n ? 'Изменить заметку' : 'Новая заметка';
-  $('nTitle').value = n ? n.title : ''; secOptions(n ? n.section : sec); $('nKind').value = n ? n.kind : 'text';
+  $('nTitle').value = n ? n.title : ''; secOptions(n ? n.section : (pre.section ?? sec)); $('nKind').value = n ? n.kind : (pre.kind || 'text');
   $('nDesc').value = n ? (n.desc || '') : ''; $('nBody').value = n && n.body ? n.body : '';
   $('blkRows').innerHTML = ''; (n && n.blocks || []).forEach(b => $('blkRows').appendChild(blkRow(b)));
   $('grpRows').innerHTML = ''; (n && n.groups || []).forEach(g => $('grpRows').appendChild(grpRow(g)));
-  $('nDel').hidden = !n; applyKind(); $('dlg').showModal();
+  $('nDel').hidden = !n; applyKind(); $('dlg').showModal(); if (!n) $('nTitle').focus();
 }
 $('addBtn').onclick = () => openEdit(null);
 $('nCancel').onclick = $('fx').onclick = () => $('dlg').close();

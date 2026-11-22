@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0345">
+<meta name="build" content="20261122-0352">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -138,6 +138,8 @@
   /* календарь */
   .sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
   .sechead h2 { margin: 0; }
+  .lbar .seg, .lbar .lsearch { height: 46px; box-sizing: border-box; }
+  .lbar .seg button { height: 100%; padding: 0 14px; }
   .seg { display: inline-flex; background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
   .seg button { font: inherit; font-size: 13.5px; font-weight: 500; color: var(--ash); background: none; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .seg button.on { background: var(--pink); color: var(--deep); font-weight: 600; }
@@ -441,7 +443,7 @@
   <section>
     <h2>Мои сериалы</h2>
     <div class="lbar"><label class="lsearch"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="lq" type="search" placeholder="Найти сериал" autocomplete="off"></label>
-      <div class="seg" id="lf" role="group" aria-label="Фильтр"><button type="button" data-f="run">Идут</button><button type="button" data-f="done">Завершены</button><button type="button" data-f="all">Все</button></div></div>
+      <div class="seg" id="lf" role="group" aria-label="Фильтр"><button type="button" data-f="run">Выходят</button><button type="button" data-f="done">Вышли</button><button type="button" data-f="all">Все</button></div></div>
     <div class="srgrid" id="list"></div>
   </section>
 
@@ -785,8 +787,8 @@ function renderList() {
   const now = Date.now(), N = tilesN(), q = lq.trim().toLowerCase();
   const info = shows.map(s => { const eps = generateEpisodes(s), aired = eps.filter(e => epMs(s, e) <= now).length, tset = trOf(s), trN = eps.filter(e => epMs(s, e) <= now && tset.has(+e.n)).length; return { s, eps, aired, trN, tset, done: eps.length > 0 && aired >= eps.length }; });
   const nRun = info.filter(i => !i.done).length, nDone = info.length - nRun;
-  document.querySelector('#lf [data-f="run"]').textContent = `Идут · ${nRun}`;
-  document.querySelector('#lf [data-f="done"]').textContent = `Завершены · ${nDone}`;
+  document.querySelector('#lf [data-f="run"]').textContent = `Выходят · ${nRun}`;
+  document.querySelector('#lf [data-f="done"]').textContent = `Вышли · ${nDone}`;
   const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.ruTitle || '') + ' ' + (i.s.siteName || '') + ' ' + cname(i.s)).toLowerCase().includes(q)));
   if (!vis.length) { $('list').innerHTML = `<p class="hint">${q ? 'Ничего не нашлось.' : lf === 'done' ? 'Завершённых сериалов пока нет.' : 'Сейчас нет идущих сериалов.'}</p>`; return; }
   const cards = vis.map(({ s, eps, aired, trN, tset, done }) => {

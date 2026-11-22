@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BL Tracker">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0809">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex">
+<title>Заметки · BL Tracker</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0a0809; --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.08); --line:rgba(255,255,255,.10);
+    --bone:#f7f1f4; --ash:#a99da8; --pink:#ff8ac4; --pale:#ffc2e0; --deep:#1a0f17; --ok:#7fe3b0; --bad:#ff7d7d;
+    --display:"Unbounded","Montserrat",system-ui,sans-serif; --text:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+  * { box-sizing: border-box; }
+  html { background: var(--ink); }
+  body { margin:0; color:var(--bone); font:16px/1.55 var(--text); min-height:100vh;
+    background: radial-gradient(620px 520px at 100% -40px, rgba(196,72,148,.55), transparent 70%),
+      radial-gradient(560px 560px at -6% 108%, rgba(150,58,122,.50), transparent 70%), var(--ink); background-attachment: fixed; }
+  main { max-width: 960px; margin: 0 auto; padding: calc(22px + env(safe-area-inset-top)) 18px calc(90px + env(safe-area-inset-bottom)); }
+  a { color: var(--pink); }
+  h1,h2 { font-family: var(--display); font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: .025em; line-height: 1.25; }
+  h2 { font-size: clamp(18px,2.8vw,24px); }
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; border-radius: 8px; }
+  .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:26px; }
+  .logo { display:flex; align-items:center; gap:9px; text-decoration:none; color:inherit; }
+  .logo svg { width:20px; height:20px; fill:var(--pink); }
+  .top h1 { font-size:15px; font-weight:700; letter-spacing:.04em; }
+  .btn { white-space:nowrap; font:inherit; font-weight:500; color:var(--bone); background:var(--glass); border:1px solid var(--line); padding:10px 18px; border-radius:999px; cursor:pointer; text-decoration:none; display:inline-block; transition:background .15s,border-color .15s; }
+  .btn:hover { border-color: var(--pink); }
+  .btn.main { background:var(--pink); color:var(--deep); border-color:var(--pink); font-weight:600; }
+  .btn.main:hover { background:var(--pale); border-color:var(--pale); }
+  .btn.small { padding:6px 14px; font-size:14px; }
+  .btn.ghost { background:transparent; }
+  .head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+  .head .acts { display:flex; gap:8px; flex-wrap:wrap; }
+  .search { width:100%; font:inherit; font-size:16px; color:var(--bone); background:var(--glass); border:1px solid var(--line); border-radius:999px; padding:10px 18px; color-scheme:dark; }
+  .search:focus, input:focus, textarea:focus, select:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(255,138,196,.2); }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 20px; }
+  .chip { font:inherit; font-size:14px; color:var(--ash); background:var(--glass); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; }
+  .chip b { font-weight:500; opacity:.6; margin-left:4px; }
+  .chip.on { background:var(--pink); border-color:var(--pink); color:var(--deep); font-weight:600; }
+  .grid { display:flex; gap:14px; align-items:flex-start; }
+  .col { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
+  .note { border:1px solid var(--line); border-radius:22px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:16px 18px; }
+  .nh { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .nh h3 { margin:0; font-size:16px; font-weight:600; line-height:1.35; }
+  .sec { color:var(--ash); font-size:12.5px; margin-top:2px; }
+  .nact { display:flex; gap:6px; flex:none; }
+  .ib { width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--glass); color:var(--bone); cursor:pointer; display:grid; place-items:center; padding:0; font:inherit; }
+  .ib:hover { border-color:var(--pink); color:var(--pink); }
+  .ib svg { width:16px; height:16px; }
+  .desc { color:var(--ash); font-size:14px; margin:8px 0 0; white-space:pre-wrap; }
+  .code { position:relative; margin:10px 0 0; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 14px; font:13px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; color:#ffe3f1; }
+  .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .pairs { margin:10px 0 0; display:flex; flex-direction:column; gap:6px; }
+  .pair { display:flex; align-items:center; gap:10px; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:8px 10px; cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; }
+  .pair:hover { border-color:var(--pink); }
+  .pair code { font:12.5px/1.4 var(--mono); color:#ffe3f1; overflow-wrap:anywhere; flex:1 1 55%; min-width:0; }
+  .pair span { color:var(--ash); font-size:13px; flex:1 1 45%; min-width:0; }
+  .pair.done { border-color:var(--ok); }
+  .empty { color:var(--ash); text-align:center; padding:40px 10px; }
+  .hint { color:var(--ash); font-size:13.5px; }
+  dialog { color:var(--bone); background:#130e12; border:1px solid var(--line); border-radius:30px; padding:0; width:min(640px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); }
+  dialog::backdrop { background:rgba(5,3,6,.78); backdrop-filter:blur(5px); }
+  dialog[open] { display:flex; flex-direction:column; overflow:hidden; }
+  .dlg { display:flex; flex-direction:column; flex:1; min-height:0; padding:0; background:radial-gradient(360px 260px at 100% 0, rgba(210,80,160,.22), transparent 70%); }
+  .dlghead { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:22px 26px 6px; flex:none; }
+  .dlghead h2 { color:var(--pink); margin:0; }
+  .dlgbody { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:0 26px 8px; }
+  .dlg-foot { display:flex; gap:10px; justify-content:flex-end; flex:none; padding:14px 26px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:#130e12; }
+  label { display:block; font-size:13.5px; color:var(--ash); margin:14px 0 5px; }
+  input[type=text], input[type=number], textarea, select { width:100%; font:inherit; font-size:16px; color:var(--bone); background:var(--glass); border:1px solid var(--line); border-radius:14px; padding:10px 14px; color-scheme:dark; }
+  textarea { resize:vertical; min-height:90px; }
+  textarea.mono, .mono { font-family:var(--mono); font-size:14px; }
+  select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a99da8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; } .two>div { min-width:0; }
+  .prow { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .prow input { flex:1; min-width:0; }
+  .prow input:first-child { font-family:var(--mono); font-size:14px; flex:1.2; }
+  .prev { margin-top:14px; white-space:pre-wrap; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:14px; overflow-wrap:anywhere; }
+  .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:50; max-width:calc(100vw - 32px); padding:10px 18px; border-radius:999px; background:rgba(26,15,23,.92); border:1px solid var(--line); backdrop-filter:blur(8px); font-size:14px; box-shadow:0 8px 28px rgba(0,0,0,.5); text-align:center; }
+  .toast.ok { border-color:var(--pink); color:var(--pale); } .toast.bad { border-color:var(--bad); color:var(--bad); } .toast[hidden] { display:none; }
+  .warn { border:1px solid var(--bad); color:var(--bad); border-radius:14px; padding:10px 14px; margin-bottom:16px; font-size:14px; }
+  body:has(dialog[open]) { overflow:hidden; }
+  @media (max-width:860px) { .grid { display:block; } .col { margin-bottom:14px; } .col:last-child { margin-bottom:0; } .col:empty { display:none; } }
+  @media (max-width:640px) {
+    main { padding-left:14px; padding-right:14px; }
+    dialog { width:calc(100vw - 20px); max-width:calc(100vw - 20px); max-height:calc(94dvh - env(safe-area-inset-bottom)); margin:auto 10px calc(8px + env(safe-area-inset-bottom)); border-radius:26px; }
+    .dlghead { padding:16px 16px 4px; } .dlgbody { padding:0 16px 10px; } .dlg-foot { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
+    .dlg-foot .btn { flex:1; } .dlghead h2 { font-size:17px; }
+    .head .acts { width:100%; } .head .acts .btn { flex:1; }
+    .pair { flex-wrap:wrap; } .pair code, .pair span { flex-basis:100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <a class="logo" href="./"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>BL Tracker</h1></a>
+    <a class="btn" href="./">← Сериалы</a>
+  </div>
+  <div class="head"><h2>Заметки</h2>
+    <div class="acts"><button class="btn small" id="genBtn" type="button">Подпись к видео</button><button class="btn main small" id="addBtn" type="button">+ Заметка</button></div></div>
+  <div id="nosave" class="warn" hidden>Заметки сохраняются так же, как сериалы. Сначала впишите ключ GitHub в «Настройки сохранения» внизу <a href="./">главной страницы</a>.</div>
+  <input class="search" id="q" type="search" placeholder="Поиск по заметкам" autocomplete="off" enterkeyhint="search">
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<dialog id="dlg"><form id="f" class="dlg">
+  <div class="dlghead"><h2 id="ft">Новая заметка</h2><button type="button" class="ib" id="fx" aria-label="Закрыть">✕</button></div>
+  <div class="dlgbody">
+    <label>Название</label><input type="text" id="nTitle" required>
+    <div class="two">
+      <div><label>Раздел</label><input type="text" id="nSec" list="secList" placeholder="Например: Терминал" required><datalist id="secList"></datalist></div>
+      <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option></select></div>
+    </div>
+    <label>Пояснение (необязательно)</label><input type="text" id="nDesc">
+    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea></div>
+    <div id="pairBox" hidden><label>Теги и пояснения</label><div id="pairRows"></div><button type="button" class="btn small ghost" id="pairAdd">+ Строка</button></div>
+  </div>
+  <div class="dlg-foot"><button class="btn ghost" type="button" id="nDel" hidden>Удалить</button><span style="flex:1"></span><button class="btn ghost" type="button" id="nCancel">Отмена</button><button class="btn main" type="submit">Сохранить</button></div>
+</form></dialog>
+
+<dialog id="gdlg"><form id="gf" class="dlg" onsubmit="return false">
+  <div class="dlghead"><h2>Подпись к видео</h2><button type="button" class="ib" id="gx" aria-label="Закрыть">✕</button></div>
+  <div class="dlgbody">
+    <label>Взять из моих сериалов</label><select id="gShow"><option value="">Новый сериал</option></select>
+    <label>Название по-русски</label><input type="text" id="gRu" placeholder="Например: Мои тайные парни">
+    <label>Оригинальное название</label><input type="text" id="gOrig" placeholder="Например: My Secret Boyfriends">
+    <div class="two">
+      <div><label>Страна и тип</label><select id="gType"></select></div>
+      <div><label>Год</label><input type="number" id="gYear" value="2026" inputmode="numeric"></div>
+    </div>
+    <div class="two">
+      <div><label>Серия</label><input type="number" id="gEp" value="1" min="1" inputmode="numeric"></div>
+      <div></div>
+    </div>
+    <label>Описание на английском с сайта (необязательно)</label><textarea id="gSrc" rows="3" placeholder="Вставь сюда синопсис с MyDramaList или MKVDrama"></textarea>
+    <button type="button" class="btn small" id="gPrompt" style="margin-top:10px">Скопировать запрос для Claude</button>
+    <p class="hint">Вставь этот запрос в чат с Claude: он напишет описание в твоём стиле, с учётом сохранённых примеров. Готовое описание вставь ниже.</p>
+    <label>Описание сюжета</label><textarea id="gDesc" rows="4" placeholder="Сюда вставь ответ Claude"></textarea>
+    <div class="prev" id="gPrev"></div>
+  </div>
+  <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить как заметку</button><button class="btn main" type="button" id="gCopy">Копировать подпись</button></div>
+</form></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ls = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+const uid = () => 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+
+const SEED = [
+  { id: 'seed1', section: 'Терминал', kind: 'code', title: 'Скачать видео', desc: 'mime-type:application/x-mpegurl',
+    body: 'pbpaste > "$HOME/Downloads/video-request.sh"\n\nhead -c 4 "$HOME/Downloads/video-request.sh"; echo' },
+  { id: 'seed2', section: 'Терминал', kind: 'code', title: 'Скачать субтитры', desc: '',
+    body: 'pbpaste > "$HOME/Downloads/Sub_EN.vtt"; head -n 3 "$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt"; ls -l "$HOME/Downloads" | grep -i vtt' },
+  { id: 'seed3', section: 'Терминал', kind: 'text', title: 'Объединить видео', desc: '',
+    body: 'Здесь была вложенная заметка «скачать и объеденить видео.txt». Вложения в PDF не переносятся: пришли файл Claude, и его можно будет добавить сюда.' },
+  { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: 'Нажми на строку, чтобы скопировать тег.',
+    pairs: [['{\\c&HFFEED9&}', 'мой цвет'], ['{\\fs60}', 'уменьшить размер'], ['{\\pos(1500,220)}', 'для рандомного места'], ['{\\an2\\pos(960,970)}', 'чуть выше текст'],
+      ['{\\i1}', 'курсив'], ['{\\s1}', 'зачёркнутый текст'], ['{\\r}', 'отмена тегов'], ['{\\an1\\i1\\pos(70,70)\\fs40\\c&HFFEED9&}', 'для моих комментариев']] },
+  { id: 'seed5', section: 'Подписи', kind: 'text', title: 'Последний замок любви', desc: '',
+    body: 'Последний замок любви 1 серия | Русские субтитры FSG Lumera\n\nThe Last Lock of Love (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nЧат узнаёт в новом начальнике парня, с которым провёл ночь, и теперь им приходится работать вместе, будто ничего не было.' },
+  { id: 'seed6', section: 'Подписи', kind: 'text', title: 'Научи меня, прикоснись ко мне', desc: '',
+    body: 'Научи меня, прикоснись ко мне 1 серия | Русские субтитры FSG Lumera\n\nTeach Me, Touch Me (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nВ VIP-комнате ночного клуба студент Гир знакомится с Канти и просит его научить его близости. Канти отказывает, но Гир так просто не сдаётся.' },
+  { id: 'seed7', section: 'Подписи', kind: 'text', title: 'Мои тайные парни', desc: '',
+    body: 'Мои тайные парни 1 серия | Русские субтитры FSG Lumera\n\nMy Secret Boyfriends (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nДан своим трудом выбился из бедности, и теперь его привычка экономить на всём раздражает коллегу Сэйнта. Когда семейные проблемы неожиданно сближают их, Дану приходится разобраться в своих чувствах к Сэйнту и к Джеймсу, бывшему наставнику, в которого он давно тайно влюблён.' },
+  { id: 'seed8', section: 'Подписи', kind: 'text', title: 'Потому что это бизнес', desc: '',
+    body: 'Потому что это бизнес 2 серия | Русские субтитры FSG Lumera\n\nIt’s Strictly Business (2026) — японская дорама / локон с русскими субтитрами от LUMERA.\n\nЧтобы понравиться девушкам, студент договаривается с популярным однокурсником Иссэем притвориться парой. План срабатывает куда лучше, чем он ожидал, только теперь девушки видят в нём друга, а Иссэй продолжает флиртовать даже наедине.' },
+  { id: 'seed9', section: 'Подписи', kind: 'text', title: 'Игра в любовь с моим врагом', desc: '',
+    body: 'Игра в любовь с моим врагом 1 серия | Русские субтитры FSG Lumera\n\nLove Game with My Enemy (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nПосле гибели двоюродного брата Понга Ломныа теряет веру в любовь. Знакомство с Дэнчоном, сыном влиятельного политика, связывает его с девушкой, которую он винит в трагедии. Ненависть и жажда мести превращают их сближение в опасную игру, но зарождающиеся чувства постепенно меняют правила. Теперь обоим предстоит понять, где заканчивается расчёт и начинается настоящая любовь.' },
+];
+
+let notes = [], sec = '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
+
+// ---------- загрузка и сохранение ----------
+async function load() {
+  try { const r = await fetch('notes.json?' + Date.now(), { cache: 'no-store' }); if (r.ok) { notes = (await r.json()).notes || []; loaded = true; } } catch {}
+  if (!loaded) { notes = JSON.parse(JSON.stringify(SEED)); dirty = true; } // первый запуск: переносим заметки из PDF
+  $('nosave').hidden = !!(ls.get('ghRepo') && ls.get('ghToken'));
+  render();
+  if (dirty && ls.get('ghRepo') && ls.get('ghToken')) scheduleSave(300);
+}
+function scheduleSave(ms) { dirty = true; clearTimeout(saveT); saveT = setTimeout(save, ms ?? 1200); }
+function toast(t, cls, ms) { const el = $('toast'); el.textContent = t; el.className = 'toast ' + (cls || ''); el.hidden = false; clearTimeout(toast.t); if (ms) toast.t = setTimeout(() => { el.hidden = true; }, ms); }
+async function save() {
+  const repo = ls.get('ghRepo'), token = ls.get('ghToken');
+  if (!repo || !token) { $('nosave').hidden = false; return; }
+  if (saving) { again = true; return; }
+  saving = true; again = false;
+  try {
+    const url = `https://api.github.com/repos/${repo}/contents/notes.json`, h = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
+    const cur = await fetch(url, { headers: h }); const sha = cur.ok ? (await cur.json()).sha : undefined;
+    const text = JSON.stringify({ notes }, null, 2); let bin = ''; new TextEncoder().encode(text).forEach(b => bin += String.fromCharCode(b));
+    const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Обновлены заметки', sha, content: btoa(bin) }) });
+    if (!r.ok) throw new Error((await r.json()).message || r.status);
+    dirty = false; toast('Сохранено', 'ok', 2200);
+  } catch (e) { toast('Не удалось сохранить: ' + e.message, 'bad', 6000); }
+  finally { saving = false; if (again && dirty) scheduleSave(600); }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && dirty) { clearTimeout(saveT); save(); } });
+
+// ---------- копирование ----------
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.createElement('textarea'); t.value = text; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch {} t.remove(); }
+  toast('Скопировано', 'ok', 1500);
+}
+
+// ---------- отрисовка ----------
+const ICON_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
+const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
+const sections = () => { const m = []; notes.forEach(n => { if (!m.includes(n.section)) m.push(n.section); }); return m; };
+const textOf = (n) => [n.title, n.section, n.desc, n.body, ...(n.pairs || []).flat()].join(' ').toLowerCase();
+function noteHtml(n) {
+  let body = '';
+  if (n.kind === 'code') body = `<pre class="code">${esc(n.body)}</pre>`;
+  else if (n.kind === 'pairs') body = `<div class="pairs">${(n.pairs || []).map((p, i) => `<button type="button" class="pair" data-cp="${n.id}|${i}"><code>${esc(p[0])}</code><span>${esc(p[1])}</span></button>`).join('')}</div>`;
+  else body = `<div class="txt">${esc(n.body)}</div>`;
+  const canCopy = n.kind !== 'pairs';
+  return `<article class="note" data-id="${n.id}"><div class="nh"><div><h3>${esc(n.title)}</h3><div class="sec">${esc(n.section)}</div></div>
+    <div class="nact">${canCopy ? `<button type="button" class="ib" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button>` : ''}<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>
+    ${n.desc ? `<p class="desc">${esc(n.desc)}</p>` : ''}${body}</article>`;
+}
+function render() {
+  const secs = sections();
+  $('chips').innerHTML = `<button class="chip ${sec === '' ? 'on' : ''}" data-sec="">Все<b>${notes.length}</b></button>` + secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('');
+  $('secList').innerHTML = secs.map(s => `<option value="${esc(s)}">`).join('');
+  const qq = q.trim().toLowerCase();
+  const list = notes.filter(n => (!sec || n.section === sec) && (!qq || textOf(n).includes(qq)));
+  if (!list.length) { $('grid').innerHTML = `<div class="empty" style="width:100%">${notes.length ? 'Ничего не найдено.' : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
+  const two = matchMedia('(min-width: 861px)').matches, cols = two ? [[], []] : [[]];
+  list.forEach((n, i) => cols[i % cols.length].push(n));
+  $('grid').innerHTML = cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('');
+}
+matchMedia('(min-width: 861px)').addEventListener('change', render);
+$('q').addEventListener('input', (e) => { q = e.target.value; render(); });
+$('chips').addEventListener('click', (e) => { const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; render(); } });
+$('grid').addEventListener('click', (e) => {
+  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]');
+  if (c) { const n = notes.find(x => x.id === c.dataset.copy); copy(n.body); }
+  else if (ed) openEdit(ed.dataset.edit);
+  else if (p) { const [id, i] = p.dataset.cp.split('|'); const n = notes.find(x => x.id === id); copy(n.pairs[+i][0]); p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
+});
+
+// ---------- редактирование ----------
+function pairRow(a = '', b = '') { const d = document.createElement('div'); d.className = 'prow'; d.innerHTML = `<input type="text" placeholder="Тег" value="${esc(a)}"><input type="text" placeholder="Что делает" value="${esc(b)}"><button type="button" class="ib" aria-label="Убрать строку">✕</button>`; d.querySelector('button').onclick = () => d.remove(); return d; }
+function applyKind() {
+  const k = $('nKind').value; $('pairBox').hidden = k !== 'pairs'; $('bodyBox').hidden = k === 'pairs';
+  $('bodyLbl').textContent = k === 'code' ? 'Команда или код' : 'Текст'; $('nBody').classList.toggle('mono', k === 'code');
+  if (k === 'pairs' && !$('pairRows').children.length) $('pairRows').appendChild(pairRow());
+}
+$('nKind').onchange = applyKind; $('pairAdd').onclick = () => $('pairRows').appendChild(pairRow());
+function openEdit(id) {
+  editing = id; const n = id ? notes.find(x => x.id === id) : null;
+  $('ft').textContent = n ? 'Изменить заметку' : 'Новая заметка';
+  $('nTitle').value = n ? n.title : ''; $('nSec').value = n ? n.section : (sec || ''); $('nKind').value = n ? n.kind : 'text';
+  $('nDesc').value = n ? (n.desc || '') : ''; $('nBody').value = n && n.body ? n.body : '';
+  $('pairRows').innerHTML = ''; (n && n.pairs || []).forEach(p => $('pairRows').appendChild(pairRow(p[0], p[1])));
+  $('nDel').hidden = !n; applyKind(); $('dlg').showModal();
+}
+$('addBtn').onclick = () => openEdit(null);
+$('nCancel').onclick = $('fx').onclick = () => $('dlg').close();
+$('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').close(); });
+$('nDel').onclick = () => { if (!confirm('Удалить заметку?')) return; notes = notes.filter(x => x.id !== editing); $('dlg').close(); render(); scheduleSave(); };
+$('f').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const kind = $('nKind').value, n = { id: editing || uid(), section: $('nSec').value.trim(), kind, title: $('nTitle').value.trim(), desc: $('nDesc').value.trim() };
+  if (kind === 'pairs') n.pairs = [...$('pairRows').children].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0] || p[1]);
+  else n.body = $('nBody').value.replace(/\s+$/, '');
+  const i = notes.findIndex(x => x.id === n.id); if (i >= 0) notes[i] = n; else notes.unshift(n);
+  $('dlg').close(); render(); scheduleSave();
+});
+
+// ---------- подпись к видео ----------
+const TYPES = { TH: 'тайский лакорн / дорама', JP: 'японская дорама / локон', CN: 'китайская дорама', KR: 'корейская дорама', TW: 'тайваньская дорама', HK: 'гонконгская дорама' };
+let shows = [], autoC = {};
+$('gType').innerHTML = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+(async () => {
+  try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
+  try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
+  $('gShow').innerHTML = '<option value="">Новый сериал</option>' + shows.map(s => `<option value="${esc(s.id)}">${esc(s.ruMain && s.ruTitle ? s.ruTitle : s.title)}</option>`).join('');
+})();
+$('gShow').onchange = () => {
+  const s = shows.find(x => x.id === $('gShow').value); if (!s) return;
+  $('gRu').value = s.ruTitle || ''; $('gOrig').value = s.title; $('gYear').value = (s.startDate || '').slice(0, 4) || 2026;
+  const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && TYPES[c]) $('gType').value = c; prev();
+};
+const caption = () => {
+  const ru = $('gRu').value.trim() || $('gOrig').value.trim(), orig = $('gOrig').value.trim() || ru, n = $('gEp').value || 1, d = $('gDesc').value.trim();
+  return `${ru} ${n} серия | Русские субтитры FSG Lumera\n\n${orig} (${$('gYear').value || ''}) — ${TYPES[$('gType').value]} с русскими субтитрами от LUMERA.${d ? '\n\n' + d : ''}`;
+};
+const prev = () => { $('gPrev').textContent = caption(); };
+['gRu', 'gOrig', 'gYear', 'gEp', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
+$('genBtn').onclick = () => { prev(); $('gdlg').showModal(); };
+$('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (e) => { if (e.target === $('gdlg')) $('gdlg').close(); });
+$('gCopy').onclick = () => copy(caption());
+$('gPrompt').onclick = () => {
+  const ex = notes.filter(n => n.section === 'Подписи' && n.kind === 'text').map(n => (n.body.split(/\n\s*\n/)[2] || '').trim()).filter(Boolean).slice(-4);
+  const ru = $('gRu').value.trim(), orig = $('gOrig').value.trim(), src = $('gSrc').value.trim();
+  const t = `Напиши описание сюжета для подписи к видео с русскими субтитрами. Стиль как в примерах: 2–4 предложения, пересказ завязки без спойлеров, имена героев так, как они пишутся в русских субтитрах, простой живой язык.\n\nСериал: ${ru ? ru + ' / ' : ''}${orig} (${$('gYear').value}), ${TYPES[$('gType').value]}.\n${src ? 'Описание-источник (на английском):\n' + src : 'Найди описание сюжета самостоятельно по названию.'}\n\nПримеры моих описаний:\n${ex.map((e, i) => `${i + 1}. ${e}`).join('\n\n')}`;
+  copy(t);
+};
+$('gSave').onclick = () => {
+  const ru = $('gRu').value.trim() || $('gOrig').value.trim(); if (!ru) { toast('Впишите название', 'bad', 2000); return; }
+  notes.unshift({ id: uid(), section: 'Подписи', kind: 'text', title: ru, desc: '', body: caption() }); $('gdlg').close(); render(); scheduleSave(); toast('Добавлено в «Подписи»', 'ok', 2000);
+};
+load();
+</script>
+</body>
+</html>

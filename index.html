@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0249">
+<meta name="build" content="20261122-0301">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -62,6 +62,11 @@
   .btn.main:hover { background: var(--pale); border-color: var(--pale); }
   .btn.small { padding: 6px 14px; font-size: 14px; }
   .btn.ghost { background: transparent; }
+  .topacts { display: flex; align-items: center; gap: 8px; }
+  .nbtn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .top h1 { white-space: nowrap; }
+  @media (max-width: 400px) { .topacts .lg { display: none; } }
+  @media (max-width: 640px) { .nbtn { padding: 10px 12px; } .nbtn span { display: none; } .topacts { gap: 6px; } .topacts .main { padding: 10px 14px; } .top { gap: 8px; } .logo { gap: 7px; } }
 
   /* главный экран — как обложка слайда */
   .hero { position: relative; overflow: hidden; text-align: center; padding: 38px 24px 40px; margin-bottom: 22px;
@@ -400,7 +405,7 @@
 <main>
   <div class="top">
     <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>BL Tracker</h1></div>
-    <button class="btn main" id="addBtn" type="button">+ Добавить сериал</button>
+    <div class="topacts"><a class="btn nbtn" href="notes.html" aria-label="Заметки"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h3"/></svg><span>Заметки</span></a><button class="btn main" id="addBtn" type="button">+ Добавить<span class="lg"> сериал</span></button></div>
   </div>
 
   <div class="hero" id="hero"></div>

@@ -1,6 +1,19 @@
 {
   "notes": [
     {
+      "id": "nmwrq29jgi2g",
+      "section": "Терминал",
+      "kind": "code",
+      "title": "Собрать готовое видео",
+      "desc": "",
+      "blocks": [
+        {
+          "code": "(\n  cd \"$HOME/Desktop/LUMERA\" || {\n    echo \"Не найдена папка LUMERA.\"\n    exit 1\n  }\n\n  ffmpeg_bin=\"$(command -v ffmpeg)\"\n  if [ -z \"$ffmpeg_bin\" ]; then\n    ffmpeg_bin=\"$(find \"/Applications/Subtitle Edit.app\" \\\n      -type f -name ffmpeg -print -quit 2>/dev/null)\"\n  fi\n\n  if [ -z \"$ffmpeg_bin\" ] || [ ! -x \"$ffmpeg_bin\" ]; then\n    echo \"FFmpeg не найден.\"\n    exit 1\n  fi\n\n  if [ -f video.mkv ] && [ -f video.mp4 ]; then\n    echo \"В папке два видео: video.mkv и video.mp4. Оставь только нужную серию.\"\n    exit 1\n  fi\n\n  episode_file=\"video.mkv\"\n  if [ ! -f \"$episode_file\" ] && [ -f video.mp4 ]; then\n    episode_file=\"video.mp4\"\n  fi\n\n  for input_file in \"$episode_file\" subs.ass intro.mp4 logo.png; do\n    if [ ! -f \"$input_file\" ]; then\n      echo \"Не найден файл: $input_file\"\n      exit 1\n    fi\n  done\n\n  output_file=\"Its_Just_Business_EP03_Lumera.mp4\"\n  frame_fit=\"scale=1920:1080:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,setsar=1\"\n\n  \"$ffmpeg_bin\" -n -stats \\\n    -i intro.mp4 -i \"$episode_file\" -i logo.png \\\n    -filter_complex \"\n[0:v]${frame_fit},format=yuv420p,setpts=PTS-STARTPTS[intro];\n[1:v]setpts=PTS-STARTPTS,ass=subs.ass,${frame_fit}[episode];\n[2:v]scale=180:-1,format=rgba,colorchannelmixer=aa=0.42[logo];\n[episode][logo]overlay=W-w-46:52:format=yuv420[branded];\n[0:a:0]aresample=48000,aformat=channel_layouts=stereo,asetpts=PTS-STARTPTS[a0];\n[1:a:0]aresample=48000,aformat=channel_layouts=stereo,asetpts=PTS-STARTPTS[a1];\n[intro][a0][branded][a1]concat=n=2:v=1:a=1[v][a]\" \\\n    -map \"[v]\" -map \"[a]\" \\\n    -c:v libx264 -preset fast -crf 18 -fps_mode vfr \\\n    -c:a aac -b:a 192k -movflags +faststart \\\n    \"$output_file\" &&\n    echo \"Готово: $output_file\"\n)",
+          "desc": ""
+        }
+      ]
+    },
+    {
       "id": "seed1",
       "section": "Терминал",
       "kind": "code",

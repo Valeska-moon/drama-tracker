@@ -5,7 +5,7 @@
       "section": "Терминал",
       "kind": "code",
       "title": "Скачать видео",
-      "desc": "mime-type:application/x-mpegurl",
+      "desc": "это на сайте в поиск",
       "body": "pbpaste > \"$HOME/Downloads/video-request.sh\"\n\nhead -c 4 \"$HOME/Downloads/video-request.sh\"; echo"
     },
     {

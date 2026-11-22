@@ -20,7 +20,15 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqoeznv.jpg",
-      "coverV": 1795281775627
+      "coverV": 1795281775627,
+      "translated": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
     },
     {
       "id": "smwqoisuc",
@@ -39,7 +47,10 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqoisuc.jpg",
-      "coverV": 1795281953413
+      "coverV": 1795281953413,
+      "translated": [
+        1
+      ]
     },
     {
       "id": "smwqonc4m",
@@ -56,7 +67,8 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqonc4m.jpg",
-      "coverV": 1795282165030
+      "coverV": 1795282165030,
+      "translated": []
     },
     {
       "id": "smwqopgtl",
@@ -78,7 +90,12 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqopgtl.jpg",
-      "coverV": 1795282264425
+      "coverV": 1795282264425,
+      "translated": [
+        1,
+        2,
+        3
+      ]
     },
     {
       "id": "smwqorxej",
@@ -100,7 +117,11 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqorxej.jpg",
-      "coverV": 1795282379227
+      "coverV": 1795282379227,
+      "translated": [
+        1,
+        2
+      ]
     },
     {
       "id": "smwqp3byh",
@@ -122,7 +143,12 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqp3byh.jpg",
-      "coverV": 1795282911305
+      "coverV": 1795282911305,
+      "translated": [
+        1,
+        2,
+        3
+      ]
     },
     {
       "id": "smwqp6vy0",
@@ -139,7 +165,8 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqp6vy0.jpg",
-      "coverV": 1795283077176
+      "coverV": 1795283077176,
+      "translated": []
     },
     {
       "id": "smwqp9ciq",
@@ -156,7 +183,8 @@
       "skipDates": [],
       "overrides": {},
       "cover": "covers/smwqp9ciq.jpg",
-      "coverV": 1795283191970
+      "coverV": 1795283191970,
+      "translated": []
     }
   ]
 }

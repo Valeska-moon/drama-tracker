@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0301">
+<meta name="build" content="20261122-0303">
 <title>BL Tracker · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -131,7 +131,7 @@
   small.sn { display: block; font-size: 12px; font-weight: 500; color: rgba(247,241,244,.5); margin-top: 2px; line-height: 1.25; }
   .row .n small { color: var(--ash); font-size: 13.5px; }
   .row .t { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: .02em; color: var(--bone); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .row .t .te { font-weight: 500; color: inherit; font-size: inherit; }
+  .row .t .te { font-weight: 500; color: var(--pink); font-size: inherit; }
   .row .t .tsep { width: 1px; height: 22px; background: var(--line); display: block; }
   .row .n b .sm { display: inline-block; vertical-align: middle; margin: -2px 8px 0 0; }
 
@@ -199,6 +199,9 @@
   .atime { color: var(--pink); font: 500 14px var(--display); margin-top: 4px; }
   .acard .ra { padding: 10px 10px 12px; gap: 6px; }
   .acard .btn.small { flex: 1; padding: 6px 4px; font-size: 12px; }
+  .skipb { font: inherit; font-size: 12.5px; color: var(--ash); opacity: .55; background: none; border: 0; padding: 6px 8px; cursor: pointer; border-radius: 8px; }
+  .skipb:hover { opacity: 1; color: var(--bone); }
+  .acard .skipb { flex: 1; text-align: center; padding: 4px; }
   .daypanel { margin-top: 18px; }
   .agbtns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
   .cv { flex: none; position: relative; width: 46px; height: 62px; border-radius: 14px; background-size: cover; background-position: center; border: 1px solid var(--line); }
@@ -380,6 +383,7 @@
   .savebar[hidden] { display: none; }
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px; background: rgba(26,15,23,.92); border: 1px solid var(--line); backdrop-filter: blur(8px); font-size: 14px; color: var(--bone); box-shadow: 0 8px 28px rgba(0,0,0,.5); text-align: center; }
   .toast.ok { border-color: var(--pink); color: var(--pale); }
+  .toast .tact { font: inherit; font-weight: 600; color: var(--pink); background: none; border: 0; border-left: 1px solid var(--line); margin-left: 12px; padding: 0 0 0 12px; cursor: pointer; }
   .toast[hidden] { display: none; }
   .savebar .btn.main { background: var(--deep); color: var(--pink); border-color: var(--deep); }
   .savebar span.ok { color: #0b5a30; } .savebar span.bad { color: #9a1c1c; }
@@ -622,7 +626,7 @@ function renderHero() {
     <div class="meta2"><div class="mc"><i>Серия</i><b>${next.e.n} из ${next.s.totalEpisodes}</b></div><div class="mc"><i>Когда</i><b>${heroWhen(next.e.date)}</b></div><div class="mc"><i>Время</i><b>${next.e.time || next.s.time}</b></div><button type="button" class="heroarrow" data-goto="${next.e.date}" aria-label="Перейти к списку серий" title="К списку серий"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15M5.5 13l6.5 6.5 6.5-6.5"/></svg></button></div>
     ${epButtons(next.s.id, next.e.n)}</div>`;
 }
-const epButtons = (id, n) => `<span class="ra"><button class="btn small ghost" data-skip="${id}|${n}">Не выйдет</button></span>`;
+const epButtons = (id, n) => `<span class="ra"><button type="button" class="skipb" data-skip="${id}|${n}" title="Серия не выйдет, график сдвинется">не выйдет</button></span>`;
 
 // ---------- подписка ----------
 function renderSub() {
@@ -643,7 +647,7 @@ const rowHtml = (x, withBtns = true) => {
   const eps = x.group || [x], n = eps.map(g => g.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : `${n[0]}`;
   const upc = eps.find(g => upcomingNow(g)) || x;
   return `<div class="row">${thumb(x.s, lab)}
-  <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span><span class="t"><b class="te">${n.length > 1 ? `серии ${lab}` : `серия ${lab}`}</b><i class="tsep"></i>${x.e.time || x.s.time}</span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
+  <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span><span class="t"><span>${x.e.time || x.s.time}</span><i class="tsep"></i><b class="te">${n.length > 1 ? `серии ${lab}` : `серия ${lab}`}</b></span>${withBtns ? epButtons(x.s.id, upc.e.n) : ''}</div>`;
 };
 const groupDay = (list) => { const out = []; list.forEach(x => { const g = out.find(o => o.s.id === x.s.id); if (g) g.group.push(x); else out.push({ ...x, group: [x] }); }); return out; };
 function agArrows() {
@@ -861,7 +865,7 @@ function nextReleaseDate(s, from) {
 }
 function skipEpisode(id, n) {
   const { s, e } = epOf(id, n);
-  if (!confirm(`«${mainName(s)}», серия ${n} не выйдет ${dayLabel(e.date).toLowerCase()}.\nЭта и все следующие серии сдвинутся на следующий день выхода. Продолжить?`)) return;
+  const snap = JSON.stringify({ startDate: s.startDate, skipDates: s.skipDates || [], overrides: s.overrides || {} });
   s.overrides = s.overrides || {};
   let date = e.date;
   if (s.overrides[n]) { // у серии уже был перенос: считаем от даты по графику
@@ -871,6 +875,10 @@ function skipEpisode(id, n) {
   if (date === s.startDate) s.startDate = nextReleaseDate(s, date);
   else s.skipDates = [...new Set([...(s.skipDates || []), date])].sort();
   markDirty(); renderAll();
+  undoActive = true;
+  toast(`«${mainName(s)}», серия ${n} не выйдет: график сдвинут на неделю`, 'ok', 12000, 'Отменить', () => {
+    Object.assign(s, JSON.parse(snap)); markDirty(); renderAll(); toast('Возвращено', 'ok', 2000);
+  });
 }
 let mvTarget = null;
 function openMove(id, n) {
@@ -944,9 +952,11 @@ $('f').addEventListener('submit', (ev) => {
 function setStatus(t, cls) { $('status').innerHTML = cls ? `<span class="${cls}">${esc(t)}</span>` : esc(t); }
 let saveTimer = null, saving = false, again = false, toastT = null;
 const autoOn = () => !!(ls.get('ghRepo') && ls.get('ghToken'));
-function toast(t, cls, ms) {
+let undoActive = false;
+function toast(t, cls, ms, actLabel, actFn) {
   const el = $('toast'); el.textContent = t; el.className = 'toast ' + (cls || ''); el.hidden = false;
-  clearTimeout(toastT); if (ms) toastT = setTimeout(() => { el.hidden = true; }, ms);
+  if (actLabel) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tact'; b.textContent = actLabel; b.onclick = () => { el.hidden = true; undoActive = false; actFn(); }; el.appendChild(b); }
+  clearTimeout(toastT); if (ms) toastT = setTimeout(() => { el.hidden = true; undoActive = false; }, ms);
 }
 function markDirty() {
   dirty = true; ls.set('draft', JSON.stringify({ shows }));
@@ -986,7 +996,7 @@ async function doSave(auto) {
     await putFile('calendar.ics', DramaLib.buildICS(shows));
     shows.forEach(s => delete s._coverNew);
     dirty = false; ls.set('draft', '');
-    if (auto) toast('Сохранено, календарь обновится через пару минут', 'ok', 3500);
+    if (auto) { if (!undoActive) toast('Сохранено, календарь обновится через пару минут', 'ok', 3500); }
     else { setStatus('Сохранено. Календарь обновится в течение пары минут.', 'ok'); setTimeout(() => { if (!dirty) $('savebar').hidden = true; }, 6000); }
   } catch (e) {
     $('savebar').hidden = false; setStatus('Не удалось сохранить: ' + e.message + '. Нажмите, чтобы повторить.', 'bad'); $('toast').hidden = true;

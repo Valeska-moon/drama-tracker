@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-1645">
+<meta name="build" content="20261122-2345">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -661,11 +661,11 @@ function renderQueue() {
   shows.forEach(s => { const t = trOf(s); generateEpisodes(s).forEach(e => { if (epMs(s, e) <= now && !t.has(+e.n)) q.push({ s, e, ms: epMs(s, e) }); }); });
   q.sort((a, b) => a.ms - b.ms);
   $('trSec').hidden = !q.length; $('trN').textContent = q.length ? '· ' + q.length : '';
-  $('trq').innerHTML = q.map(x => `<div class="row q">${thumb(x.s, x.e.n)}
+  $('trq').innerHTML = q.map(x => `<div class="row q" data-show="${x.s.id}" title="Показать в «Мои сериалы»" style="cursor:pointer">${thumb(x.s, x.e.n)}
     <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n}</small></span>
     <span class="t"><span class="qd">${relDay(x.e.date)}</span></span><span class="ra"><button type="button" class="btn small main" data-trd="${x.s.id}|${x.e.n}" title="Отметить как переведённое">Готово</button></span></div>`).join('');
 }
-$('trq').addEventListener('click', (ev) => { const b = ev.target.closest('[data-trd]'); if (b) { const [id, n] = b.dataset.trd.split('|'); markTranslated(id, n); } });
+$('trq').addEventListener('click', (ev) => { const b = ev.target.closest('[data-trd]'); if (!b && !ev.target.closest('a')) { const r = ev.target.closest('[data-show]'); if (r) openShowCard(r.dataset.show); return; } if (b) { const [id, n] = b.dataset.trd.split('|'); markTranslated(id, n); } });
 
 function allEpisodes() {
   const out = [];
@@ -1122,13 +1122,16 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 checkUpdate();
 
 $('logoRef').addEventListener('click', (e) => { e.preventDefault(); if (dirty && autoOn()) { clearTimeout(saveTimer); doSave(true).finally(() => location.reload()); } else location.reload(); });
-$('upcoming').addEventListener('click', (ev) => { // клик по карточке «Ближайшие» → открыть сериал в «Мои сериалы»
-  const card = ev.target.closest('.acard'); if (!card || ev.target.closest('button, a')) return;
-  const id = card.dataset.show, sh = shows.find(x => x.id === id); if (!sh) return;
+function openShowCard(id) {
+  const sh = shows.find(x => x.id === id); if (!sh) return;
   openId = id; lq = ''; const q = $('lq'); if (q) q.value = '';
   if (lf === 'done') lf = 'all';
   renderList();
   const el = document.querySelector('.sr.open'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1500); }
+}
+$('upcoming').addEventListener('click', (ev) => { // клик по карточке «Ближайшие» → открыть сериал в «Мои сериалы»
+  const card = ev.target.closest('.acard'); if (!card || ev.target.closest('button, a')) return;
+  openShowCard(card.dataset.show);
 });
 // ---------- старт ----------
 (async function init() {

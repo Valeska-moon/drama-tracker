@@ -180,7 +180,7 @@
       <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
       <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option><option value="gen">Генератор команды</option></select></div>
     </div>
-    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea><p class="hint" id="bodyHint" hidden>Впиши команду целиком. На месте меняющихся частей поставь метки в двойных скобках: <b>{{url}}</b> — ссылка, <b>{{name}}</b> — название файла (The.Scent.of.Karma.E01), <b>{{title}}</b> — «Название - S01E03», любое другое слово — своё поле, например <b>{{height=720}}</b> (после = значение по умолчанию), <b>{{lang=En|Thai|Ch}}</b> — выпадающий список. Для name и title появится выбор сериала и серии.</p></div>
+    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea><p class="hint" id="bodyHint" hidden>Впиши команду целиком. На месте меняющихся частей поставь метки в двойных скобках: <b>{{url}}</b> — ссылка, <b>{{name}}</b> — название файла (The.Scent.of.Karma.E01), <b>{{title}}</b> — «Название - S01E03», <b>{{series}}</b> — имя папки сериала, любое другое слово — своё поле, например <b>{{height=720}}</b> (после = значение по умолчанию), <b>{{lang=En|Thai|Ch}}</b> — выпадающий список. Для name и title появится выбор сериала и серии.</p></div>
     <div id="codeBox" hidden><label>Блоки с кодом</label><div id="blkRows"></div><button type="button" class="btn small ghost" id="blkAdd">+ Блок</button></div>
     <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
   </div>
@@ -337,6 +337,7 @@ function genValues(n) {
   const st = genSt(n), sh = shows.find(x => x.id === st.series) || shows[0], v = {};
   genVars(n.body).forEach(({ k, d }) => {
     if (k === 'name' && sh) v[k] = sh.title.replace(/[’'`]/g, '').replace(/[^A-Za-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') + '.E' + pad2(st.ep);
+    else if (k === 'series' && sh) v[k] = (sh.ruTitle || sh.title).replace(/[\/\\:"`$]+/g, ' ').replace(/\s+/g, ' ').trim();
     else if (k === 'title' && sh) v[k] = (sh.ruTitle || sh.title) + ' - S01E' + pad2(st.ep);
     else v[k] = (st.v[k] ?? d.split('|')[0] ?? '').trim();
   });
@@ -344,9 +345,9 @@ function genValues(n) {
 }
 function genOut(n) { const v = genValues(n); let miss = []; const text = String(n.body).replace(/\{\{\s*([^}=\s]+)\s*(?:=([^}]*))?\}\}/g, (m, k) => { if (v[k]) return v[k]; miss.push(GLBL[k] || k); return '{{' + k + '}}'; }); return { text, miss: [...new Set(miss)] }; }
 function genHtml(n, editBtn) {
-  const st = genSt(n), ks = genVars(n.body), auto = ks.some(x => x.k === 'name' || x.k === 'title'), o = genOut(n);
+  const st = genSt(n), ks = genVars(n.body), auto = ks.some(x => ['name', 'title', 'series'].includes(x.k)), o = genOut(n);
   const fields = (auto ? `<div class="gf"><label>Сериал</label><select data-gsel="${n.id}">${shows.map(s => `<option value="${esc(s.id)}" ${s.id === st.series ? 'selected' : ''}>${esc(showName(s))}</option>`).join('')}</select></div><div class="gf sm"><label>Серия</label><input type="number" min="1" inputmode="numeric" data-gep="${n.id}" value="${st.ep}"></div>` : '')
-    + ks.filter(x => x.k !== 'name' && x.k !== 'title').map(x => x.d.includes('|') ? `<div class="gf sm"><label>${esc(GLBL[x.k] || x.k)}</label><select data-gopt="${n.id}|${esc(x.k)}">${x.d.split('|').map(o => `<option ${o.trim() === (st.v[x.k] ?? x.d.split('|')[0]).trim() ? 'selected' : ''}>${esc(o.trim())}</option>`).join('')}</select></div>` : `<div class="gf"><label>${esc(GLBL[x.k] || x.k)}</label><input type="text" data-gin="${n.id}|${esc(x.k)}" value="${esc(st.v[x.k] ?? x.d)}" placeholder="${esc(GLBL[x.k] || x.k)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`).join('');
+    + ks.filter(x => !['name', 'title', 'series'].includes(x.k)).map(x => x.d.includes('|') ? `<div class="gf sm"><label>${esc(GLBL[x.k] || x.k)}</label><select data-gopt="${n.id}|${esc(x.k)}">${x.d.split('|').map(o => `<option ${o.trim() === (st.v[x.k] ?? x.d.split('|')[0]).trim() ? 'selected' : ''}>${esc(o.trim())}</option>`).join('')}</select></div>` : `<div class="gf"><label>${esc(GLBL[x.k] || x.k)}</label><input type="text" data-gin="${n.id}|${esc(x.k)}" value="${esc(st.v[x.k] ?? x.d)}" placeholder="${esc(GLBL[x.k] || x.k)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`).join('');
   return `<article class="note wide gen" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${ordMode && !words().length ? `<button type="button" class="ib sm" data-mv="${n.id}|-1">←</button><button type="button" class="ib sm" data-mv="${n.id}|1">→</button>` : ''}${editBtn}</div></div>
     <div class="gfields">${fields}</div>
     <div class="cwrap"><pre class="code clamp" data-gout="${n.id}">${esc(o.text)}</pre></div>

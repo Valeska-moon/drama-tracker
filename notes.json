@@ -8,8 +8,16 @@
       "desc": "",
       "blocks": [
         {
-          "code": "pbpaste > \"$HOME/Downloads/Sub_EN.vtt\"; head -n 3 \"$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt\"; ls -l \"$HOME/Downloads\" | grep -i vtt",
-          "desc": ""
+          "code": "pbpaste > \"$HOME/Downloads/Sub_En.vtt\"",
+          "desc": "En"
+        },
+        {
+          "code": "pbpaste > \"$HOME/Downloads/Sub_Thai.vtt\"",
+          "desc": "Thai"
+        },
+        {
+          "code": "pbpaste > \"$HOME/Downloads/Sub_Ch.vtt\"",
+          "desc": "Ch"
         }
       ]
     },

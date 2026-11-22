@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="BL Tracker">
+<meta name="apple-mobile-web-app-title" content="Lumera Subs">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0303">
-<title>BL Tracker · график серий</title>
+<meta name="build" content="20261122-0308">
+<title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -199,6 +199,15 @@
   .atime { color: var(--pink); font: 500 14px var(--display); margin-top: 4px; }
   .acard .ra { padding: 10px 10px 12px; gap: 6px; }
   .acard .btn.small { flex: 1; padding: 6px 4px; font-size: 12px; }
+  .trn { color: var(--pink); font-family: var(--text); font-weight: 600; font-size: .8em; margin-left: 6px; }
+  .qd { font-family: var(--text); font-weight: 500; font-size: 14px; color: var(--ash); }
+  .row.q .t { gap: 0; }
+  .bar { position: relative; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; }
+  .bar i.a { background: rgba(255,138,196,.38); }
+  .tl.past.wait { opacity: .95; border-color: var(--pink); }
+  .tl.past[data-tr] { cursor: pointer; }
+  .tl.tr::after { content: "✓"; display: block; font-size: 11px; line-height: 1; margin-top: 3px; color: var(--pink); font-weight: 700; }
   .skipb { font: inherit; font-size: 12.5px; color: var(--ash); opacity: .55; background: none; border: 0; padding: 6px 8px; cursor: pointer; border-radius: 8px; }
   .skipb:hover { opacity: 1; color: var(--bone); }
   .acard .skipb { flex: 1; text-align: center; padding: 4px; }
@@ -408,13 +417,18 @@
 <body>
 <main>
   <div class="top">
-    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>BL Tracker</h1></div>
+    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>Lumera Subs</h1></div>
     <div class="topacts"><a class="btn nbtn" href="notes.html" aria-label="Заметки"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h3"/></svg><span>Заметки</span></a><button class="btn main" id="addBtn" type="button">+ Добавить<span class="lg"> сериал</span></button></div>
   </div>
 
   <div class="hero" id="hero"></div>
 
   <div class="sub" id="subCard"></div>
+
+  <section id="trSec" hidden>
+    <div class="sechead"><h2>Ждут перевода <span class="trn" id="trN"></span></h2></div>
+    <div id="trq"></div>
+  </section>
 
   <section>
     <div class="sechead"><h2>Ближайшие серии</h2>
@@ -590,6 +604,33 @@ function heroWhen(dateStr) {
 }
 function short(dateStr) { const d = new Date(dateStr + 'T00:00:00Z'); return `${DAYN[d.getUTCDay()]} ${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}`; }
 
+// ---------- перевод ----------
+const yday = () => fmtDate(new Date(DramaLib.parseDate(todayStr()).getTime() - 864e5));
+function migrateTr(s) { // у сериала ещё нет отметок: всё, что вышло раньше вчера, считаем переведённым
+  if (Array.isArray(s.translated)) return false;
+  const y = yday(); s.translated = generateEpisodes(s).filter(e => e.date < y).map(e => +e.n); return true;
+}
+const trOf = (s) => new Set((s.translated || []).map(Number));
+function setTr(id, n, on) {
+  const s = shows.find(x => x.id === id); if (!s) return; const t = trOf(s); on ? t.add(+n) : t.delete(+n);
+  s.translated = [...t].sort((a, b) => a - b); markDirty(); renderAll();
+}
+function markTranslated(id, n) {
+  const s = shows.find(x => x.id === id); setTr(id, n, true); undoActive = true;
+  toast(`«${mainName(s)}», серия ${n} переведена`, 'ok', 7000, 'Отменить', () => { setTr(id, n, false); toast('Возвращено в очередь', 'ok', 2000); });
+}
+function relDay(ds) { const d = Math.round((DramaLib.parseDate(todayStr()) - DramaLib.parseDate(ds)) / 864e5); return d <= 0 ? 'вышла сегодня' : d === 1 ? 'вышла вчера' : `вышла ${d} дн. назад`; }
+function renderQueue() {
+  const now = Date.now(), q = [];
+  shows.forEach(s => { const t = trOf(s); generateEpisodes(s).forEach(e => { if (epMs(s, e) <= now && !t.has(+e.n)) q.push({ s, e, ms: epMs(s, e) }); }); });
+  q.sort((a, b) => a.ms - b.ms);
+  $('trSec').hidden = !q.length; $('trN').textContent = q.length ? '· ' + q.length : '';
+  $('trq').innerHTML = q.map(x => `<div class="row q">${thumb(x.s, x.e.n)}
+    <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n}</small></span>
+    <span class="t"><span class="qd">${relDay(x.e.date)}</span></span><span class="ra"><button type="button" class="btn small main" data-trd="${x.s.id}|${x.e.n}">Переведено</button></span></div>`).join('');
+}
+$('trq').addEventListener('click', (ev) => { const b = ev.target.closest('[data-trd]'); if (b) { const [id, n] = b.dataset.trd.split('|'); markTranslated(id, n); } });
+
 function allEpisodes() {
   const out = [];
   shows.forEach(s => generateEpisodes(s).forEach(e => out.push({ s, e, ms: epMs(s, e) })));
@@ -740,13 +781,13 @@ function renderList() {
   document.querySelectorAll('#lf button').forEach(b => b.classList.toggle('on', b.dataset.f === lf));
   if (!shows.length) { $('list').innerHTML = '<p class="hint">Список пуст. Нажмите «Добавить сериал».</p>'; return; }
   const now = Date.now(), N = tilesN(), q = lq.trim().toLowerCase();
-  const info = shows.map(s => { const eps = generateEpisodes(s), aired = eps.filter(e => epMs(s, e) <= now).length; return { s, eps, aired, done: eps.length > 0 && aired >= eps.length }; });
+  const info = shows.map(s => { const eps = generateEpisodes(s), aired = eps.filter(e => epMs(s, e) <= now).length, tset = trOf(s), trN = eps.filter(e => epMs(s, e) <= now && tset.has(+e.n)).length; return { s, eps, aired, trN, tset, done: eps.length > 0 && aired >= eps.length }; });
   const nRun = info.filter(i => !i.done).length, nDone = info.length - nRun;
   document.querySelector('#lf [data-f="run"]').textContent = `Идут · ${nRun}`;
   document.querySelector('#lf [data-f="done"]').textContent = `Завершены · ${nDone}`;
   const vis = info.filter(i => (lf === 'all' || (lf === 'done') === i.done) && (!q || (i.s.title + ' ' + (i.s.ruTitle || '') + ' ' + (i.s.siteName || '') + ' ' + cname(i.s)).toLowerCase().includes(q)));
   if (!vis.length) { $('list').innerHTML = `<p class="hint">${q ? 'Ничего не нашлось.' : lf === 'done' ? 'Завершённых сериалов пока нет.' : 'Сейчас нет идущих сериалов.'}</p>`; return; }
-  const cards = vis.map(({ s, eps, aired, done }) => {
+  const cards = vis.map(({ s, eps, aired, trN, tset, done }) => {
     const tot = eps.length || 1, isOpen = openId === s.id;
     const days = (s.weekdays && s.weekdays.length ? ORDER.filter(d => s.weekdays.includes(d)) : []);
     const ne = eps.find(e => epMs(s, e) > now) || eps[eps.length - 1];
@@ -761,7 +802,7 @@ function renderList() {
       body = `<div class="srx"><div class="in">
         ${cname(s) ? `<div class="cline">${flagSvg(countryOf(s), 16)}${cname(s)}</div>` : ''}
         <div class="trow"><button class="tarr" data-win="${s.id}|-1" aria-label="Раньше" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-          <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => `<div class="tl ${idx < nxI || nxI < 0 ? 'past' : idx === nxI ? 'nx' : ''}"><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`).join('')}</div>
+          <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => { const past = idx < nxI || nxI < 0, t = tset.has(+e.n); return `<div class="tl ${past ? 'past' : idx === nxI ? 'nx' : ''}${past && t ? ' tr' : ''}${past && !t ? ' wait' : ''}"${past ? ` data-tr="${s.id}|${e.n}" title="${t ? 'Переведена: нажмите, чтобы снять отметку' : 'Нажмите, когда переведёте'}"` : ''}><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`; }).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
         ${linkBtns(s) ? `<div class="alinks srl">${linkBtns(s)}</div>` : ''}<div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost del" data-d="${s.id}">Удалить</button></div></div></div>`;
@@ -771,8 +812,8 @@ function renderList() {
         <div class="srp" style="${coverSrc(s) ? bgi(coverSrc(s)) : ''}">${flagSvg(countryOf(s), 22, 'lf')}<b>${eps.length}</b></div>
         <div class="srm"><div class="srn">${esc(mainName(s))}<small${subName(s) ? '' : ' class="ph" aria-hidden="true"'}>${subName(s) ? esc(subName(s)) : '&nbsp;'}</small></div>
           <div class="srcols">${cname(s) ? `<span class="cn">${flagSvg(countryOf(s), 15)}${cname(s)}</span>` : ''}${dayTxt ? `<span>${dayTxt}</span>` : ''}<span>${esc(s.time)}</span></div>
-          <div class="bar"><i style="width:${Math.round(aired / tot * 100)}%"></i></div>
-          <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`}</div></div>
+          <div class="bar"><i class="a" style="width:${Math.round(aired / tot * 100)}%"></i><i style="width:${Math.round(trN / tot * 100)}%"></i></div>
+          <div class="prog">${done ? 'Все серии вышли' : `Вышло ${aired} из ${eps.length}`} · переведено ${trN}</div></div>
         <svg class="srch" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </div>${body}</article>`;
   });
@@ -795,7 +836,7 @@ function initTiles() {
   });
 }
 $('list').addEventListener('scroll', (ev) => { const sc = ev.target; if (sc.classList && sc.classList.contains('tiles')) { tw[sc.dataset.sid] = sc.scrollLeft; tileArrows(sc); } }, true);
-function renderAll() { renderHero(); renderUpcoming(); renderList(); }
+function renderAll() { renderHero(); renderQueue(); renderUpcoming(); renderList(); }
 setInterval(renderHero, 60000);
 
 // ---------- форма ----------
@@ -917,6 +958,7 @@ $('list').addEventListener('click', (ev) => {
   const us = q('[data-us]'), uo = q('[data-uo]'), eb = q('[data-e]'), db = q('[data-d]'), wb = q('[data-win]'), tg = q('[data-tog]');
   if (us) { const [id, date] = us.dataset.us.split('|'); const s = shows.find(x => x.id === id); s.skipDates = (s.skipDates || []).filter(x => x !== date); markDirty(); renderAll(); }
   else if (uo) { const [id, n] = uo.dataset.uo.split('|'); const s = shows.find(x => x.id === id); delete s.overrides[n]; markDirty(); renderAll(); }
+  else if (ev.target.closest('[data-tr]')) { const el = ev.target.closest('[data-tr]'), [id, n] = el.dataset.tr.split('|'); setTr(id, n, !trOf(shows.find(x => x.id === id)).has(+n)); }
   else if (eb) startEdit(eb.dataset.e);
   else if (db) { if (confirm('Удалить сериал? Его серии пропадут из календаря после сохранения.')) { shows = shows.filter(s => s.id !== db.dataset.d); markDirty(); renderAll(); } }
   else if (wb) { const [id, dir] = wb.dataset.win.split('|'); const sc = wb.parentElement.querySelector('.tiles'); sc.scrollBy({ left: +dir * sc.clientWidth * 0.8, behavior: 'smooth' }); }
@@ -941,7 +983,8 @@ function startEdit(id) {
 $('f').addEventListener('submit', (ev) => {
   ev.preventDefault();
   const s = readForm(), i = shows.findIndex(x => x.id === s.id), old = shows[i];
-  if (old) { ['cover', 'coverV', '_coverData', '_coverNew'].forEach(k => { if (old[k] !== undefined) s[k] = old[k]; }); }
+  if (old) { ['cover', 'coverV', '_coverData', '_coverNew', 'translated'].forEach(k => { if (old[k] !== undefined) s[k] = old[k]; }); }
+  migrateTr(s);
   if (pendingCover === 'remove') ['cover', 'coverV', '_coverData', '_coverNew'].forEach(k => delete s[k]);
   else if (pendingCover) { s.cover = 'covers/' + s.id + '.jpg'; s.coverV = Date.now(); s._coverData = pendingCover; s._coverNew = true; }
   if (i >= 0) shows[i] = s; else shows.push(s);
@@ -1035,6 +1078,7 @@ checkUpdate();
       else ls.set('draft', '');
     } catch {}
   }
+  { let ch = false; shows.forEach(x => { if (migrateTr(x)) ch = true; }); if (ch) markDirty(); }
   const nx = allEpisodes().find(x => x.ms > Date.now() - 3 * 3600e3); if (nx) { goDate(nx.e.date); const m0 = mondayOf(todayStr()); if (DramaLib.parseDate(nx.e.date) - DramaLib.parseDate(m0) < 14 * 864e5) calStart = m0; }
   renderAll(); renderPreview();
 })();

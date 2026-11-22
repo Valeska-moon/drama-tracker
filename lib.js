@@ -82,7 +82,7 @@
       'PRODID:-//drama-tracker//RU',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:BL Tracker',
+      'X-WR-CALNAME:Lumera Subs',
       'X-WR-TIMEZONE:Europe/Minsk',
       'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
       'X-PUBLISHED-TTL:PT1H',

@@ -43,32 +43,44 @@
   .btn.small { padding:6px 14px; font-size:14px; }
   .btn.ghost { background:transparent; }
   .head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-  .head .acts { display:flex; gap:8px; flex-wrap:wrap; }
+  .head .acts { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .ib.lg { width:38px; height:38px; }
+  [hidden] { display:none !important; }
   .search { width:100%; font:inherit; font-size:16px; color:var(--bone); background:var(--glass); border:1px solid var(--line); border-radius:999px; padding:10px 18px; color-scheme:dark; }
   .search:focus, input:focus, textarea:focus, select:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(255,138,196,.2); }
   .chips { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 20px; }
   .chip { font:inherit; font-size:14px; color:var(--ash); background:var(--glass); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; }
   .chip b { font-weight:500; opacity:.6; margin-left:4px; }
   .chip.on { background:var(--pink); border-color:var(--pink); color:var(--deep); font-weight:600; }
-  .grid { display:flex; gap:14px; align-items:flex-start; }
+  #grid { display:flex; flex-direction:column; gap:14px; }
+  .gr { display:flex; gap:14px; align-items:flex-start; }
   .col { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
   .note { border:1px solid var(--line); border-radius:22px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:16px 18px; }
-  .nh { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .nh { display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .nh h3 { margin:0; font-size:16px; font-weight:600; line-height:1.35; }
-  .sec { color:var(--ash); font-size:12.5px; margin-top:2px; }
   .nact { display:flex; gap:6px; flex:none; }
-  .ib { width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--glass); color:var(--bone); cursor:pointer; display:grid; place-items:center; padding:0; font:inherit; }
+  .ib { width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--glass); color:var(--bone); cursor:pointer; display:grid; place-items:center; padding:0; font:inherit; flex:none; }
   .ib:hover { border-color:var(--pink); color:var(--pink); }
   .ib svg { width:16px; height:16px; }
+  .ib.sm { width:30px; height:30px; font-size:13px; }
   .desc { color:var(--ash); font-size:14px; margin:8px 0 0; white-space:pre-wrap; }
-  .code { position:relative; margin:10px 0 0; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 14px; font:13px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; color:#ffe3f1; }
+  .cblock { margin-top:10px; }
+  .code { position:relative; margin:0; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 46px 12px 14px; font:13px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; color:#ffe3f1; }
+  .cblock .cp { position:absolute; top:7px; right:7px; }
+  .cwrap { position:relative; }
+  .cdesc { color:var(--ash); font-size:13.5px; margin:6px 2px 0; white-space:pre-wrap; }
   .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
-  .pairs { margin:10px 0 0; display:flex; flex-direction:column; gap:6px; }
-  .pair { display:flex; align-items:center; gap:10px; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:8px 10px; cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; }
-  .pair:hover { border-color:var(--pink); }
-  .pair code { font:12.5px/1.4 var(--mono); color:#ffe3f1; overflow-wrap:anywhere; flex:1 1 55%; min-width:0; }
-  .pair span { color:var(--ash); font-size:13px; flex:1 1 45%; min-width:0; }
-  .pair.done { border-color:var(--ok); }
+  .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
+  .tgroup { min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .gt { font-size:13px; font-weight:600; color:var(--pink); margin:0 0 2px 2px; }
+  .tg { display:block; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:8px 12px; cursor:pointer; }
+  .tg:hover { border-color:var(--pink); }
+  .tg code { display:block; font:12.5px/1.5 var(--mono); color:#ffe3f1; white-space:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .tg code::-webkit-scrollbar { display:none; }
+  .tg span { display:block; color:var(--ash); font-size:12.5px; margin-top:1px; }
+  .tg.s { display:flex; align-items:center; gap:12px; }
+  .tg.s code { flex:none; } .tg.s span { margin:0; }
+  .tg.done { border-color:var(--ok); }
   .empty { color:var(--ash); text-align:center; padding:40px 10px; }
   .hint { color:var(--ash); font-size:13.5px; }
   dialog { color:var(--bone); background:#130e12; border:1px solid var(--line); border-radius:30px; padding:0; width:min(640px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); }
@@ -88,19 +100,25 @@
   .prow { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
   .prow input { flex:1; min-width:0; }
   .prow input:first-child { font-family:var(--mono); font-size:14px; flex:1.2; }
+  .blk, .grp { border:1px solid var(--line); border-radius:16px; padding:10px; margin-bottom:10px; background:var(--glass); }
+  .blk textarea { min-height:64px; font-family:var(--mono); font-size:14px; margin-bottom:6px; }
+  .blk .bt, .grp .gtop { display:flex; gap:6px; align-items:center; }
+  .blk input { margin-bottom:0; }
+  .blk .bt input { flex:1; min-width:0; }
+  .grp .gtop input { flex:1; min-width:0; font-weight:600; }
+  .grp .prow { margin:8px 0 0; }
   .prev { margin-top:14px; white-space:pre-wrap; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-size:14px; overflow-wrap:anywhere; }
   .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:50; max-width:calc(100vw - 32px); padding:10px 18px; border-radius:999px; background:rgba(26,15,23,.92); border:1px solid var(--line); backdrop-filter:blur(8px); font-size:14px; box-shadow:0 8px 28px rgba(0,0,0,.5); text-align:center; }
   .toast.ok { border-color:var(--pink); color:var(--pale); } .toast.bad { border-color:var(--bad); color:var(--bad); } .toast[hidden] { display:none; }
   .warn { border:1px solid var(--bad); color:var(--bad); border-radius:14px; padding:10px 14px; margin-bottom:16px; font-size:14px; }
   body:has(dialog[open]) { overflow:hidden; }
-  @media (max-width:860px) { .grid { display:block; } .col { margin-bottom:14px; } .col:last-child { margin-bottom:0; } .col:empty { display:none; } }
+  @media (max-width:860px) { .gr { display:block; } .col { margin-bottom:14px; } .col:last-child { margin-bottom:0; } .col:empty { display:none; } .tgroups { grid-template-columns:1fr; } }
   @media (max-width:640px) {
     main { padding-left:14px; padding-right:14px; }
     dialog { width:calc(100vw - 20px); max-width:calc(100vw - 20px); max-height:calc(94dvh - env(safe-area-inset-bottom)); margin:auto 10px calc(8px + env(safe-area-inset-bottom)); border-radius:26px; }
     .dlghead { padding:16px 16px 4px; } .dlgbody { padding:0 16px 10px; } .dlg-foot { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
     .dlg-foot .btn { flex:1; } .dlghead h2 { font-size:17px; }
     .head .acts { width:100%; } .head .acts .btn { flex:1; }
-    .pair { flex-wrap:wrap; } .pair code, .pair span { flex-basis:100%; }
   }
 </style>
 </head>
@@ -111,11 +129,11 @@
     <a class="btn" href="./">← Сериалы</a>
   </div>
   <div class="head"><h2>Заметки</h2>
-    <div class="acts"><button class="btn small" id="genBtn" type="button">Подпись к видео</button><button class="btn main small" id="addBtn" type="button">+ Заметка</button></div></div>
+    <div class="acts"><button class="ib lg" id="qBtn" type="button" aria-label="Поиск" title="Поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="btn small" id="genBtn" type="button">Подпись к видео</button><button class="btn main small" id="addBtn" type="button">+ Заметка</button></div></div>
   <div id="nosave" class="warn" hidden>Заметки сохраняются так же, как сериалы. Сначала впишите ключ GitHub в «Настройки сохранения» внизу <a href="./">главной страницы</a>.</div>
-  <input class="search" id="q" type="search" placeholder="Поиск по заметкам" autocomplete="off" enterkeyhint="search">
+  <input class="search" id="q" type="search" placeholder="Найти по названию, команде или тегу" autocomplete="off" enterkeyhint="search" hidden>
   <div class="chips" id="chips"></div>
-  <div class="grid" id="grid"></div>
+  <div id="grid"></div>
 </main>
 
 <dialog id="dlg"><form id="f" class="dlg">
@@ -123,12 +141,13 @@
   <div class="dlgbody">
     <label>Название</label><input type="text" id="nTitle" required>
     <div class="two">
-      <div><label>Раздел</label><input type="text" id="nSec" list="secList" placeholder="Например: Терминал" required><datalist id="secList"></datalist></div>
+      <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
       <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option></select></div>
     </div>
     <label>Пояснение (необязательно)</label><input type="text" id="nDesc">
-    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea></div>
-    <div id="pairBox" hidden><label>Теги и пояснения</label><div id="pairRows"></div><button type="button" class="btn small ghost" id="pairAdd">+ Строка</button></div>
+    <div id="bodyBox"><label>Текст</label><textarea id="nBody" rows="6"></textarea></div>
+    <div id="codeBox" hidden><label>Блоки с кодом</label><div id="blkRows"></div><button type="button" class="btn small ghost" id="blkAdd">+ Блок</button></div>
+    <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
   </div>
   <div class="dlg-foot"><button class="btn ghost" type="button" id="nDel" hidden>Удалить</button><span style="flex:1"></span><button class="btn ghost" type="button" id="nCancel">Отмена</button><button class="btn main" type="submit">Сохранить</button></div>
 </form></dialog>
@@ -147,13 +166,11 @@
       <div><label>Серия</label><input type="number" id="gEp" value="1" min="1" inputmode="numeric"></div>
       <div></div>
     </div>
-    <label>Описание на английском с сайта (необязательно)</label><textarea id="gSrc" rows="3" placeholder="Вставь сюда синопсис с MyDramaList или MKVDrama"></textarea>
-    <button type="button" class="btn small" id="gPrompt" style="margin-top:10px">Скопировать запрос для Claude</button>
-    <p class="hint">Вставь этот запрос в чат с Claude: он напишет описание в твоём стиле, с учётом сохранённых примеров. Готовое описание вставь ниже.</p>
     <label>Описание сюжета</label><textarea id="gDesc" rows="4" placeholder="Сюда вставь ответ Claude"></textarea>
     <div class="prev" id="gPrev"></div>
+    <p class="hint">«Копировать подпись» кладёт текст в буфер обмена. «Сохранить в «Подписи»» добавляет её в заметки как пример.</p>
   </div>
-  <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить как заметку</button><button class="btn main" type="button" id="gCopy">Копировать подпись</button></div>
+  <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить в «Подписи»</button><button class="btn main" type="button" id="gCopy">Копировать подпись</button></div>
 </form></dialog>
 <div class="toast" id="toast" hidden></div>
 
@@ -163,34 +180,44 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<'
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
 const uid = () => 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
+const TAG_GROUPS = [
+  { title: 'Цвет и размер', pairs: [['{\\c&HFFEED9&}', 'мой цвет'], ['{\\fs60}', 'уменьшить размер']] },
+  { title: 'Положение', pairs: [['{\\pos(1500,220)}', 'для рандомного места'], ['{\\an2\\pos(960,970)}', 'чуть выше текст']] },
+  { title: 'Стиль текста', pairs: [['{\\i1}', 'курсив'], ['{\\s1}', 'зачёркнутый текст'], ['{\\r}', 'отмена тегов']] },
+  { title: 'Для комментариев', pairs: [['{\\an1\\i1\\pos(70,70)\\fs40\\c&HFFEED9&}', 'для моих комментариев']] },
+];
 const SEED = [
-  { id: 'seed1', section: 'Терминал', kind: 'code', title: 'Скачать видео', desc: 'mime-type:application/x-mpegurl',
-    body: 'pbpaste > "$HOME/Downloads/video-request.sh"\n\nhead -c 4 "$HOME/Downloads/video-request.sh"; echo' },
-  { id: 'seed2', section: 'Терминал', kind: 'code', title: 'Скачать субтитры', desc: '',
-    body: 'pbpaste > "$HOME/Downloads/Sub_EN.vtt"; head -n 3 "$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt"; ls -l "$HOME/Downloads" | grep -i vtt' },
+  { id: 'seed1', section: 'Терминал', kind: 'code', title: 'Скачать видео', desc: '', blocks: [
+    { code: 'mime-type:application/x-mpegurl', desc: '' }, { code: 'pbpaste > "$HOME/Downloads/video-request.sh"', desc: '' }, { code: 'head -c 4 "$HOME/Downloads/video-request.sh"; echo', desc: '' }] },
+  { id: 'seed2', section: 'Терминал', kind: 'code', title: 'Скачать субтитры', desc: '', blocks: [
+    { code: 'pbpaste > "$HOME/Downloads/Sub_EN.vtt"; head -n 3 "$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt"; ls -l "$HOME/Downloads" | grep -i vtt', desc: '' }] },
   { id: 'seed3', section: 'Терминал', kind: 'text', title: 'Объединить видео', desc: '',
     body: 'Здесь была вложенная заметка «скачать и объеденить видео.txt». Вложения в PDF не переносятся: пришли файл Claude, и его можно будет добавить сюда.' },
-  { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: 'Нажми на строку, чтобы скопировать тег.',
-    pairs: [['{\\c&HFFEED9&}', 'мой цвет'], ['{\\fs60}', 'уменьшить размер'], ['{\\pos(1500,220)}', 'для рандомного места'], ['{\\an2\\pos(960,970)}', 'чуть выше текст'],
-      ['{\\i1}', 'курсив'], ['{\\s1}', 'зачёркнутый текст'], ['{\\r}', 'отмена тегов'], ['{\\an1\\i1\\pos(70,70)\\fs40\\c&HFFEED9&}', 'для моих комментариев']] },
-  { id: 'seed5', section: 'Подписи', kind: 'text', title: 'Последний замок любви', desc: '',
-    body: 'Последний замок любви 1 серия | Русские субтитры FSG Lumera\n\nThe Last Lock of Love (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nЧат узнаёт в новом начальнике парня, с которым провёл ночь, и теперь им приходится работать вместе, будто ничего не было.' },
-  { id: 'seed6', section: 'Подписи', kind: 'text', title: 'Научи меня, прикоснись ко мне', desc: '',
-    body: 'Научи меня, прикоснись ко мне 1 серия | Русские субтитры FSG Lumera\n\nTeach Me, Touch Me (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nВ VIP-комнате ночного клуба студент Гир знакомится с Канти и просит его научить его близости. Канти отказывает, но Гир так просто не сдаётся.' },
-  { id: 'seed7', section: 'Подписи', kind: 'text', title: 'Мои тайные парни', desc: '',
-    body: 'Мои тайные парни 1 серия | Русские субтитры FSG Lumera\n\nMy Secret Boyfriends (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nДан своим трудом выбился из бедности, и теперь его привычка экономить на всём раздражает коллегу Сэйнта. Когда семейные проблемы неожиданно сближают их, Дану приходится разобраться в своих чувствах к Сэйнту и к Джеймсу, бывшему наставнику, в которого он давно тайно влюблён.' },
-  { id: 'seed8', section: 'Подписи', kind: 'text', title: 'Потому что это бизнес', desc: '',
-    body: 'Потому что это бизнес 2 серия | Русские субтитры FSG Lumera\n\nIt’s Strictly Business (2026) — японская дорама / локон с русскими субтитрами от LUMERA.\n\nЧтобы понравиться девушкам, студент договаривается с популярным однокурсником Иссэем притвориться парой. План срабатывает куда лучше, чем он ожидал, только теперь девушки видят в нём друга, а Иссэй продолжает флиртовать даже наедине.' },
-  { id: 'seed9', section: 'Подписи', kind: 'text', title: 'Игра в любовь с моим врагом', desc: '',
-    body: 'Игра в любовь с моим врагом 1 серия | Русские субтитры FSG Lumera\n\nLove Game with My Enemy (2026) — тайский лакорн / дорама с русскими субтитрами от LUMERA.\n\nПосле гибели двоюродного брата Понга Ломныа теряет веру в любовь. Знакомство с Дэнчоном, сыном влиятельного политика, связывает его с девушкой, которую он винит в трагедии. Ненависть и жажда мести превращают их сближение в опасную игру, но зарождающиеся чувства постепенно меняют правила. Теперь обоим предстоит понять, где заканчивается расчёт и начинается настоящая любовь.' },
+  { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: '', groups: TAG_GROUPS },
 ];
 
 let notes = [], sec = '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
 
+// приводим заметки старого формата к новому (блоки кода, группы тегов)
+function norm(n) {
+  let ch = false;
+  if (n.kind === 'code' && !Array.isArray(n.blocks)) {
+    n.blocks = n.id === 'seed1' ? JSON.parse(JSON.stringify(SEED[0].blocks)) : (n.body || '').split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).map(code => ({ code, desc: '' }));
+    if (n.id === 'seed1') n.desc = ''; delete n.body; ch = true;
+  }
+  if (n.kind === 'pairs' && !Array.isArray(n.groups)) {
+    n.groups = n.id === 'seed4' && (n.pairs || []).length === 8 ? JSON.parse(JSON.stringify(TAG_GROUPS)) : [{ title: '', pairs: n.pairs || [] }];
+    if (n.desc === 'Нажми на строку, чтобы скопировать тег.') n.desc = ''; delete n.pairs; ch = true;
+  }
+  if (typeof n.body === 'string' && n.body.includes('/ локон')) { n.body = n.body.replace(/\/ локон/g, '/ лакорн'); ch = true; }
+  return ch;
+}
+
 // ---------- загрузка и сохранение ----------
 async function load() {
   try { const r = await fetch('notes.json?' + Date.now(), { cache: 'no-store' }); if (r.ok) { notes = (await r.json()).notes || []; loaded = true; } } catch {}
-  if (!loaded) { notes = JSON.parse(JSON.stringify(SEED)); dirty = true; } // первый запуск: переносим заметки из PDF
+  if (!loaded) { notes = JSON.parse(JSON.stringify(SEED)); dirty = true; }
+  if (notes.map(norm).some(Boolean)) dirty = true; // старый формат заметок переводим в новый
   $('nosave').hidden = !!(ls.get('ghRepo') && ls.get('ghToken'));
   render();
   if (dirty && ls.get('ghRepo') && ls.get('ghToken')) scheduleSave(300);
@@ -225,52 +252,68 @@ async function copy(text) {
 const ICON_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
 const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
 const sections = () => { const m = []; notes.forEach(n => { if (!m.includes(n.section)) m.push(n.section); }); return m; };
-const textOf = (n) => [n.title, n.section, n.desc, n.body, ...(n.pairs || []).flat()].join(' ').toLowerCase();
+const textOf = (n) => [n.title, n.section, n.desc, n.body, ...(n.blocks || []).flatMap(b => [b.code, b.desc]), ...(n.groups || []).flatMap(g => [g.title, ...g.pairs.flat()])].join(' ').toLowerCase();
 function noteHtml(n) {
   let body = '';
-  if (n.kind === 'code') body = `<pre class="code">${esc(n.body)}</pre>`;
-  else if (n.kind === 'pairs') body = `<div class="pairs">${(n.pairs || []).map((p, i) => `<button type="button" class="pair" data-cp="${n.id}|${i}"><code>${esc(p[0])}</code><span>${esc(p[1])}</span></button>`).join('')}</div>`;
+  if (n.kind === 'code') body = (n.blocks || []).map((b, i) => `<div class="cblock"><div class="cwrap"><pre class="code">${esc(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${i}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div>${b.desc ? `<div class="cdesc">${esc(b.desc)}</div>` : ''}</div>`).join('');
+  else if (n.kind === 'pairs') body = `<div class="tgroups">${(n.groups || []).map((g, gi) => `<div class="tgroup">${g.title ? `<div class="gt">${esc(g.title)}</div>` : ''}${g.pairs.map((p, i) => `<button type="button" class="tg ${p[0].length <= 14 ? 's' : ''}" data-cp="${n.id}|${gi}|${i}"><code>${esc(p[0])}</code>${p[1] ? `<span>${esc(p[1])}</span>` : ''}</button>`).join('')}</div>`).join('')}</div>`;
   else body = `<div class="txt">${esc(n.body)}</div>`;
-  const canCopy = n.kind !== 'pairs';
-  return `<article class="note" data-id="${n.id}"><div class="nh"><div><h3>${esc(n.title)}</h3><div class="sec">${esc(n.section)}</div></div>
-    <div class="nact">${canCopy ? `<button type="button" class="ib" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button>` : ''}<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>
+  return `<article class="note" data-id="${n.id}"><div class="nh"><h3>${esc(n.title)}</h3>
+    <div class="nact">${n.kind === 'text' ? `<button type="button" class="ib" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button>` : ''}<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>
     ${n.desc ? `<p class="desc">${esc(n.desc)}</p>` : ''}${body}</article>`;
 }
 function render() {
   const secs = sections();
   $('chips').innerHTML = `<button class="chip ${sec === '' ? 'on' : ''}" data-sec="">Все<b>${notes.length}</b></button>` + secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('');
-  $('secList').innerHTML = secs.map(s => `<option value="${esc(s)}">`).join('');
   const qq = q.trim().toLowerCase();
   const list = notes.filter(n => (!sec || n.section === sec) && (!qq || textOf(n).includes(qq)));
-  if (!list.length) { $('grid').innerHTML = `<div class="empty" style="width:100%">${notes.length ? 'Ничего не найдено.' : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
-  const two = matchMedia('(min-width: 861px)').matches, cols = two ? [[], []] : [[]];
-  list.forEach((n, i) => cols[i % cols.length].push(n));
-  $('grid').innerHTML = cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('');
+  if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? 'Ничего не найдено.' : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
+  const two = matchMedia('(min-width: 861px)').matches; let html = '', seg = [];
+  const flush = () => { if (!seg.length) return; const cols = two ? [[], []] : [[]]; seg.forEach((n, i) => cols[i % cols.length].push(n)); html += `<div class="gr">${cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('')}</div>`; seg = []; };
+  list.forEach(n => { if (n.kind === 'pairs') { flush(); html += noteHtml(n); } else seg.push(n); }); flush();
+  $('grid').innerHTML = html;
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
+$('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
 $('chips').addEventListener('click', (e) => { const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; render(); } });
 $('grid').addEventListener('click', (e) => {
-  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]');
-  if (c) { const n = notes.find(x => x.id === c.dataset.copy); copy(n.body); }
+  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]');
+  if (c) { copy(notes.find(x => x.id === c.dataset.copy).body); }
   else if (ed) openEdit(ed.dataset.edit);
-  else if (p) { const [id, i] = p.dataset.cp.split('|'); const n = notes.find(x => x.id === id); copy(n.pairs[+i][0]); p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
+  else if (cb) { const [id, i] = cb.dataset.cb.split('|'); copy(notes.find(x => x.id === id).blocks[+i].code); }
+  else if (p) { const [id, g, i] = p.dataset.cp.split('|'); copy(notes.find(x => x.id === id).groups[+g].pairs[+i][0]); p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
 });
 
 // ---------- редактирование ----------
-function pairRow(a = '', b = '') { const d = document.createElement('div'); d.className = 'prow'; d.innerHTML = `<input type="text" placeholder="Тег" value="${esc(a)}"><input type="text" placeholder="Что делает" value="${esc(b)}"><button type="button" class="ib" aria-label="Убрать строку">✕</button>`; d.querySelector('button').onclick = () => d.remove(); return d; }
-function applyKind() {
-  const k = $('nKind').value; $('pairBox').hidden = k !== 'pairs'; $('bodyBox').hidden = k === 'pairs';
-  $('bodyLbl').textContent = k === 'code' ? 'Команда или код' : 'Текст'; $('nBody').classList.toggle('mono', k === 'code');
-  if (k === 'pairs' && !$('pairRows').children.length) $('pairRows').appendChild(pairRow());
+const mvBtns = () => '<button type="button" class="ib sm" data-up aria-label="Выше">↑</button><button type="button" class="ib sm" data-down aria-label="Ниже">↓</button><button type="button" class="ib sm" data-rm aria-label="Удалить">✕</button>';
+function reorder(box, ev) { const row = ev.target.closest('.blk, .grp'); if (!row || !ev.target.closest('button')) return;
+  if (ev.target.closest('[data-rm]')) row.remove(); else if (ev.target.closest('[data-up]') && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+  else if (ev.target.closest('[data-down]') && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row); }
+function blkRow(b = { code: '', desc: '' }) { const d = document.createElement('div'); d.className = 'blk'; d.innerHTML = `<textarea placeholder="Команда или код" rows="2">${esc(b.code)}</textarea><div class="bt"><input type="text" placeholder="Пояснение (необязательно)" value="${esc(b.desc)}">${mvBtns()}</div>`; return d; }
+function pairRow(a = '', b = '') { const d = document.createElement('div'); d.className = 'prow'; d.innerHTML = `<input type="text" placeholder="Тег" value="${esc(a)}"><input type="text" placeholder="Что делает" value="${esc(b)}"><button type="button" class="ib sm" aria-label="Убрать">✕</button>`; d.querySelector('button').onclick = () => d.remove(); return d; }
+function grpRow(g = { title: '', pairs: [] }) { const d = document.createElement('div'); d.className = 'grp'; d.innerHTML = `<div class="gtop"><input type="text" placeholder="Название группы" value="${esc(g.title)}">${mvBtns()}</div><div class="prows"></div><button type="button" class="btn small ghost" data-addtag style="margin-top:8px">+ Тег</button>`;
+  const rows = d.querySelector('.prows'); (g.pairs.length ? g.pairs : [['', '']]).forEach(p => rows.appendChild(pairRow(p[0], p[1]))); d.querySelector('[data-addtag]').onclick = () => rows.appendChild(pairRow()); return d; }
+$('blkRows').addEventListener('click', (ev) => reorder($('blkRows'), ev)); $('grpRows').addEventListener('click', (ev) => { if (ev.target.closest('.gtop')) reorder($('grpRows'), ev); });
+$('blkAdd').onclick = () => $('blkRows').appendChild(blkRow()); $('grpAdd').onclick = () => $('grpRows').appendChild(grpRow());
+function secOptions(selected) {
+  $('nSec').innerHTML = `<option value="">Выберите раздел</option>` + sections().map(x => `<option value="${esc(x)}" ${x === selected ? 'selected' : ''}>${esc(x)}</option>`).join('') + '<option value="__new">+ Новый раздел</option>';
+  $('nSecNew').hidden = true; $('nSecNew').value = '';
 }
-$('nKind').onchange = applyKind; $('pairAdd').onclick = () => $('pairRows').appendChild(pairRow());
+$('nSec').onchange = () => { const nw = $('nSec').value === '__new'; $('nSecNew').hidden = !nw; if (nw) $('nSecNew').focus(); };
+function applyKind() {
+  const k = $('nKind').value; $('bodyBox').hidden = k !== 'text'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs';
+  if (k === 'code' && !$('blkRows').children.length) $('blkRows').appendChild(blkRow());
+  if (k === 'pairs' && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());
+}
+$('nKind').onchange = applyKind;
 function openEdit(id) {
   editing = id; const n = id ? notes.find(x => x.id === id) : null;
   $('ft').textContent = n ? 'Изменить заметку' : 'Новая заметка';
-  $('nTitle').value = n ? n.title : ''; $('nSec').value = n ? n.section : (sec || ''); $('nKind').value = n ? n.kind : 'text';
+  $('nTitle').value = n ? n.title : ''; secOptions(n ? n.section : sec); $('nKind').value = n ? n.kind : 'text';
   $('nDesc').value = n ? (n.desc || '') : ''; $('nBody').value = n && n.body ? n.body : '';
-  $('pairRows').innerHTML = ''; (n && n.pairs || []).forEach(p => $('pairRows').appendChild(pairRow(p[0], p[1])));
+  $('blkRows').innerHTML = ''; (n && n.blocks || []).forEach(b => $('blkRows').appendChild(blkRow(b)));
+  $('grpRows').innerHTML = ''; (n && n.groups || []).forEach(g => $('grpRows').appendChild(grpRow(g)));
   $('nDel').hidden = !n; applyKind(); $('dlg').showModal();
 }
 $('addBtn').onclick = () => openEdit(null);
@@ -279,17 +322,21 @@ $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').
 $('nDel').onclick = () => { if (!confirm('Удалить заметку?')) return; notes = notes.filter(x => x.id !== editing); $('dlg').close(); render(); scheduleSave(); };
 $('f').addEventListener('submit', (e) => {
   e.preventDefault();
-  const kind = $('nKind').value, n = { id: editing || uid(), section: $('nSec').value.trim(), kind, title: $('nTitle').value.trim(), desc: $('nDesc').value.trim() };
-  if (kind === 'pairs') n.pairs = [...$('pairRows').children].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0] || p[1]);
+  const kind = $('nKind').value, section = $('nSec').value === '__new' ? $('nSecNew').value.trim() : $('nSec').value;
+  if (!section) { toast('Выберите раздел или впишите новый', 'bad', 2500); return; }
+  const n = { id: editing || uid(), section, kind, title: $('nTitle').value.trim(), desc: $('nDesc').value.trim() };
+  if (kind === 'code') n.blocks = [...$('blkRows').children].map(r => ({ code: r.querySelector('textarea').value.replace(/\s+$/, ''), desc: r.querySelector('input').value.trim() })).filter(b => b.code);
+  else if (kind === 'pairs') n.groups = [...$('grpRows').children].map(g => ({ title: g.querySelector('.gtop input').value.trim(), pairs: [...g.querySelectorAll('.prow')].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0]) })).filter(g => g.pairs.length);
   else n.body = $('nBody').value.replace(/\s+$/, '');
   const i = notes.findIndex(x => x.id === n.id); if (i >= 0) notes[i] = n; else notes.unshift(n);
   $('dlg').close(); render(); scheduleSave();
 });
 
 // ---------- подпись к видео ----------
-const TYPES = { TH: 'тайский лакорн / дорама', JP: 'японская дорама / локон', CN: 'китайская дорама', KR: 'корейская дорама', TW: 'тайваньская дорама', HK: 'гонконгская дорама' };
+const ADJ = { TH: 'тайский', JP: 'японская', CN: 'китайская', KR: 'корейская', TW: 'тайваньская', HK: 'гонконгская' };
+const typeText = (c) => c === 'TH' ? 'тайский лакорн / дорама' : `${ADJ[c]} дорама / лакорн`;
 let shows = [], autoC = {};
-$('gType').innerHTML = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+$('gType').innerHTML = Object.keys(ADJ).map(k => `<option value="${k}">${typeText(k)}</option>`).join('');
 (async () => {
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
   try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
@@ -298,23 +345,17 @@ $('gType').innerHTML = Object.entries(TYPES).map(([k, v]) => `<option value="${k
 $('gShow').onchange = () => {
   const s = shows.find(x => x.id === $('gShow').value); if (!s) return;
   $('gRu').value = s.ruTitle || ''; $('gOrig').value = s.title; $('gYear').value = (s.startDate || '').slice(0, 4) || 2026;
-  const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && TYPES[c]) $('gType').value = c; prev();
+  const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && ADJ[c]) $('gType').value = c; prev();
 };
 const caption = () => {
   const ru = $('gRu').value.trim() || $('gOrig').value.trim(), orig = $('gOrig').value.trim() || ru, n = $('gEp').value || 1, d = $('gDesc').value.trim();
-  return `${ru} ${n} серия | Русские субтитры FSG Lumera\n\n${orig} (${$('gYear').value || ''}) — ${TYPES[$('gType').value]} с русскими субтитрами от LUMERA.${d ? '\n\n' + d : ''}`;
+  return `${ru} ${n} серия | Русские субтитры FSG Lumera\n\n${orig} (${$('gYear').value || ''}) — ${typeText($('gType').value)} с русскими субтитрами от LUMERA.${d ? '\n\n' + d : ''}`;
 };
 const prev = () => { $('gPrev').textContent = caption(); };
 ['gRu', 'gOrig', 'gYear', 'gEp', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
 $('genBtn').onclick = () => { prev(); $('gdlg').showModal(); };
 $('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (e) => { if (e.target === $('gdlg')) $('gdlg').close(); });
 $('gCopy').onclick = () => copy(caption());
-$('gPrompt').onclick = () => {
-  const ex = notes.filter(n => n.section === 'Подписи' && n.kind === 'text').map(n => (n.body.split(/\n\s*\n/)[2] || '').trim()).filter(Boolean).slice(-4);
-  const ru = $('gRu').value.trim(), orig = $('gOrig').value.trim(), src = $('gSrc').value.trim();
-  const t = `Напиши описание сюжета для подписи к видео с русскими субтитрами. Стиль как в примерах: 2–4 предложения, пересказ завязки без спойлеров, имена героев так, как они пишутся в русских субтитрах, простой живой язык.\n\nСериал: ${ru ? ru + ' / ' : ''}${orig} (${$('gYear').value}), ${TYPES[$('gType').value]}.\n${src ? 'Описание-источник (на английском):\n' + src : 'Найди описание сюжета самостоятельно по названию.'}\n\nПримеры моих описаний:\n${ex.map((e, i) => `${i + 1}. ${e}`).join('\n\n')}`;
-  copy(t);
-};
 $('gSave').onclick = () => {
   const ru = $('gRu').value.trim() || $('gOrig').value.trim(); if (!ru) { toast('Впишите название', 'bad', 2000); return; }
   notes.unshift({ id: uid(), section: 'Подписи', kind: 'text', title: ru, desc: '', body: caption() }); $('gdlg').close(); render(); scheduleSave(); toast('Добавлено в «Подписи»', 'ok', 2000);

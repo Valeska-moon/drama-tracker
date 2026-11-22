@@ -4,7 +4,8 @@
     "the-scent-of-karma-2026|3|английские субтитры": "2026-11-21T18:09:44.180Z",
     "the-scent-of-karma-2026|2|английские субтитры": "2026-11-21T18:09:44.180Z",
     "the-scent-of-karma-2026|1|английские субтитры": "2026-11-21T18:09:44.180Z",
-    "the-last-lock-of-love-2026|3|английские субтитры": "2026-11-22T04:07:55.722Z"
+    "the-last-lock-of-love-2026|3|английские субтитры": "2026-11-22T04:07:55.722Z",
+    "the-grim-lover-2026|1|английские субтитры": "2026-11-22T13:26:51.648Z"
   },
   "started": true,
   "shows": {
@@ -14,7 +15,7 @@
     "smwqopgtl": true,
     "smwqorxej": true,
     "smwqp3byh": true,
-    "smwqp6vy0": false,
+    "smwqp6vy0": true,
     "smwqp9ciq": true
   },
   "mkv": {},
@@ -70,6 +71,12 @@
         "3": "Nov. 22, 2026",
         "4": "Nov. 22, 2026"
       }
+    },
+    "smwqp6vy0": {
+      "sub": [],
+      "next": {
+        "1": "Nov. 28, 2026"
+      }
     }
   },
   "countries": {
@@ -78,7 +85,8 @@
     "smwqopgtl": "TH",
     "smwqorxej": "TH",
     "smwqp3byh": "JP",
-    "smwqp9ciq": "CN"
+    "smwqp9ciq": "CN",
+    "smwqp6vy0": "TH"
   },
   "links": {
     "smwqoeznv": "https://ww19.myasiantv.es/tv/teach-me-touch-me/",
@@ -86,6 +94,7 @@
     "smwqopgtl": "https://ww19.myasiantv.es/tv/the-last-lock-of-love/",
     "smwqorxej": "https://ww19.myasiantv.es/tv/my-secret-boyfriends/",
     "smwqp3byh": "https://ww19.myasiantv.es/tv/its-just-business/",
-    "smwqp9ciq": "https://ww19.myasiantv.es/tv/the-scent-of-karma/"
+    "smwqp9ciq": "https://ww19.myasiantv.es/tv/the-scent-of-karma/",
+    "smwqp6vy0": "https://ww19.myasiantv.es/tv/the-grim-lover/"
   }
 }

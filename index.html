@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0418">
+<meta name="build" content="20261122-0432">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -160,7 +160,7 @@
   .calhead .btn { width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
   .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
   .cal .wd { text-align: center; color: var(--ash); font-size: 12.5px; padding-bottom: 2px; }
-  .cell { position: relative; aspect-ratio: 3 / 4; min-height: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px;
+  .cell { position: relative; aspect-ratio: 3 / 4; min-height: 0; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); padding: 6px; transition: border-color .2s, background .2s, transform .25s cubic-bezier(.2,.8,.3,1);
     display: flex; flex-direction: column; gap: 5px; cursor: pointer; font: inherit; color: var(--bone); text-align: left; }
   .cell:hover { border-color: rgba(255,138,196,.5); }
   .cell.out { opacity: .32; }
@@ -174,6 +174,26 @@
   .minis.n2, .minis.n3, .minis.n4 { grid-template-rows: repeat(2, minmax(0, 1fr)); }  /* 2 и больше сериалов: плитки сверху вполовину высоты */
   .minis.n3 .tile:last-child { grid-column: 1 / -1; justify-self: center; width: calc(50% - 2px); }  /* третий по центру снизу */
   .tile.past { opacity: .4; }
+  /* лёгкая «жизнь»: только на устройствах с мышью, без лишнего */
+  .tile { transition: transform .32s cubic-bezier(.2,.9,.3,1.25), box-shadow .3s, opacity .2s; }
+  .today:not(.sel) { animation: todayGlow 3.6s ease-in-out infinite; }
+  @keyframes todayGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,138,196,0); } 50% { box-shadow: 0 0 18px 0 rgba(255,138,196,.22); } }
+  .btn:active, .skipb:active, .cell:active { transform: scale(.97); }
+  @media (hover: hover) and (pointer: fine) {
+    .cell:hover { z-index: 5; transform: translateY(-2px); background: rgba(255,138,196,.07); }
+    .cell:hover .tile:not(.nocv) { box-shadow: 0 8px 18px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.2); }
+    .cell:hover .tile:nth-child(1) { transform: translate(-4px, -3px) rotate(-4deg) scale(1.13); }
+    .cell:hover .tile:nth-child(2) { transform: translate(5px, -2px) rotate(3.5deg) scale(1.12); transition-delay: .03s; }
+    .cell:hover .tile:nth-child(3) { transform: translate(-3px, 2px) rotate(-2deg) scale(1.1); transition-delay: .06s; }
+    .cell:hover .tile:nth-child(4) { transform: translate(4px, 2px) rotate(2.5deg) scale(1.1); transition-delay: .09s; }
+    .cell:hover .tile.past { opacity: .75; }
+    .acard { transition: transform .3s cubic-bezier(.2,.8,.3,1), border-color .25s, box-shadow .3s; }
+    .acard:hover { transform: translateY(-4px); border-color: rgba(255,138,196,.45); box-shadow: 0 14px 28px rgba(0,0,0,.45), 0 0 24px rgba(255,138,196,.1); }
+    .sr, .row { transition: border-color .25s, transform .25s cubic-bezier(.2,.8,.3,1), box-shadow .3s; }
+    .sr:not(.open):hover { transform: translateY(-2px); border-color: rgba(255,138,196,.4); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+  }
+  @media (prefers-reduced-motion: reduce) { .today { animation: none !important; } .cell, .tile, .acard, .sr, .row { transition: none !important; } .cell:hover, .cell:hover .tile, .acard:hover, .sr:hover { transform: none !important; } }
+
   .tile u { position: absolute; inset: 0; display: grid; place-items: center; text-decoration: none; font: 800 26px var(--display); color: var(--deep); opacity: .5; }
   .tile b { position: absolute; right: 4px; bottom: 4px; min-width: 20px; padding: 2px 5px; border-radius: 7px; background: var(--pink); color: var(--deep);
     font: 700 11px/1.2 var(--display); text-align: center; white-space: nowrap; }

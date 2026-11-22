@@ -1012,10 +1012,10 @@ UID:smwqp9ciq-ep1@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261122T160000Z
 DTEND:20261122T170000Z
-SUMMARY:The Scent of Karma — серия 1/10
+SUMMARY:Аромат кармы — серия 1/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 1
+DESCRIPTION:Через час: Аромат кармы\, серия 1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1024,10 +1024,10 @@ UID:smwqp9ciq-ep2@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261122T160000Z
 DTEND:20261122T170000Z
-SUMMARY:The Scent of Karma — серия 2/10
+SUMMARY:Аромат кармы — серия 2/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 2
+DESCRIPTION:Через час: Аромат кармы\, серия 2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1036,10 +1036,10 @@ UID:smwqp9ciq-ep3@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261122T160000Z
 DTEND:20261122T170000Z
-SUMMARY:The Scent of Karma — серия 3/10
+SUMMARY:Аромат кармы — серия 3/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 3
+DESCRIPTION:Через час: Аромат кармы\, серия 3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1048,10 +1048,10 @@ UID:smwqp9ciq-ep4@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261129T160000Z
 DTEND:20261129T170000Z
-SUMMARY:The Scent of Karma — серия 4/10
+SUMMARY:Аромат кармы — серия 4/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 4
+DESCRIPTION:Через час: Аромат кармы\, серия 4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1060,10 +1060,10 @@ UID:smwqp9ciq-ep5@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261206T160000Z
 DTEND:20261206T170000Z
-SUMMARY:The Scent of Karma — серия 5/10
+SUMMARY:Аромат кармы — серия 5/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 5
+DESCRIPTION:Через час: Аромат кармы\, серия 5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1072,10 +1072,10 @@ UID:smwqp9ciq-ep6@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261213T160000Z
 DTEND:20261213T170000Z
-SUMMARY:The Scent of Karma — серия 6/10
+SUMMARY:Аромат кармы — серия 6/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 6
+DESCRIPTION:Через час: Аромат кармы\, серия 6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1084,10 +1084,10 @@ UID:smwqp9ciq-ep7@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261220T160000Z
 DTEND:20261220T170000Z
-SUMMARY:The Scent of Karma — серия 7/10
+SUMMARY:Аромат кармы — серия 7/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 7
+DESCRIPTION:Через час: Аромат кармы\, серия 7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1096,10 +1096,10 @@ UID:smwqp9ciq-ep8@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20261227T160000Z
 DTEND:20261227T170000Z
-SUMMARY:The Scent of Karma — серия 8/10
+SUMMARY:Аромат кармы — серия 8/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 8
+DESCRIPTION:Через час: Аромат кармы\, серия 8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1108,10 +1108,10 @@ UID:smwqp9ciq-ep9@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20270103T160000Z
 DTEND:20270103T170000Z
-SUMMARY:The Scent of Karma — серия 9/10
+SUMMARY:Аромат кармы — серия 9/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 9
+DESCRIPTION:Через час: Аромат кармы\, серия 9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1120,10 +1120,10 @@ UID:smwqp9ciq-ep10@drama-tracker
 DTSTAMP:20261122T090000Z
 DTSTART:20270110T160000Z
 DTEND:20270110T170000Z
-SUMMARY:The Scent of Karma — серия 10/10
+SUMMARY:Аромат кармы — серия 10/10
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: The Scent of Karma\, серия 10
+DESCRIPTION:Через час: Аромат кармы\, серия 10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

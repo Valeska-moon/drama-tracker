@@ -11,7 +11,7 @@
   "shows": {
     "smwqoeznv": true,
     "smwqoisuc": true,
-    "smwqonc4m": false,
+    "smwqonc4m": true,
     "smwqopgtl": true,
     "smwqorxej": true,
     "smwqp3byh": true,
@@ -77,6 +77,12 @@
       "next": {
         "1": "Nov. 28, 2026"
       }
+    },
+    "smwqonc4m": {
+      "sub": [],
+      "next": {
+        "1": "Nov. 22, 2026"
+      }
     }
   },
   "countries": {
@@ -86,7 +92,8 @@
     "smwqorxej": "TH",
     "smwqp3byh": "JP",
     "smwqp9ciq": "CN",
-    "smwqp6vy0": "TH"
+    "smwqp6vy0": "TH",
+    "smwqonc4m": "TH"
   },
   "links": {
     "smwqoeznv": "https://ww19.myasiantv.es/tv/teach-me-touch-me/",
@@ -95,7 +102,8 @@
     "smwqorxej": "https://ww19.myasiantv.es/tv/my-secret-boyfriends/",
     "smwqp3byh": "https://ww19.myasiantv.es/tv/its-just-business/",
     "smwqp9ciq": "https://ww19.myasiantv.es/tv/the-scent-of-karma/",
-    "smwqp6vy0": "https://ww19.myasiantv.es/tv/the-grim-lover/"
+    "smwqp6vy0": "https://ww19.myasiantv.es/tv/the-grim-lover/",
+    "smwqonc4m": "https://ww19.myasiantv.es/tv/gun-shot/"
   },
-  "down": true
+  "down": false
 }

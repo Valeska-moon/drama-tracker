@@ -64,23 +64,34 @@
   .ib svg { width:16px; height:16px; }
   .ib.sm { width:30px; height:30px; font-size:13px; }
   .desc { color:var(--ash); font-size:14px; margin:8px 0 0; white-space:pre-wrap; }
-  .cblock { margin-top:10px; }
+  .cblock { margin-top:12px; }
+  .cdesc { color:var(--ash); font-size:13.5px; margin:0 2px 5px; white-space:pre-wrap; }
   .code { position:relative; margin:0; background:#0d0a0c; border:1px solid var(--line); border-radius:14px; padding:12px 46px 12px 14px; font:13px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; color:#ffe3f1; }
+  .code.clamp { max-height:4.7em; overflow:hidden; cursor:pointer; -webkit-mask-image:linear-gradient(#000 60%,transparent); mask-image:linear-gradient(#000 60%,transparent); }
+  .code.clamp.open { max-height:none; -webkit-mask-image:none; mask-image:none; }
   .cblock .cp { position:absolute; top:7px; right:7px; }
   .cwrap { position:relative; }
-  .cdesc { color:var(--ash); font-size:13.5px; margin:6px 2px 0; white-space:pre-wrap; }
   .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
   .tgroup { min-width:0; display:flex; flex-direction:column; gap:6px; }
-  .gt { font-size:13px; font-weight:600; color:var(--pink); margin:0 0 2px 2px; }
-  .tg { display:block; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:8px 12px; cursor:pointer; }
+  .gt { font-size:16px; font-weight:700; color:var(--pink); margin:0 0 4px 2px; }
+  .tg { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:9px 14px; cursor:pointer; }
   .tg:hover { border-color:var(--pink); }
-  .tg code { display:block; font:12.5px/1.5 var(--mono); color:#ffe3f1; white-space:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .tg span { font-size:14.5px; font-weight:500; color:var(--bone); min-width:0; }
+  .tg code { font:12px/1.4 var(--mono); color:var(--ash); white-space:nowrap; flex:none; max-width:60%; overflow-x:auto; scrollbar-width:none; text-align:right; }
   .tg code::-webkit-scrollbar { display:none; }
-  .tg span { display:block; color:var(--ash); font-size:12.5px; margin-top:1px; }
-  .tg.s { display:flex; align-items:center; gap:12px; }
-  .tg.s code { flex:none; } .tg.s span { margin:0; }
+  .tg.l { flex-direction:column; align-items:stretch; gap:3px; }
+  .tg.l code { max-width:100%; text-align:right; }
   .tg.done { border-color:var(--ok); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
+  .tile { position:relative; border:1px solid var(--line); border-radius:18px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:12px 14px; cursor:pointer; min-height:92px; display:flex; flex-direction:column; gap:4px; }
+  .tile:hover { border-color:var(--pink); }
+  .tile.done { border-color:var(--ok); }
+  .tile .th { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .tile h3 { margin:0; font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .tile .pv2 { color:var(--ash); font-size:13px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word; }
+  mark { background:rgba(255,138,196,.3); color:inherit; border-radius:3px; padding:0 1px; }
+  .chips.srch .chip.on { background:var(--glass); border-color:var(--line); color:var(--ash); font-weight:400; }
   .empty { color:var(--ash); text-align:center; padding:40px 10px; }
   .hint { color:var(--ash); font-size:13.5px; }
   dialog { color:var(--bone); background:#130e12; border:1px solid var(--line); border-radius:30px; padding:0; width:min(640px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); }
@@ -196,7 +207,7 @@ const SEED = [
   { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: '', groups: TAG_GROUPS },
 ];
 
-let notes = [], sec = '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
+let notes = [], sec = ls.get('notesSec') || '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
 
 // приводим заметки старого формата к новому (блоки кода, группы тегов)
 function norm(n) {
@@ -252,37 +263,61 @@ async function copy(text) {
 const ICON_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
 const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
 const sections = () => { const m = []; notes.forEach(n => { if (!m.includes(n.section)) m.push(n.section); }); return m; };
-const textOf = (n) => [n.title, n.section, n.desc, n.body, ...(n.blocks || []).flatMap(b => [b.code, b.desc]), ...(n.groups || []).flatMap(g => [g.title, ...g.pairs.flat()])].join(' ').toLowerCase();
-function noteHtml(n) {
+const words = () => q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+const rx = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function hl(t) { // подсветка найденных слов (текст экранируется здесь же)
+  let h = esc(t); const ws = words(); if (!ws.length) return h;
+  const re = new RegExp('(' + ws.map(w => rx(esc(w))).join('|') + ')', 'gi'); return h.replace(re, '<mark>$1</mark>');
+}
+const hasAll = (hay, ws) => ws.every(w => hay.toLowerCase().includes(w));
+// что показать из заметки при поиске: null = заметка не подходит; иначе отфильтрованная копия
+function filterNote(n) {
+  const ws = words(); if (!ws.length) return n;
+  const head = [n.title, n.desc].join(' ');
+  if (n.kind === 'text') return hasAll(head + ' ' + n.body + ' ' + n.section, ws) ? n : null;
+  if (hasAll(head, ws)) return n;
+  if (n.kind === 'code') { const blocks = (n.blocks || []).filter(b => hasAll(head + ' ' + b.code + ' ' + b.desc, ws)); return blocks.length ? { ...n, blocks } : null; }
+  const groups = (n.groups || []).map(g => ({ ...g, pairs: g.pairs.filter(p => hasAll(head + ' ' + g.title + ' ' + p[0] + ' ' + p[1], ws)) })).filter(g => g.pairs.length);
+  return groups.length ? { ...n, groups } : null;
+}
+const orig = (n) => notes.find(x => x.id === n.id);
+function noteHtml(n0) {
+  const n = n0, o = orig(n0);
+  const editBtn = `<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button>`;
+  if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
-  if (n.kind === 'code') body = (n.blocks || []).map((b, i) => `<div class="cblock"><div class="cwrap"><pre class="code">${esc(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${i}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div>${b.desc ? `<div class="cdesc">${esc(b.desc)}</div>` : ''}</div>`).join('');
-  else if (n.kind === 'pairs') body = `<div class="tgroups">${(n.groups || []).map((g, gi) => `<div class="tgroup">${g.title ? `<div class="gt">${esc(g.title)}</div>` : ''}${g.pairs.map((p, i) => `<button type="button" class="tg ${p[0].length <= 14 ? 's' : ''}" data-cp="${n.id}|${gi}|${i}"><code>${esc(p[0])}</code>${p[1] ? `<span>${esc(p[1])}</span>` : ''}</button>`).join('')}</div>`).join('')}</div>`;
-  else body = `<div class="txt">${esc(n.body)}</div>`;
-  return `<article class="note" data-id="${n.id}"><div class="nh"><h3>${esc(n.title)}</h3>
-    <div class="nact">${n.kind === 'text' ? `<button type="button" class="ib" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button>` : ''}<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>
-    ${n.desc ? `<p class="desc">${esc(n.desc)}</p>` : ''}${body}</article>`;
+  if (n.kind === 'code') body = (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc ? `<div class="cdesc">${hl(b.desc)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('');
+  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg ${p[0].length > 18 ? 'l' : ''}" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code>${hl(p[0])}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
+  return `<article class="note" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
 }
 function render() {
-  const secs = sections();
-  $('chips').innerHTML = `<button class="chip ${sec === '' ? 'on' : ''}" data-sec="">Все<b>${notes.length}</b></button>` + secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('');
-  const qq = q.trim().toLowerCase();
-  const list = notes.filter(n => (!sec || n.section === sec) && (!qq || textOf(n).includes(qq)));
-  if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? 'Ничего не найдено.' : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
-  const two = matchMedia('(min-width: 861px)').matches; let html = '', seg = [];
-  const flush = () => { if (!seg.length) return; const cols = two ? [[], []] : [[]]; seg.forEach((n, i) => cols[i % cols.length].push(n)); html += `<div class="gr">${cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('')}</div>`; seg = []; };
-  list.forEach(n => { if (n.kind === 'pairs') { flush(); html += noteHtml(n); } else seg.push(n); }); flush();
+  const secs = sections(), ws = words(), searching = ws.length > 0;
+  if (!secs.includes(sec)) sec = secs[0] || '';
+  $('chips').classList.toggle('srch', searching);
+  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('');
+  const base = searching ? notes : notes.filter(n => n.section === sec);
+  const list = base.map(filterNote).filter(Boolean);
+  if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? (searching ? 'Ничего не найдено.' : 'В этом разделе пока пусто.') : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
+  const two = matchMedia('(min-width: 861px)').matches; let html = '', seg = [], kind = '';
+  const flush = () => { if (!seg.length) return;
+    if (kind === 'text') html += `<div class="tiles">${seg.map(noteHtml).join('')}</div>`;
+    else { const cols = two ? [[], []] : [[]]; seg.forEach((n, i) => cols[i % cols.length].push(n)); html += `<div class="gr">${cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('')}</div>`; }
+    seg = []; };
+  list.forEach(n => { if (n.kind === 'pairs') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
   $('grid').innerHTML = html;
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; render(); } });
+$('chips').addEventListener('click', (e) => { const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
-  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]');
-  if (c) { copy(notes.find(x => x.id === c.dataset.copy).body); }
-  else if (ed) openEdit(ed.dataset.edit);
+  const cl = e.target.closest('pre.clamp'); if (cl) { cl.classList.toggle('open'); return; }
+  const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]'), tl = e.target.closest('[data-tile]');
+  if (ed) openEdit(ed.dataset.edit);
+  else if (c) { copy(notes.find(x => x.id === c.dataset.copy).body); }
   else if (cb) { const [id, i] = cb.dataset.cb.split('|'); copy(notes.find(x => x.id === id).blocks[+i].code); }
   else if (p) { const [id, g, i] = p.dataset.cp.split('|'); copy(notes.find(x => x.id === id).groups[+g].pairs[+i][0]); p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
+  else if (tl) { copy(notes.find(x => x.id === tl.dataset.tile).body); tl.classList.add('done'); setTimeout(() => tl.classList.remove('done'), 900); }
 });
 
 // ---------- редактирование ----------
@@ -329,6 +364,7 @@ $('f').addEventListener('submit', (e) => {
   else if (kind === 'pairs') n.groups = [...$('grpRows').children].map(g => ({ title: g.querySelector('.gtop input').value.trim(), pairs: [...g.querySelectorAll('.prow')].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0]) })).filter(g => g.pairs.length);
   else n.body = $('nBody').value.replace(/\s+$/, '');
   const i = notes.findIndex(x => x.id === n.id); if (i >= 0) notes[i] = n; else notes.unshift(n);
+  sec = n.section; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; }
   $('dlg').close(); render(); scheduleSave();
 });
 

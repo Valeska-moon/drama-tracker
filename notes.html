@@ -107,6 +107,9 @@
   .gcopy { margin-top:12px; width:100%; }
   .gen .code { padding-right:14px; }
   .gen .code.clamp:not(.open) { max-height:7.8em; }
+  .more { margin-top:14px; border-top:1px solid var(--line); padding-top:10px; }
+  .more summary { cursor:pointer; color:var(--ash); font-size:13.5px; padding:4px 0; }
+  .more[open] summary { margin-bottom:6px; }
   .tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
   @media (max-width:560px) { .tiles { grid-template-columns:1fr; } }
   .tile { position:relative; border:1px solid var(--line); border-radius:18px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:12px 14px; cursor:pointer; min-height:104px; display:flex; flex-direction:column; gap:4px; }
@@ -196,20 +199,21 @@
 <dialog id="gdlg"><form id="gf" class="dlg" onsubmit="return false">
   <div class="dlghead"><h2>Подпись к видео</h2><button type="button" class="ib" id="gx" aria-label="Закрыть">✕</button></div>
   <div class="dlgbody">
-    <label>Взять из моих сериалов</label><select id="gShow"><option value="">Новый сериал</option></select>
-    <label>Название по-русски</label><input type="text" id="gRu" placeholder="Например: Мои тайные парни">
-    <label>Оригинальное название</label><input type="text" id="gOrig" placeholder="Например: My Secret Boyfriends">
     <div class="two">
-      <div><label>Страна и тип</label><select id="gType"></select></div>
-      <div><label>Год</label><input type="number" id="gYear" value="2026" inputmode="numeric"></div>
-    </div>
-    <div class="two">
+      <div><label>Сериал</label><select id="gShow"><option value="">Выбери сериал</option></select></div>
       <div><label>Серия</label><input type="number" id="gEp" value="1" min="1" inputmode="numeric"></div>
-      <div></div>
     </div>
-    <label>Описание сюжета</label><textarea id="gDesc" rows="4" placeholder="Сюда вставь ответ Claude"></textarea>
+    <label>Краткое описание</label><textarea id="gDesc" rows="4" placeholder="Вставь краткое описание сюжета"></textarea>
+    <details class="more" id="gMore"><summary>Название, год и тип (подставляются сами)</summary>
+      <label>Название по-русски</label><input type="text" id="gRu" placeholder="Например: Мои тайные парни">
+      <label>Оригинальное название</label><input type="text" id="gOrig" placeholder="Например: My Secret Boyfriends">
+      <div class="two">
+        <div><label>Страна и тип</label><select id="gType"></select></div>
+        <div><label>Год</label><input type="number" id="gYear" value="2026" inputmode="numeric"></div>
+      </div>
+    </details>
     <div class="prev" id="gPrev"></div>
-    <p class="hint">«Копировать подпись» кладёт текст в буфер обмена. «Сохранить в «Подписи»» добавляет её в заметки как пример.</p>
+    <p class="hint">«Копировать подпись» кладёт текст в буфер обмена. «Сохранить в «Подписи»» добавляет заметку; если подпись этого сериала уже есть, обновляет её.</p>
   </div>
   <div class="dlg-foot"><button class="btn ghost" type="button" id="gSave">Сохранить в «Подписи»</button><button class="btn main" type="button" id="gCopy">Копировать подпись</button></div>
 </form></dialog>
@@ -388,7 +392,7 @@ $('grid').addEventListener('input', (e) => { const t = e.target; if (t.dataset.g
 $('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gopt) { const [id, k] = t.dataset.gopt.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); return; } if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd') && sec === 'Подписи') { openGen(); return; } if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
   const gc = e.target.closest('[data-gcopy]');
   if (gc) { const n = notes.find(x => x.id === gc.dataset.gcopy), o = genOut(n); if (o.miss.length) { toast('Заполни: ' + o.miss.join(', '), 'bad', 2500); return; } copy(o.text); return; }
@@ -463,10 +467,12 @@ $('gType').innerHTML = Object.keys(ADJ).map(k => `<option value="${k}">${typeTex
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
   try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
   if (notes.length) render();
-  $('gShow').innerHTML = '<option value="">Новый сериал</option>' + shows.map(s => `<option value="${esc(s.id)}">${esc(s.ruMain && s.ruTitle ? s.ruTitle : s.title)}</option>`).join('');
+  $('gShow').innerHTML = '<option value="">Выбери сериал</option>' + shows.map(s => `<option value="${esc(s.id)}">${esc(s.ruMain && s.ruTitle ? s.ruTitle : s.title)}</option>`).join('') + '<option value="__manual">Другой (вписать вручную)</option>';
 })();
 $('gShow').onchange = () => {
+  $('gMore').open = $('gShow').value === '__manual';
   const s = shows.find(x => x.id === $('gShow').value); if (!s) return;
+  $('gEp').value = Math.max(0, ...(s.translated || [0])) + 1;
   $('gRu').value = s.ruTitle || ''; $('gOrig').value = s.title; $('gYear').value = (s.startDate || '').slice(0, 4) || 2026;
   const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && ADJ[c]) $('gType').value = c; prev();
 };
@@ -476,7 +482,14 @@ const caption = () => {
 };
 const prev = () => { $('gPrev').textContent = caption(); };
 ['gRu', 'gOrig', 'gYear', 'gEp', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
-$('genBtn').onclick = () => { prev(); $('gdlg').showModal(); };
+const openGen = () => {
+  const have = new Set(notes.filter(n => n.section === 'Подписи').map(n => n.title.toLowerCase().replace(/[^a-zа-яё0-9]+/g, '')));
+  const nm = (s) => (s.ruTitle || s.title).toLowerCase().replace(/[^a-zа-яё0-9]+/g, '');
+  const fresh = shows.find(s => !have.has(nm(s))) || shows[0];
+  if (fresh && !$('gShow').value) { $('gShow').value = fresh.id; $('gShow').onchange(); }
+  $('gDesc').value = ''; prev(); $('gdlg').showModal(); setTimeout(() => $('gDesc').focus(), 60);
+};
+$('genBtn').onclick = openGen;
 $('sx').onclick = () => $('sdlg').close(); $('sdlg').addEventListener('click', (e) => { if (e.target === $('sdlg')) $('sdlg').close(); });
 const renameSec = () => { const nv = $('sName').value.trim(); if (!nv || nv === sec) { $('sdlg').close(); return; } notes.forEach(n => { if (n.section === sec) n.section = nv; }); sec = nv; ls.set('notesSec', sec); dirty = true; scheduleSave(); $('sdlg').close(); render(); };
 $('sOk').onclick = renameSec; $('sName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); renameSec(); } });
@@ -484,7 +497,9 @@ $('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (
 $('gCopy').onclick = () => copy(caption());
 $('gSave').onclick = () => {
   const ru = $('gRu').value.trim() || $('gOrig').value.trim(); if (!ru) { toast('Впишите название', 'bad', 2000); return; }
-  notes.unshift({ id: uid(), section: 'Подписи', kind: 'text', title: ru, desc: '', body: caption() }); $('gdlg').close(); render(); scheduleSave(); toast('Добавлено в «Подписи»', 'ok', 2000);
+  const key = (t) => t.toLowerCase().replace(/[^a-zа-яё0-9]+/g, ''), ex = notes.find(n => n.section === 'Подписи' && key(n.title) === key(ru));
+  if (ex) { ex.body = caption(); notes.splice(notes.indexOf(ex), 1); notes.unshift(ex); } else notes.unshift({ id: uid(), section: 'Подписи', kind: 'text', title: ru, desc: '', body: caption() });
+  sec = 'Подписи'; ls.set('notesSec', sec); $('gdlg').close(); render(); scheduleSave(); toast(ex ? 'Подпись обновлена' : 'Добавлено в «Подписи»', 'ok', 2000);
 };
 load();
 </script>

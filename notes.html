@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<script src="gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -55,8 +56,11 @@
   .chip b { font-weight:500; opacity:.6; margin-left:4px; }
   .chip.on { background:var(--pink); border-color:var(--pink); color:var(--deep); font-weight:600; }
   #grid { display:flex; flex-direction:column; gap:14px; }
-  .gr { display:flex; gap:14px; align-items:flex-start; }
-  .col { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; }
+  .gr2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:stretch; }
+  .gr2 > .note { height:100%; box-sizing:border-box; }
+  .gr2 > .note.wide { grid-column:1/-1; }
+  .note.wide .cbl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; align-items:start; }
+  .note.wide .cblock { margin-top:12px; }
   .note { border:1px solid var(--line); border-radius:22px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:16px 18px; }
   .np { position:relative; }
   .np .nh { position:absolute; top:12px; right:14px; z-index:1; }
@@ -88,6 +92,13 @@
   .tg code::-webkit-scrollbar { display:none; }
   @media (max-width:560px) { .tg code { max-width:62%; } }
   .tg.done { border-color:var(--ok); }
+  .ib.xs { width:24px; height:24px; font-size:12px; }
+  .mvs { display:inline-flex; gap:4px; margin-left:8px; vertical-align:middle; }
+  .tg.ct span { font-weight:600; }
+  .tg.ct code { font:inherit; font-size:13.5px; color:var(--bone); opacity:.85; max-width:58%; white-space:normal; text-align:right; }
+  .chip.rord.on { background:rgba(255,138,196,.18); color:var(--pink); border-color:var(--pink); }
+  .flash { animation: nflash 1.6s ease-out; }
+  @keyframes nflash { 0%,40% { box-shadow:0 0 0 2px var(--pink), 0 0 26px rgba(255,138,196,.35); } 100% { box-shadow:none; } }
   .tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
   @media (max-width:560px) { .tiles { grid-template-columns:1fr; } }
   .tile { position:relative; border:1px solid var(--line); border-radius:18px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:12px 14px; cursor:pointer; min-height:104px; display:flex; flex-direction:column; gap:4px; }
@@ -129,7 +140,7 @@
   .toast.ok { border-color:var(--pink); color:var(--pale); } .toast.bad { border-color:var(--bad); color:var(--bad); } .toast[hidden] { display:none; }
   .warn { border:1px solid var(--bad); color:var(--bad); border-radius:14px; padding:10px 14px; margin-bottom:16px; font-size:14px; }
   body:has(dialog[open]) { overflow:hidden; }
-  @media (max-width:860px) { .gr { display:block; } .col { margin-bottom:14px; } .col:last-child { margin-bottom:0; } .col:empty { display:none; } .tgroups { grid-template-columns:1fr; } }
+  @media (max-width:860px) { .gr2 { grid-template-columns:1fr; } .note.wide .cbl { grid-template-columns:1fr; } .tgroups { grid-template-columns:1fr; } }
   @media (max-width:640px) {
     main { padding-left:14px; padding-right:14px; }
     dialog { width:calc(100vw - 20px); max-width:calc(100vw - 20px); max-height:calc(94dvh - env(safe-area-inset-bottom)); margin:auto 10px calc(8px + env(safe-area-inset-bottom)); border-radius:26px; }
@@ -159,9 +170,8 @@
     <label>Название</label><input type="text" id="nTitle" required>
     <div class="two">
       <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
-      <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option></select></div>
+      <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option></select></div>
     </div>
-    <label>Пояснение (необязательно)</label><input type="text" id="nDesc">
     <div id="bodyBox"><label>Текст</label><textarea id="nBody" rows="6"></textarea></div>
     <div id="codeBox" hidden><label>Блоки с кодом</label><div id="blkRows"></div><button type="button" class="btn small ghost" id="blkAdd">+ Блок</button></div>
     <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
@@ -219,7 +229,7 @@ const SEED = [
   { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: '', groups: TAG_GROUPS },
 ];
 
-let notes = [], sec = ls.get('notesSec') || '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
+let ordMode = false, notes = [], sec = ls.get('notesSec') || '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
 
 // приводим заметки старого формата к новому (блоки кода, группы тегов)
 function norm(n) {
@@ -242,7 +252,10 @@ async function load() {
   if (!loaded) { notes = JSON.parse(JSON.stringify(SEED)); dirty = true; }
   if (notes.map(norm).some(Boolean)) dirty = true; // старый формат заметок переводим в новый
   $('nosave').hidden = !!(ls.get('ghRepo') && ls.get('ghToken'));
+  const want = new URLSearchParams(location.search).get('note'), wn = want && notes.find(x => x.id === want);
+  if (wn) { sec = wn.section; ls.set('notesSec', sec); }
   render();
+  if (wn) { const el = document.querySelector(`[data-id="${wn.id}"], [data-tile="${wn.id}"]`); if (el) { el.scrollIntoView({ block: 'center' }); el.classList.add('flash'); } }
   if (dirty && ls.get('ghRepo') && ls.get('ghToken')) scheduleSave(300);
 }
 function scheduleSave(ms) { dirty = true; clearTimeout(saveT); saveT = setTimeout(save, ms ?? 1200); }
@@ -298,40 +311,45 @@ function noteHtml(n0) {
   const editBtn = `<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button>`;
   if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
-  if (n.kind === 'code') body = (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc ? `<div class="cdesc">${hl(b.desc)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('');
-  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code class="${p[0].length > 22 ? 'lg' : ''}">${p[0].length > 22 ? hl(p[0]).replace(/\\/g, '<wbr>\\') : hl(p[0])}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
-  return `<article class="note${n.kind === 'pairs' ? ' np' : ''}" data-id="${n.id}"><div class="nh"><h3>${n.kind === 'pairs' ? '' : hl(n.title)}</h3><div class="nact">${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
+  const ro = ordMode && !words().length, arrows = (k, v) => ro ? `<span class="mvs"><button type="button" class="ib xs" data-${k}="${v}|-1" aria-label="Выше">↑</button><button type="button" class="ib xs" data-${k}="${v}|1" aria-label="Ниже">↓</button></span>` : '';
+  if (n.kind === 'code') body = '<div class="cbl">' + (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc || ro ? `<div class="cdesc">${hl(b.desc || '')}${arrows('bmv', n.id + '|' + bi)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('') + '</div>';
+  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title || ro ? `<div class="gt">${hl(g.title)}${arrows('gmv', n.id + '|' + gi)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return n.kind === 'cast' ? `<button type="button" class="tg ct" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[0])}</span><code>${hl(p[1] || '')}</code></button>` : `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code class="${p[0].length > 22 ? 'lg' : ''}">${p[0].length > 22 ? hl(p[0]).replace(/\\/g, '<wbr>\\') : hl(p[0])}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
+  const mv = ordMode && !words().length ? `<button type="button" class="ib sm" data-mv="${n.id}|-1" aria-label="Раньше" title="Сдвинуть раньше">←</button><button type="button" class="ib sm" data-mv="${n.id}|1" aria-label="Позже" title="Сдвинуть позже">→</button>` : '';
+  return `<article class="note${n.kind === 'pairs' ? ' np' : ''}${n.kind === 'code' && (n.blocks || []).length > 2 ? ' wide' : ''}${n.kind === 'cast' ? ' cast' : ''}" data-id="${n.id}"><div class="nh"><h3>${n.kind === 'pairs' ? '' : hl(n.title)}</h3><div class="nact">${mv}${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
 }
 function render() {
   const secs = sections(), ws = words(), searching = ws.length > 0;
   if (!secs.includes(sec)) sec = secs[0] || '';
   $('chips').classList.toggle('srch', searching);
-  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="chip add" id="secAdd" title="Добавить заметку в раздел «${esc(sec)}»">+ Заметка</button><button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
+  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="chip add" id="secAdd" title="Добавить заметку в раздел «${esc(sec)}»">+ Заметка</button><button type="button" class="chip add rord ${ordMode ? 'on' : ''}" id="secOrd" title="Менять порядок заметок">⇅ Порядок</button><button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
   const base = searching ? notes : notes.filter(n => n.section === sec);
   const list = base.map(filterNote).filter(Boolean);
   if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? (searching ? 'Ничего не найдено.' : 'В этом разделе пока пусто.') : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
-  const two = matchMedia('(min-width: 861px)').matches; let html = '', seg = [], kind = '';
+  let html = '', seg = [], kind = '';
   const flush = () => { if (!seg.length) return;
     if (kind === 'text') html += `<div class="tiles">${seg.map(noteHtml).join('')}</div>`;
-    else { const cols = two ? [[], []] : [[]], w = cols.map(() => 0), wt = (n) => n.kind === 'code' ? 1.2 + (n.blocks || []).length * 1.1 : 1.2;
-      seg.forEach(n => { const k = w.indexOf(Math.min(...w)); cols[k].push(n); w[k] += wt(n); });
-      html += `<div class="gr">${cols.map(c => `<div class="col">${c.map(noteHtml).join('')}</div>`).join('')}</div>`; }
+    else html += `<div class="gr2">${seg.map(noteHtml).join('')}</div>`;
     seg = []; };
   const mixed = list.some(n => n.kind === 'code');
-  list.forEach(n => { if (n.kind === 'pairs') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' && !mixed ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
+  list.forEach(n => { if (n.kind === 'pairs' || n.kind === 'cast') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' && !mixed ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
   $('grid').innerHTML = html;
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+$('chips').addEventListener('click', (e) => { if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
+  const mvN = e.target.closest('[data-mv]'), mvB = e.target.closest('[data-bmv]'), mvG = e.target.closest('[data-gmv]');
+  const swap = (a, i, d) => { const j = i + d; if (j < 0 || j >= a.length) return false; [a[i], a[j]] = [a[j], a[i]]; return true; };
+  if (mvN) { const [id, d] = mvN.dataset.mv.split('|'), ids = notes.filter(x => x.section === sec).map(x => x.id), k = ids.indexOf(id), j = k + +d; if (j >= 0 && j < ids.length) { const A = notes.findIndex(x => x.id === id), B = notes.findIndex(x => x.id === ids[j]); [notes[A], notes[B]] = [notes[B], notes[A]]; scheduleSave(); render(); const el = document.querySelector(`[data-id="${id}"], [data-tile="${id}"]`); if (el) el.classList.add('flash'); } return; }
+  if (mvB) { const [id, i, d] = mvB.dataset.bmv.split('|'); if (swap(notes.find(x => x.id === id).blocks, +i, +d)) { scheduleSave(); render(); } return; }
+  if (mvG) { const [id, i, d] = mvG.dataset.gmv.split('|'); if (swap(notes.find(x => x.id === id).groups, +i, +d)) { scheduleSave(); render(); } return; }
   const cl = e.target.closest('pre.clamp'); if (cl) { cl.classList.toggle('open'); return; }
   const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]'), tl = e.target.closest('[data-tile]');
   if (ed) openEdit(ed.dataset.edit);
   else if (c) { copy(notes.find(x => x.id === c.dataset.copy).body); }
   else if (cb) { const [id, i] = cb.dataset.cb.split('|'); copy(notes.find(x => x.id === id).blocks[+i].code); }
-  else if (p) { const [id, g, i] = p.dataset.cp.split('|'); copy(notes.find(x => x.id === id).groups[+g].pairs[+i][0]); p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
+  else if (p) { const [id, g, i] = p.dataset.cp.split('|'); { const nn = notes.find(x => x.id === id), gg = nn.groups[+g]; copy(nn.kind === 'cast' && /обращ/i.test(gg.title) ? gg.pairs[+i][1] : gg.pairs[+i][0]); } p.classList.add('done'); setTimeout(() => p.classList.remove('done'), 900); }
   else if (tl) { copy(notes.find(x => x.id === tl.dataset.tile).body); tl.classList.add('done'); setTimeout(() => tl.classList.remove('done'), 900); }
 });
 
@@ -341,7 +359,7 @@ function reorder(box, ev) { const row = ev.target.closest('.blk, .grp'); if (!ro
   if (ev.target.closest('[data-rm]')) row.remove(); else if (ev.target.closest('[data-up]') && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
   else if (ev.target.closest('[data-down]') && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row); }
 function blkRow(b = { code: '', desc: '' }) { const d = document.createElement('div'); d.className = 'blk'; d.innerHTML = `<textarea placeholder="Команда или код" rows="2">${esc(b.code)}</textarea><div class="bt"><input type="text" placeholder="Пояснение (необязательно)" value="${esc(b.desc)}">${mvBtns()}</div>`; return d; }
-function pairRow(a = '', b = '') { const d = document.createElement('div'); d.className = 'prow'; d.innerHTML = `<input type="text" placeholder="Тег" value="${esc(a)}"><input type="text" placeholder="Что делает" value="${esc(b)}"><button type="button" class="ib sm" aria-label="Убрать">✕</button>`; d.querySelector('button').onclick = () => d.remove(); return d; }
+function pairRow(a = '', b = '') { const d = document.createElement('div'); d.className = 'prow'; d.innerHTML = `<input type="text" placeholder="${$('nKind').value === 'cast' ? 'Имя или кто → кому' : 'Тег'}" value="${esc(a)}"><input type="text" placeholder="${$('nKind').value === 'cast' ? 'Кто это / обращение' : 'Что делает'}" value="${esc(b)}"><button type="button" class="ib sm" aria-label="Убрать">✕</button>`; d.querySelector('button').onclick = () => d.remove(); return d; }
 function grpRow(g = { title: '', pairs: [] }) { const d = document.createElement('div'); d.className = 'grp'; d.innerHTML = `<div class="gtop"><input type="text" placeholder="Название группы" value="${esc(g.title)}">${mvBtns()}</div><div class="prows"></div><button type="button" class="btn small ghost" data-addtag style="margin-top:8px">+ Тег</button>`;
   const rows = d.querySelector('.prows'); (g.pairs.length ? g.pairs : [['', '']]).forEach(p => rows.appendChild(pairRow(p[0], p[1]))); d.querySelector('[data-addtag]').onclick = () => rows.appendChild(pairRow()); return d; }
 $('blkRows').addEventListener('click', (ev) => reorder($('blkRows'), ev)); $('grpRows').addEventListener('click', (ev) => { if (ev.target.closest('.gtop')) reorder($('grpRows'), ev); });
@@ -352,16 +370,16 @@ function secOptions(selected) {
 }
 $('nSec').onchange = () => { const nw = $('nSec').value === '__new'; $('nSecNew').hidden = !nw; if (nw) $('nSecNew').focus(); };
 function applyKind() {
-  const k = $('nKind').value; $('bodyBox').hidden = k !== 'text'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs';
+  const k = $('nKind').value; $('bodyBox').hidden = k !== 'text'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs' && k !== 'cast';
   if (k === 'code' && !$('blkRows').children.length) $('blkRows').appendChild(blkRow());
-  if (k === 'pairs' && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());
+  if ((k === 'pairs' || k === 'cast') && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());
 }
 $('nKind').onchange = applyKind;
 function openEdit(id, pre) {
   editing = id; const n = id ? notes.find(x => x.id === id) : null; pre = pre || {};
   $('ft').textContent = n ? 'Изменить заметку' : 'Новая заметка';
   $('nTitle').value = n ? n.title : ''; secOptions(n ? n.section : (pre.section ?? sec)); $('nKind').value = n ? n.kind : (pre.kind || 'text');
-  $('nDesc').value = n ? (n.desc || '') : ''; $('nBody').value = n && n.body ? n.body : '';
+  $('nBody').value = n && n.body ? n.body : '';
   $('blkRows').innerHTML = ''; (n && n.blocks || []).forEach(b => $('blkRows').appendChild(blkRow(b)));
   $('grpRows').innerHTML = ''; (n && n.groups || []).forEach(g => $('grpRows').appendChild(grpRow(g)));
   $('nDel').hidden = !n; applyKind(); $('dlg').showModal(); if (!n) $('nTitle').focus();
@@ -374,9 +392,9 @@ $('f').addEventListener('submit', (e) => {
   e.preventDefault();
   const kind = $('nKind').value, section = $('nSec').value === '__new' ? $('nSecNew').value.trim() : $('nSec').value;
   if (!section) { toast('Выберите раздел или впишите новый', 'bad', 2500); return; }
-  const n = { id: editing || uid(), section, kind, title: $('nTitle').value.trim(), desc: $('nDesc').value.trim() };
+  const n = { id: editing || uid(), section, kind, title: $('nTitle').value.trim(), desc: (editing && (notes.find(x => x.id === editing) || {}).desc) || '' };
   if (kind === 'code') n.blocks = [...$('blkRows').children].map(r => ({ code: r.querySelector('textarea').value.replace(/\s+$/, ''), desc: r.querySelector('input').value.trim() })).filter(b => b.code);
-  else if (kind === 'pairs') n.groups = [...$('grpRows').children].map(g => ({ title: g.querySelector('.gtop input').value.trim(), pairs: [...g.querySelectorAll('.prow')].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0]) })).filter(g => g.pairs.length);
+  else if (kind === 'pairs' || kind === 'cast') n.groups = [...$('grpRows').children].map(g => ({ title: g.querySelector('.gtop input').value.trim(), pairs: [...g.querySelectorAll('.prow')].map(r => { const i = r.querySelectorAll('input'); return [i[0].value.trim(), i[1].value.trim()]; }).filter(p => p[0]) })).filter(g => g.pairs.length);
   else n.body = $('nBody').value.replace(/\s+$/, '');
   const i = notes.findIndex(x => x.id === n.id); if (i >= 0) notes[i] = n; else notes.unshift(n);
   sec = n.section; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; }

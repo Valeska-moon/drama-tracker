@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<script src="gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -10,7 +11,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0505">
+<meta name="build" content="20261122-1505">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -292,9 +293,11 @@
   .srcols { display: flex; align-items: center; font-size: 13.5px; color: var(--bone); font-weight: 500; }
   .srcols span { white-space: nowrap; }
   @media (max-width: 640px) { .srcols { font-size: 12.5px; } .srcols span + span { margin-left: 9px; padding-left: 9px; } .srh { gap: 12px; padding-right: 12px; } .srp { width: 62px; min-height: 76px; } }
-  .acard .alinks { min-height: 16px; margin: 6px 0 2px; flex-wrap: nowrap; gap: 4px 7px; white-space: nowrap; }
-  .acard .alinks .sl { font-size: 11px; letter-spacing: -.1px; }
+  .acard .alinks { min-height: 16px; margin: 6px 0 2px; flex-wrap: nowrap; gap: 4px 5px; white-space: nowrap; }
+  .acard .alinks .sl { font-size: 10.5px; letter-spacing: -.3px; }
   .acard .alinks .sl svg { display: none; }
+  .acard .atime { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .acard .atime .cap { font-size: 14px; line-height: 1; padding: 2px 4px; flex: none; }
   .alinks { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 5px; }
   a.sl { display: inline-flex; align-items: center; gap: 3px; font-size: 11.5px; font-weight: 500; color: rgba(255,194,224,.75); text-decoration: none; }
   a.sl:hover { color: var(--pink); text-decoration: underline; }
@@ -479,6 +482,9 @@
           <button class="btn small ghost" id="dl" type="button">Скачать shows.json</button>
         </div>
         <p class="hint" id="cfgStatus"></p>
+        <label style="margin-top:14px">Пароль для входа на сайт</label><input type="password" id="sitePass" placeholder="Новый пароль" autocomplete="new-password">
+        <div style="margin-top:10px"><button class="btn small" id="passSave" type="button">Сменить пароль</button></div>
+        <p class="hint" id="passStatus">После смены на всех устройствах (включая это) пароль спросят заново.</p>
         <button class="btn small ghost" id="subShow" type="button">Показать ссылку на календарь</button>
       </div>
     </details>
@@ -594,6 +600,10 @@ let autoL = {};
 const okUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
 const matvUrl = (s) => okUrl(s.matvUrl) || okUrl(autoL[s.id]);
 const mkvUrl = (s) => okUrl(s.mkvUrl);
+let caps = [];
+const nrm = (t) => String(t || '').toLowerCase().replace(/[^a-zа-яё0-9]+/g, '');
+const capOf = (s) => { const ks = [s.ruTitle, s.title].map(nrm).filter(k => k.length >= 4); return caps.find(c => { const t = nrm(c.title); return ks.some(k => t === k || t.includes(k) || k.includes(t)); }); };
+const capLink = (s, full) => { const c = capOf(s); return c ? `<a class="sl cap" href="notes.html?note=${esc(c.id)}" title="Подпись к видео">${full ? 'Подпись к видео' : '✎'}</a>` : ''; };
 const linkBtns = (s, cls = 'sl') => [[matvUrl(s), 'Субтитры'], [mkvUrl(s), 'Скачать видео']].filter(l => l[0]).map(l => `<a class="${cls}" href="${esc(l[0])}" target="_blank" rel="noopener noreferrer">${l[1]}<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`).join('');
 const cname = (s) => (COUNTRIES[countryOf(s)] || [''])[0];
 const mainName = (s) => (s.ruMain && s.ruTitle ? s.ruTitle : s.title);
@@ -737,7 +747,7 @@ function renderUpcoming() {
     return diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : `${DAYN[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTH[d.getUTCMonth()].slice(0, 3)}`; };
   const cards = groups.slice(0, 12).map(g => { const cv = coverSrc(g.s), f = g.eps[0], n = g.eps.map(x => x.e.n), lab = n.length > 1 ? `${n[0]}–${n[n.length - 1]}` : n[0];
     return `<article class="acard" data-show="${g.s.id}" title="Показать в «Мои сериалы»"><div class="apic" style="${cv ? bgi(cv) : 'background:' + showColor(g.s)}">${cv ? '' : `<u>${esc([...mainName(g.s).trim()][0] || '')}</u>`}<span>${shortDay(g.date)}</span>${flagSvg(countryOf(g.s), 26, 'af')}<b>${lab}</b></div>
-      <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime">${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</div><div class="alinks">${linkBtns(g.s)}</div></div><span class="ra"><button type="button" class="btn small main" data-trg="${g.s.id}|${n.join(',')}" title="Отметить как переведённое">Готово</button><button type="button" class="skipb" data-skip="${g.s.id}|${f.e.n}" title="Серия не выйдет, график сдвинется">не выйдет</button></span></article>`; }).join('');
+      <div class="abody"><div class="atitle">${esc(mainName(g.s))}${subName(g.s) ? `<small class="sn">${esc(subName(g.s))}</small>` : ''}</div><div class="atime"><span>${f.e.time || g.s.time}${n.length > 1 ? ` · серии ${lab}` : ` · серия ${lab}`}</span>${capLink(g.s, false)}</div><div class="alinks">${linkBtns(g.s)}</div></div><span class="ra"><button type="button" class="btn small main" data-trg="${g.s.id}|${n.join(',')}" title="Отметить как переведённое">Готово</button><button type="button" class="skipb" data-skip="${g.s.id}|${f.e.n}" title="Серия не выйдет, график сдвинется">не выйдет</button></span></article>`; }).join('');
   const chev = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   $('upcoming').innerHTML = `<div class="agwrap"><button type="button" class="agarr l" data-ag="-1" aria-label="Назад" hidden>${chev('M15 5l-7 7 7 7')}</button><div class="agenda">${cards}</div><button type="button" class="agarr r" data-ag="1" aria-label="Дальше" hidden>${chev('M9 5l7 7-7 7')}</button></div><div class="agbtns"><button type="button" class="btn small" data-view="cal">Открыть календарь</button></div>`;
   agArrows();
@@ -835,7 +845,7 @@ function renderList() {
           <div class="tiles" style="--n:${N}" data-ref="${Math.max(0, ref - (matchMedia('(max-width: 640px)').matches ? 0 : 2))}" data-sid="${s.id}">${eps.map((e, idx) => { const past = idx < nxI || nxI < 0, t = tset.has(+e.n); return `<div class="tl ${past ? 'past' : idx === nxI ? 'nx' : ''}${past && t ? ' tr' : ''}${past && !t ? ' wait' : ''}"${past ? ` data-tr="${s.id}|${e.n}" title="${t ? 'Переведена: нажмите, чтобы снять отметку' : 'Нажмите, когда переведёте'}"` : ''}><strong>${e.n}</strong><em>${tileDate(e.date)}</em></div>`; }).join('')}</div>
           <button class="tarr" data-win="${s.id}|1" aria-label="Позже" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div>
         ${edits.length ? `<div class="edits"><div class="meta">Правки графика</div><div class="chips">${edits.join('')}</div></div>` : ''}
-        ${linkBtns(s) ? `<div class="alinks srl">${linkBtns(s)}</div>` : ''}<div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost del" data-d="${s.id}">Удалить</button></div></div></div>`;
+        ${linkBtns(s) ? `<div class="alinks srl">${linkBtns(s)}${capLink(s, true)}</div>` : (capLink(s, true) ? `<div class="alinks srl">${capLink(s, true)}</div>` : '')}<div class="acts"><button class="btn small main" data-e="${s.id}">Изменить</button><button class="btn small ghost del" data-d="${s.id}">Удалить</button></div></div></div>`;
     }
     return `<article class="sr${isOpen ? ' open' : ''}">
       <div class="srh" data-tog="${s.id}" role="button" tabindex="0" aria-expanded="${isOpen}">
@@ -1041,6 +1051,20 @@ function markDirty() {
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && dirty && autoOn()) { clearTimeout(saveTimer); doSave(true); } });
 window.addEventListener('beforeunload', (e) => { if (dirty && !autoOn()) { e.preventDefault(); e.returnValue = ''; } });
+$('passSave').onclick = async () => {
+  const pw = $('sitePass').value, repo = ls.get('ghRepo'), token = ls.get('ghToken'), st = $('passStatus');
+  if (pw.length < 6) { st.textContent = 'Пароль должен быть не короче 6 символов.'; return; }
+  if (!repo || !token) { st.textContent = 'Сначала заполните репозиторий и токен выше.'; return; }
+  try {
+    const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pw)), hash = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    const url = `https://api.github.com/repos/${repo}/contents/auth.json`, h = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
+    const cur = await fetch(url, { headers: h }), sha = cur.ok ? (await cur.json()).sha : undefined;
+    const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Новый пароль', sha, content: btoa(JSON.stringify({ salt, hash })) }) });
+    if (!r.ok) throw new Error((await r.json()).message || r.status);
+    ls.set('lsAuth', hash); $('sitePass').value = ''; st.textContent = 'Готово. Новый пароль начнёт действовать на сайте через 1–2 минуты; на других устройствах его спросят заново.';
+  } catch (e) { st.textContent = 'Не получилось: ' + e.message; }
+};
 $('ghSave').onclick = () => { ls.set('ghRepo', $('ghRepo').value.trim()); ls.set('ghToken', $('ghToken').value.trim()); $('cfgStatus').textContent = 'Настройки запомнены.'; };
 $('subShow').onclick = () => { ls.set('subDone', ''); renderSub(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 $('dl').onclick = () => {
@@ -1112,6 +1136,7 @@ $('upcoming').addEventListener('click', (ev) => { // клик по карточ�
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
   // GitHub Pages обновляется с задержкой ~1–2 мин: сразу после сохранения берём свою свежую копию, чтобы не потерять отметки
   try { const L = JSON.parse(ls.get('lastSave') || 'null'); if (L && Date.now() - L.t < 20 * 60e3 && Array.isArray(L.shows)) shows = L.shows; } catch {}
+  try { const r = await fetch('notes.json?' + Date.now()); if (r.ok) caps = ((await r.json()).notes || []).filter(n => n.section === 'Подписи' && n.kind === 'text'); } catch {}
   try { const r = await fetch('state.json?' + Date.now()); if (r.ok) { const j = await r.json(); autoC = j.countries || {}; autoL = j.links || {}; } } catch {}
   const draft = ls.get('draft');
   if (draft) {

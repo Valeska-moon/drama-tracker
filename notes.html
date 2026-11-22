@@ -75,11 +75,12 @@
   .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
   .tgroup { min-width:0; display:flex; flex-direction:column; gap:6px; }
   .gt { font-size:16px; font-weight:700; color:var(--pink); margin:0 0 4px 2px; }
-  .tg { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:2px 14px; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:9px 14px; cursor:pointer; }
+  .tg { display:flex; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:14px; width:100%; text-align:left; font:inherit; color:inherit; background:#0d0a0c; border:1px solid var(--line); border-radius:12px; padding:9px 14px; cursor:pointer; }
   .tg:hover { border-color:var(--pink); }
   .tg span { font-size:14.5px; font-weight:500; color:var(--bone); min-width:0; }
-  .tg code { font:12px/1.4 var(--mono); color:var(--ash); white-space:nowrap; margin-left:auto; max-width:100%; overflow-x:auto; scrollbar-width:none; text-align:right; }
+  .tg code { font:12px/1.4 var(--mono); color:var(--ash); white-space:nowrap; margin-left:auto; max-width:46%; line-height:1.25; white-space:normal; overflow-wrap:anywhere; text-align:right; }
   .tg code::-webkit-scrollbar { display:none; }
+  @media (max-width:560px) { .tg code { max-width:62%; } }
   .tg.done { border-color:var(--ok); }
   .tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
   @media (max-width:560px) { .tiles { grid-template-columns:1fr; } }
@@ -87,7 +88,7 @@
   .tile:hover { border-color:var(--pink); }
   .tile.done { border-color:var(--ok); }
   .tile .th { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-  .tile h3 { margin:0; font-size:17px; font-weight:700; line-height:1.25; color:var(--pink); white-space:normal; overflow-wrap:anywhere; min-width:0; }
+  .tile h3 { margin:0; font-size:17px; font-weight:700; line-height:1.25; color:var(--bone); white-space:normal; overflow-wrap:anywhere; min-width:0; }
   .tile .pv2 { color:var(--ash); font-size:13px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word; }
   mark { background:rgba(255,138,196,.3); color:inherit; border-radius:3px; padding:0 1px; }
   .chips.srch .chip.on { background:var(--glass); border-color:var(--line); color:var(--ash); font-weight:400; }
@@ -160,6 +161,12 @@
     <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
   </div>
   <div class="dlg-foot"><button class="btn ghost" type="button" id="nDel" hidden>Удалить</button><span style="flex:1"></span><button class="btn ghost" type="button" id="nCancel">Отмена</button><button class="btn main" type="submit">Сохранить</button></div>
+</form></dialog>
+
+<dialog id="sdlg"><form id="sf" class="dlg" onsubmit="return false">
+  <div class="dlghead"><h2>Название раздела</h2><button type="button" class="ib" id="sx" aria-label="Закрыть">✕</button></div>
+  <div class="dlgbody"><label for="sName">Новое название</label><input type="text" id="sName" maxlength="40" autocomplete="off"><p class="hint">Переименуются все заметки этого раздела.</p></div>
+  <div class="dlg-foot"><button class="btn main" type="button" id="sOk">Сохранить</button></div>
 </form></dialog>
 
 <dialog id="gdlg"><form id="gf" class="dlg" onsubmit="return false">
@@ -286,14 +293,14 @@ function noteHtml(n0) {
   if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
   if (n.kind === 'code') body = (n.blocks || []).map((b) => { const bi = o.blocks.findIndex(x => x.code === b.code && x.desc === b.desc); return `<div class="cblock">${b.desc ? `<div class="cdesc">${hl(b.desc)}</div>` : ''}<div class="cwrap"><pre class="code${b.code.length > 90 || b.code.split('\n').length > 3 ? ' clamp' : ''}">${hl(b.code)}</pre><button type="button" class="ib sm cp" data-cb="${n.id}|${bi}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`; }).join('');
-  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code>${hl(p[0])}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
+  else body = `<div class="tgroups">${(n.groups || []).map((g) => { const gi = o.groups.findIndex(x => x.title === g.title); return `<div class="tgroup">${g.title ? `<div class="gt">${hl(g.title)}</div>` : ''}${g.pairs.map((p) => { const pi = o.groups[gi].pairs.findIndex(x => x[0] === p[0] && x[1] === p[1]); return `<button type="button" class="tg" data-cp="${n.id}|${gi}|${pi}"><span>${hl(p[1] || '')}</span><code>${hl(p[0]).replace(/\\/g, '<wbr>\\')}</code></button>`; }).join('')}</div>`; }).join('')}</div>`;
   return `<article class="note" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${editBtn}</div></div>${n.desc ? `<p class="desc">${hl(n.desc)}</p>` : ''}${body}</article>`;
 }
 function render() {
   const secs = sections(), ws = words(), searching = ws.length > 0;
   if (!secs.includes(sec)) sec = secs[0] || '';
   $('chips').classList.toggle('srch', searching);
-  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('');
+  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
   const base = searching ? notes : notes.filter(n => n.section === sec);
   const list = base.map(filterNote).filter(Boolean);
   if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? (searching ? 'Ничего не найдено.' : 'В этом разделе пока пусто.') : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
@@ -311,7 +318,7 @@ function render() {
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+$('chips').addEventListener('click', (e) => { if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
   const cl = e.target.closest('pre.clamp'); if (cl) { cl.classList.toggle('open'); return; }
   const c = e.target.closest('[data-copy]'), ed = e.target.closest('[data-edit]'), p = e.target.closest('[data-cp]'), cb = e.target.closest('[data-cb]'), tl = e.target.closest('[data-tile]');
@@ -392,6 +399,9 @@ const caption = () => {
 const prev = () => { $('gPrev').textContent = caption(); };
 ['gRu', 'gOrig', 'gYear', 'gEp', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
 $('genBtn').onclick = () => { prev(); $('gdlg').showModal(); };
+$('sx').onclick = () => $('sdlg').close(); $('sdlg').addEventListener('click', (e) => { if (e.target === $('sdlg')) $('sdlg').close(); });
+const renameSec = () => { const nv = $('sName').value.trim(); if (!nv || nv === sec) { $('sdlg').close(); return; } notes.forEach(n => { if (n.section === sec) n.section = nv; }); sec = nv; ls.set('notesSec', sec); dirty = true; scheduleSave(); $('sdlg').close(); render(); };
+$('sOk').onclick = renameSec; $('sName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); renameSec(); } });
 $('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (e) => { if (e.target === $('gdlg')) $('gdlg').close(); });
 $('gCopy').onclick = () => copy(caption());
 $('gSave').onclick = () => {

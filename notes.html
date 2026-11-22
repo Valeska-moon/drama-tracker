@@ -179,7 +179,7 @@
       <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
       <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option><option value="gen">Генератор команды</option></select></div>
     </div>
-    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea><p class="hint" id="bodyHint" hidden>Впиши команду целиком. На месте меняющихся частей поставь метки в двойных скобках: <b>{{url}}</b> — ссылка, <b>{{name}}</b> — название файла (The.Scent.of.Karma.E01), <b>{{title}}</b> — «Название - S01E03», любое другое слово — своё поле, например <b>{{height=720}}</b> (после = значение по умолчанию). Для name и title появится выбор сериала и серии.</p></div>
+    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea><p class="hint" id="bodyHint" hidden>Впиши команду целиком. На месте меняющихся частей поставь метки в двойных скобках: <b>{{url}}</b> — ссылка, <b>{{name}}</b> — название файла (The.Scent.of.Karma.E01), <b>{{title}}</b> — «Название - S01E03», любое другое слово — своё поле, например <b>{{height=720}}</b> (после = значение по умолчанию), <b>{{lang=En|Thai|Ch}}</b> — выпадающий список. Для name и title появится выбор сериала и серии.</p></div>
     <div id="codeBox" hidden><label>Блоки с кодом</label><div id="blkRows"></div><button type="button" class="btn small ghost" id="blkAdd">+ Блок</button></div>
     <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
   </div>
@@ -314,7 +314,7 @@ function filterNote(n) {
 }
 const orig = (n) => notes.find(x => x.id === n.id);
 // ---------- генератор команд ----------
-const GLBL = { url: 'Ссылка', height: 'Высота', name: 'Название файла', title: 'Название серии' };
+const GLBL = { url: 'Ссылка', height: 'Высота', name: 'Название файла', title: 'Название серии', lang: 'Язык' };
 const gState = {}; // id -> { series, ep, v: {поле: значение} }
 function genVars(tpl) { const out = [], seen = {}; String(tpl).replace(/\{\{\s*([^}=\s]+)\s*(?:=([^}]*))?\}\}/g, (m, k, d) => { if (!seen[k]) { seen[k] = 1; out.push({ k, d: (d || '').trim() }); } return m; }); return out; }
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -330,7 +330,7 @@ function genValues(n) {
   genVars(n.body).forEach(({ k, d }) => {
     if (k === 'name' && sh) v[k] = sh.title.replace(/[’'`]/g, '').replace(/[^A-Za-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') + '.E' + pad2(st.ep);
     else if (k === 'title' && sh) v[k] = (sh.ruTitle || sh.title) + ' - S01E' + pad2(st.ep);
-    else v[k] = (st.v[k] ?? d ?? '').trim();
+    else v[k] = (st.v[k] ?? d.split('|')[0] ?? '').trim();
   });
   return v;
 }
@@ -338,7 +338,7 @@ function genOut(n) { const v = genValues(n); let miss = []; const text = String(
 function genHtml(n, editBtn) {
   const st = genSt(n), ks = genVars(n.body), auto = ks.some(x => x.k === 'name' || x.k === 'title'), o = genOut(n);
   const fields = (auto ? `<div class="gf"><label>Сериал</label><select data-gsel="${n.id}">${shows.map(s => `<option value="${esc(s.id)}" ${s.id === st.series ? 'selected' : ''}>${esc(showName(s))}</option>`).join('')}</select></div><div class="gf sm"><label>Серия</label><input type="number" min="1" inputmode="numeric" data-gep="${n.id}" value="${st.ep}"></div>` : '')
-    + ks.filter(x => x.k !== 'name' && x.k !== 'title').map(x => `<div class="gf"><label>${esc(GLBL[x.k] || x.k)}</label><input type="text" data-gin="${n.id}|${esc(x.k)}" value="${esc(st.v[x.k] ?? x.d)}" placeholder="${esc(GLBL[x.k] || x.k)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`).join('');
+    + ks.filter(x => x.k !== 'name' && x.k !== 'title').map(x => x.d.includes('|') ? `<div class="gf sm"><label>${esc(GLBL[x.k] || x.k)}</label><select data-gopt="${n.id}|${esc(x.k)}">${x.d.split('|').map(o => `<option ${o.trim() === (st.v[x.k] ?? x.d.split('|')[0]).trim() ? 'selected' : ''}>${esc(o.trim())}</option>`).join('')}</select></div>` : `<div class="gf"><label>${esc(GLBL[x.k] || x.k)}</label><input type="text" data-gin="${n.id}|${esc(x.k)}" value="${esc(st.v[x.k] ?? x.d)}" placeholder="${esc(GLBL[x.k] || x.k)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`).join('');
   return `<article class="note wide gen" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${ordMode && !words().length ? `<button type="button" class="ib sm" data-mv="${n.id}|-1">←</button><button type="button" class="ib sm" data-mv="${n.id}|1">→</button>` : ''}${editBtn}</div></div>
     <div class="gfields">${fields}</div>
     <div class="cwrap"><pre class="code clamp" data-gout="${n.id}">${esc(o.text)}</pre></div>
@@ -376,7 +376,7 @@ function render() {
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('grid').addEventListener('input', (e) => { const t = e.target; if (t.dataset.gep) { gState[t.dataset.gep].ep = Math.max(1, +t.value || 1); genRefresh(t.dataset.gep); } else if (t.dataset.gin) { const [id, k] = t.dataset.gin.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); } });
-$('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
+$('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gopt) { const [id, k] = t.dataset.gopt.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); return; } if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
 $('chips').addEventListener('click', (e) => { if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });

@@ -22,6 +22,14 @@
       ]
     },
     {
+      "id": "gen2",
+      "section": "Терминал",
+      "kind": "gen",
+      "title": "Сохранить субтитры из буфера",
+      "desc": "",
+      "body": "pbpaste > \"$HOME/Downloads/{{lang=En|Thai|Ch}}_Sub_{{name}}.vtt\""
+    },
+    {
       "id": "seed1",
       "section": "Терминал",
       "kind": "code",

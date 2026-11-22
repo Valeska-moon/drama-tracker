@@ -9,15 +9,15 @@
       "blocks": [
         {
           "code": "mime-type:application/x-mpegurl",
-          "desc": ""
+          "desc": "на сайте в поиск"
         },
         {
           "code": "pbpaste > \"$HOME/Downloads/video-request.sh\"",
-          "desc": ""
+          "desc": "скачать"
         },
         {
           "code": "head -c 4 \"$HOME/Downloads/video-request.sh\"; echo",
-          "desc": ""
+          "desc": "проверить"
         }
       ]
     },

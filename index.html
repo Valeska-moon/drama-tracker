@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261122-0432">
+<meta name="build" content="20261122-0440">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -52,7 +52,7 @@
 
   /* шапка */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 26px; }
-  .logo { display: flex; align-items: center; gap: 9px; }
+  .logo { display: flex; align-items: center; gap: 9px; color: inherit; text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .logo svg { width: 20px; height: 20px; fill: var(--pink); }
   .top h1 { font-size: 15px; font-weight: 700; letter-spacing: .04em; }
   .btn { white-space: nowrap; font: inherit; font-weight: 500; color: var(--bone); background: var(--glass); border: 1px solid var(--line);
@@ -442,7 +442,7 @@
 <body>
 <main>
   <div class="top">
-    <div class="logo"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>Lumera Subs</h1></div>
+    <a class="logo" id="logoRef" href="./" title="Обновить страницу"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 L58 38 L96 50 L58 62 L50 96 L42 62 L4 50 L42 38Z"/></svg><h1>Lumera Subs</h1></a>
     <div class="topacts"><a class="btn nbtn" href="notes.html" aria-label="Заметки"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h3"/></svg><span>Заметки</span></a><button class="btn main" id="addBtn" type="button">+ Добавить<span class="lg"> сериал</span></button></div>
   </div>
 
@@ -1092,6 +1092,7 @@ async function checkUpdate() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 checkUpdate();
 
+$('logoRef').addEventListener('click', (e) => { e.preventDefault(); if (dirty && autoOn()) { clearTimeout(saveTimer); doSave(true).finally(() => location.reload()); } else location.reload(); });
 // ---------- старт ----------
 (async function init() {
   renderSub();

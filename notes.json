@@ -14,6 +14,19 @@
       ]
     },
     {
+      "id": "seed2",
+      "section": "Терминал",
+      "kind": "code",
+      "title": "Скачать субтитры",
+      "desc": "",
+      "blocks": [
+        {
+          "code": "pbpaste > \"$HOME/Downloads/Sub_EN.vtt\"; head -n 3 \"$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt\"; ls -l \"$HOME/Downloads\" | grep -i vtt",
+          "desc": ""
+        }
+      ]
+    },
+    {
       "id": "seed1",
       "section": "Терминал",
       "kind": "code",
@@ -31,19 +44,6 @@
         {
           "code": "head -c 4 \"$HOME/Downloads/video-request.sh\"; echo",
           "desc": "проверить"
-        }
-      ]
-    },
-    {
-      "id": "seed2",
-      "section": "Терминал",
-      "kind": "code",
-      "title": "Скачать субтитры",
-      "desc": "",
-      "blocks": [
-        {
-          "code": "pbpaste > \"$HOME/Downloads/Sub_EN.vtt\"; head -n 3 \"$HOME/Downloads/My_Secret_Boyfriends_EP02_EN_test.vtt\"; ls -l \"$HOME/Downloads\" | grep -i vtt",
-          "desc": ""
         }
       ]
     },

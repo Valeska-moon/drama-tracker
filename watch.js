@@ -107,7 +107,7 @@ async function checkMkv(tracked, state) {
       if (!rec.url) { // раньше страницы не было, теперь появилась
         state.mkv[t.s.id] = { url, max }; msgs.push(`Сериал «${t.s.title}» появился на MKVDrama${max ? ` (серии до ${max})` : ''}\n${url}`); continue;
       }
-      if (max && rec.max && max > rec.max) msgs.push(`На MKVDrama ${max - rec.max > 1 ? `вышли серии ${rec.max + 1}–${max}` : `вышла серия ${max}`} «${t.s.title}»\n${url}`);
+      if (max && rec.max && max > rec.max) msgs.push(`На MKVDrama ${max - rec.max > 1 ? `вышли серии ${rec.max + 1}–${max}` : `вышла серия ${max}`} «${t.s.title}»\nСкачать видео: ${url}${t.s.matvUrl ? `\nСубтитры: ${t.s.matvUrl}` : ''}`);
       if (max && max !== rec.max) rec.max = max;
       else if (max && !rec.max) rec.max = max;
     } catch (e) { problem = e.message; break; }
@@ -211,10 +211,10 @@ async function main() {
     if (i.on) {
       const prev = state.eps[t.s.id];
       if (prev && !base) {
-        for (const n of nums(i.sub)) if (!prev.sub.includes(n)) await tg(`✅ <b>Серия ${n}</b> · ${h(t.s.title)}${i.country ? ` · ${h(i.country)}` : ''}\nАнглийские субтитры\n<a href="${h(i.sub[n].url)}">Смотреть</a>`, true);
+        for (const n of nums(i.sub)) if (!prev.sub.includes(n)) await tg(`✅ <b>Серия ${n}</b> · ${h(t.s.title)}${i.country ? ` · ${h(i.country)}` : ''}\nАнглийские субтитры\n<a href="${h(i.sub[n].url)}">Субтитры</a>${t.s.mkvUrl ? ` · <a href="${h(t.s.mkvUrl)}">Скачать видео</a>` : ''}`, true);
         for (const n of nums(i.next)) {
           if (prev.sub.includes(n)) continue;
-          if (!(n in prev.next)) await tg(`🗓 <b>Анонс · серия ${n}</b> · ${h(t.s.title)}\n${h(dateRu(i.next[n]))}, видео пока нет`, true);
+          if (!(n in prev.next)) await tg(`🗓 <b>Анонс · серия ${n}</b> · ${h(t.s.title)}\n${h(dateRu(i.next[n]))}, видео пока нет\n<a href="${h(i.url)}">Страница сериала</a>`, true);
           else if (prev.next[n] !== i.next[n]) await tg(`🗓 <b>Дата изменилась · серия ${n}</b> · ${h(t.s.title)}\nбыло: ${h(dateRu(prev.next[n]))}\nстало: ${h(dateRu(i.next[n]))}`, true);
         }
       }

@@ -12,11 +12,13 @@
       o.style.cssText = 'position:fixed;inset:0;z-index:2147483647;visibility:visible;background:#0a0809 radial-gradient(60% 50% at 80% 0%,rgba(255,138,196,.18),transparent);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Montserrat,system-ui,sans-serif;color:#f4eef2';
       o.innerHTML = '<form style="width:min(340px,100%);display:flex;flex-direction:column;gap:14px;text-align:center">' +
         '<div style="font-size:34px;color:#ff8ac4">✦</div><div style="font-weight:800;letter-spacing:.08em;font-size:15px">LUMERA SUBS</div>' +
-        '<input type="password" id="gpw" placeholder="Пароль" autocomplete="current-password" style="height:48px;border-radius:24px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 20px;font-size:16px;text-align:center;outline:none">' +
+        '<input type="password" id="gpw" placeholder="Пароль" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" style="height:48px;border-radius:24px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 20px;font-size:16px;text-align:center;outline:none">' +
+        '<label style="font-size:13px;color:#a99ba5;display:flex;gap:8px;justify-content:center;align-items:center;cursor:pointer"><input type="checkbox" id="gshow"> Показать пароль</label>' +
         '<button type="submit" style="height:48px;border-radius:24px;border:0;background:#ff8ac4;color:#14090f;font-weight:700;font-size:15px;cursor:pointer">Войти</button>' +
         '<div id="gerr" style="min-height:18px;font-size:13px;color:#ff8a8a"></div></form>';
       document.body.appendChild(o); document.documentElement.style.overflow = 'hidden';
       var f = o.querySelector('form'), i = o.querySelector('#gpw'); setTimeout(function () { i.focus(); }, 50);
+      o.querySelector('#gshow').onchange = function () { i.type = this.checked ? 'text' : 'password'; };
       f.onsubmit = function (e) { e.preventDefault(); sha(a.salt + ':' + i.value).then(function (h) {
         if (h === a.hash) { try { localStorage.setItem(KEY, h); } catch (x) {} open(); }
         else { o.querySelector('#gerr').textContent = 'Неверный пароль'; i.value = ''; i.focus(); } }); };

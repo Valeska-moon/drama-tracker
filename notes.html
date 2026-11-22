@@ -99,6 +99,13 @@
   .chip.rord.on { background:rgba(255,138,196,.18); color:var(--pink); border-color:var(--pink); }
   .flash { animation: nflash 1.6s ease-out; }
   @keyframes nflash { 0%,40% { box-shadow:0 0 0 2px var(--pink), 0 0 26px rgba(255,138,196,.35); } 100% { box-shadow:none; } }
+  .gfields { display:flex; flex-wrap:wrap; gap:10px 12px; margin:14px 0 12px; }
+  .gf { flex:1 1 220px; min-width:0; } .gf.sm { flex:0 0 96px; }
+  .gf label { display:block; font-size:12.5px; color:var(--ash); margin:0 0 5px 4px; }
+  .gf input, .gf select { width:100%; height:42px; box-sizing:border-box; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--bone); padding:0 16px; font:inherit; font-size:14px; outline:none; }
+  .gf input:focus, .gf select:focus { border-color:var(--pink); }
+  .gcopy { margin-top:12px; width:100%; }
+  .gen .code { padding-right:14px; }
   .tiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
   @media (max-width:560px) { .tiles { grid-template-columns:1fr; } }
   .tile { position:relative; border:1px solid var(--line); border-radius:18px; background:linear-gradient(160deg,rgba(255,255,255,.06),rgba(255,255,255,.02)); padding:12px 14px; cursor:pointer; min-height:104px; display:flex; flex-direction:column; gap:4px; }
@@ -170,9 +177,9 @@
     <label>Название</label><input type="text" id="nTitle" required>
     <div class="two">
       <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
-      <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option></select></div>
+      <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option><option value="gen">Генератор команды</option></select></div>
     </div>
-    <div id="bodyBox"><label>Текст</label><textarea id="nBody" rows="6"></textarea></div>
+    <div id="bodyBox"><label id="bodyLbl">Текст</label><textarea id="nBody" rows="6"></textarea><p class="hint" id="bodyHint" hidden>Впиши команду целиком. На месте меняющихся частей поставь метки в двойных скобках: <b>{{url}}</b> — ссылка, <b>{{name}}</b> — название файла (The.Scent.of.Karma.E01), <b>{{title}}</b> — «Название - S01E03», любое другое слово — своё поле, например <b>{{height=720}}</b> (после = значение по умолчанию). Для name и title появится выбор сериала и серии.</p></div>
     <div id="codeBox" hidden><label>Блоки с кодом</label><div id="blkRows"></div><button type="button" class="btn small ghost" id="blkAdd">+ Блок</button></div>
     <div id="pairBox" hidden><label>Группы тегов</label><div id="grpRows"></div><button type="button" class="btn small ghost" id="grpAdd">+ Группа</button></div>
   </div>
@@ -299,16 +306,49 @@ const hasAll = (hay, ws) => ws.every(w => hay.toLowerCase().includes(w));
 function filterNote(n) {
   const ws = words(); if (!ws.length) return n;
   const head = [n.title, n.desc].join(' ');
-  if (n.kind === 'text') return hasAll(head + ' ' + n.body + ' ' + n.section, ws) ? n : null;
+  if (n.kind === 'text' || n.kind === 'gen') return hasAll(head + ' ' + n.body + ' ' + n.section, ws) ? n : null;
   if (hasAll(head, ws)) return n;
   if (n.kind === 'code') { const blocks = (n.blocks || []).filter(b => hasAll(head + ' ' + b.code + ' ' + b.desc, ws)); return blocks.length ? { ...n, blocks } : null; }
   const groups = (n.groups || []).map(g => ({ ...g, pairs: g.pairs.filter(p => hasAll(head + ' ' + g.title + ' ' + p[0] + ' ' + p[1], ws)) })).filter(g => g.pairs.length);
   return groups.length ? { ...n, groups } : null;
 }
 const orig = (n) => notes.find(x => x.id === n.id);
+// ---------- генератор команд ----------
+const GLBL = { url: 'Ссылка', height: 'Высота', name: 'Название файла', title: 'Название серии' };
+const gState = {}; // id -> { series, ep, v: {поле: значение} }
+function genVars(tpl) { const out = [], seen = {}; String(tpl).replace(/\{\{\s*([^}=\s]+)\s*(?:=([^}]*))?\}\}/g, (m, k, d) => { if (!seen[k]) { seen[k] = 1; out.push({ k, d: (d || '').trim() }); } return m; }); return out; }
+const pad2 = (n) => String(n).padStart(2, '0');
+const showName = (s) => s.ruMain && s.ruTitle ? s.ruTitle : s.title;
+function genSt(n) {
+  if (!gState[n.id]) { const sid = ls.get('gs_' + n.id) || (shows[0] && shows[0].id) || ''; gState[n.id] = { series: sid, ep: 0, v: {} }; }
+  const st = gState[n.id], sh = shows.find(x => x.id === st.series) || shows[0];
+  if (!st.ep && sh) st.ep = Math.max(0, ...(sh.translated || [0])) + 1;
+  if (!st.ep) st.ep = 1; return st;
+}
+function genValues(n) {
+  const st = genSt(n), sh = shows.find(x => x.id === st.series) || shows[0], v = {};
+  genVars(n.body).forEach(({ k, d }) => {
+    if (k === 'name' && sh) v[k] = sh.title.replace(/[’'`]/g, '').replace(/[^A-Za-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') + '.E' + pad2(st.ep);
+    else if (k === 'title' && sh) v[k] = (sh.ruTitle || sh.title) + ' - S01E' + pad2(st.ep);
+    else v[k] = (st.v[k] ?? d ?? '').trim();
+  });
+  return v;
+}
+function genOut(n) { const v = genValues(n); let miss = []; const text = String(n.body).replace(/\{\{\s*([^}=\s]+)\s*(?:=([^}]*))?\}\}/g, (m, k) => { if (v[k]) return v[k]; miss.push(GLBL[k] || k); return '{{' + k + '}}'; }); return { text, miss: [...new Set(miss)] }; }
+function genHtml(n, editBtn) {
+  const st = genSt(n), ks = genVars(n.body), auto = ks.some(x => x.k === 'name' || x.k === 'title'), o = genOut(n);
+  const fields = (auto ? `<div class="gf"><label>Сериал</label><select data-gsel="${n.id}">${shows.map(s => `<option value="${esc(s.id)}" ${s.id === st.series ? 'selected' : ''}>${esc(showName(s))}</option>`).join('')}</select></div><div class="gf sm"><label>Серия</label><input type="number" min="1" inputmode="numeric" data-gep="${n.id}" value="${st.ep}"></div>` : '')
+    + ks.filter(x => x.k !== 'name' && x.k !== 'title').map(x => `<div class="gf"><label>${esc(GLBL[x.k] || x.k)}</label><input type="text" data-gin="${n.id}|${esc(x.k)}" value="${esc(st.v[x.k] ?? x.d)}" placeholder="${esc(GLBL[x.k] || x.k)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`).join('');
+  return `<article class="note wide gen" data-id="${n.id}"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${ordMode && !words().length ? `<button type="button" class="ib sm" data-mv="${n.id}|-1">←</button><button type="button" class="ib sm" data-mv="${n.id}|1">→</button>` : ''}${editBtn}</div></div>
+    <div class="gfields">${fields}</div>
+    <div class="cwrap"><pre class="code clamp" data-gout="${n.id}">${esc(o.text)}</pre></div>
+    <button type="button" class="btn main gcopy" data-gcopy="${n.id}">Скопировать готовую команду</button></article>`;
+}
+function genRefresh(id) { const n = notes.find(x => x.id === id), el = document.querySelector(`[data-gout="${id}"]`); if (n && el) el.textContent = genOut(n).text; }
 function noteHtml(n0) {
   const n = n0, o = orig(n0);
   const editBtn = `<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button>`;
+  if (n.kind === 'gen') return genHtml(n, editBtn);
   if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
   const ro = ordMode && !words().length, arrows = (k, v) => ro ? `<span class="mvs"><button type="button" class="ib xs" data-${k}="${v}|-1" aria-label="Выше">↑</button><button type="button" class="ib xs" data-${k}="${v}|1" aria-label="Ниже">↓</button></span>` : '';
@@ -330,15 +370,19 @@ function render() {
     if (kind === 'text') html += `<div class="tiles">${seg.map(noteHtml).join('')}</div>`;
     else html += `<div class="gr2">${seg.map(noteHtml).join('')}</div>`;
     seg = []; };
-  const mixed = list.some(n => n.kind === 'code');
+  const mixed = list.some(n => n.kind === 'code' || n.kind === 'gen');
   list.forEach(n => { if (n.kind === 'pairs' || n.kind === 'cast') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' && !mixed ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
   $('grid').innerHTML = html;
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);
+$('grid').addEventListener('input', (e) => { const t = e.target; if (t.dataset.gep) { gState[t.dataset.gep].ep = Math.max(1, +t.value || 1); genRefresh(t.dataset.gep); } else if (t.dataset.gin) { const [id, k] = t.dataset.gin.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); } });
+$('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
 $('chips').addEventListener('click', (e) => { if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
+  const gc = e.target.closest('[data-gcopy]');
+  if (gc) { const n = notes.find(x => x.id === gc.dataset.gcopy), o = genOut(n); if (o.miss.length) { toast('Заполни: ' + o.miss.join(', '), 'bad', 2500); return; } copy(o.text); return; }
   const mvN = e.target.closest('[data-mv]'), mvB = e.target.closest('[data-bmv]'), mvG = e.target.closest('[data-gmv]');
   const swap = (a, i, d) => { const j = i + d; if (j < 0 || j >= a.length) return false; [a[i], a[j]] = [a[j], a[i]]; return true; };
   if (mvN) { const [id, d] = mvN.dataset.mv.split('|'), ids = notes.filter(x => x.section === sec).map(x => x.id), k = ids.indexOf(id), j = k + +d; if (j >= 0 && j < ids.length) { const A = notes.findIndex(x => x.id === id), B = notes.findIndex(x => x.id === ids[j]); [notes[A], notes[B]] = [notes[B], notes[A]]; scheduleSave(); render(); const el = document.querySelector(`[data-id="${id}"], [data-tile="${id}"]`); if (el) el.classList.add('flash'); } return; }
@@ -370,7 +414,7 @@ function secOptions(selected) {
 }
 $('nSec').onchange = () => { const nw = $('nSec').value === '__new'; $('nSecNew').hidden = !nw; if (nw) $('nSecNew').focus(); };
 function applyKind() {
-  const k = $('nKind').value; $('bodyBox').hidden = k !== 'text'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs' && k !== 'cast';
+  const k = $('nKind').value; $('bodyBox').hidden = k !== 'text' && k !== 'gen'; $('bodyLbl').textContent = k === 'gen' ? 'Шаблон команды' : 'Текст'; $('bodyHint').hidden = k !== 'gen'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs' && k !== 'cast';
   if (k === 'code' && !$('blkRows').children.length) $('blkRows').appendChild(blkRow());
   if ((k === 'pairs' || k === 'cast') && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());
 }
@@ -409,6 +453,7 @@ $('gType').innerHTML = Object.keys(ADJ).map(k => `<option value="${k}">${typeTex
 (async () => {
   try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
   try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
+  if (notes.length) render();
   $('gShow').innerHTML = '<option value="">Новый сериал</option>' + shows.map(s => `<option value="${esc(s.id)}">${esc(s.ruMain && s.ruTitle ? s.ruTitle : s.title)}</option>`).join('');
 })();
 $('gShow').onchange = () => {

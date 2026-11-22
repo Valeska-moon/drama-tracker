@@ -1,6 +1,14 @@
 {
   "notes": [
     {
+      "id": "gen1",
+      "section": "Терминал",
+      "kind": "gen",
+      "title": "Скачать с YouTube",
+      "desc": "",
+      "body": "TOOLS=\"$HOME/Documents/Codex/2026-11-19/referenced-chatgpt-conversation-this-is-an/work/video-tools\"\nURL=\"{{url}}\"\nNAME=\"{{name}}\"\n\nSSL_CERT_FILE=\"$(\"$TOOLS/bin/python\" -m certifi)\" \\\n\"$TOOLS/bin/yt-dlp\" \\\n--ffmpeg-location \"$TOOLS/lib/python3.14/site-packages/imageio_ffmpeg/binaries/ffmpeg-macos-aarch64-v9.0\" \\\n-f \"bv+ba/b\" \\\n--merge-output-format mp4 \\\n-P \"$HOME/Downloads\" \\\n-o \"${NAME}.%(ext)s\" \\\n\"$URL\""
+    },
+    {
       "id": "seed2",
       "section": "Терминал",
       "kind": "code",

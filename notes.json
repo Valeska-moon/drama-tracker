@@ -61,7 +61,7 @@
       "kind": "gen",
       "title": "Скачать с YouTube",
       "desc": "",
-      "body": "TOOLS=\"$HOME/Documents/Codex/2026-11-19/referenced-chatgpt-conversation-this-is-an/work/video-tools\"\nURL=\"{{url}}\"\nNAME=\"{{name}}\"\n\nSSL_CERT_FILE=\"$(\"$TOOLS/bin/python\" -m certifi)\" \\\n\"$TOOLS/bin/yt-dlp\" \\\n--ffmpeg-location \"$TOOLS/lib/python3.14/site-packages/imageio_ffmpeg/binaries/ffmpeg-macos-aarch64-v9.0\" \\\n-f \"bv+ba/b\" \\\n--merge-output-format mp4 \\\n-P \"$HOME/Downloads\" \\\n-o \"${NAME}.%(ext)s\" \\\n\"$URL\""
+      "body": "TOOLS=\"$HOME/Documents/Codex/2026-11-19/referenced-chatgpt-conversation-this-is-an/work/video-tools\"\nURL=\"{{url}}\"\nNAME=\"{{name}}\"\n\nSSL_CERT_FILE=\"$(\"$TOOLS/bin/python\" -m certifi)\" \\\n\"$TOOLS/bin/yt-dlp\" \\\n--ffmpeg-location \"$TOOLS/lib/python3.14/site-packages/imageio_ffmpeg/binaries/ffmpeg-macos-aarch64-v9.0\" \\\n-S \"vcodec:h264,res,acodec:m4a\" \\\n-f \"bv*+ba/b\" \\\n--merge-output-format mp4 \\\n-P \"$HOME/Downloads\" \\\n-o \"${NAME}.%(ext)s\" \\\n\"$URL\"\n\n# Если YouTube всё же отдал не H.264 (VP9/AV1), перекодируем, чтобы файл открывался в QuickTime\nFF=\"$TOOLS/lib/python3.14/site-packages/imageio_ffmpeg/binaries/ffmpeg-macos-aarch64-v9.0\"\nFILE=\"$HOME/Downloads/${NAME}.mp4\"\nif ! \"$FF\" -nostdin -hide_banner -i \"$FILE\" 2>&1 | grep -q \"Video: h264\"; then\n  echo \"Кодек не H.264, перекодирую для QuickTime...\"\n  \"$FF\" -nostdin -y -v error -i \"$FILE\" -c:v libx264 -crf 20 -preset veryfast -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart \"$HOME/Downloads/${NAME}.h264.mp4\" \\\n    && mv -f \"$HOME/Downloads/${NAME}.h264.mp4\" \"$FILE\"\nfi\necho \"Готово: $FILE\""
     },
     {
       "id": "seed4",

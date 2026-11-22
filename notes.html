@@ -236,7 +236,7 @@ const SEED = [
   { id: 'seed4', section: 'Теги Sub Edit', kind: 'pairs', title: 'Теги для Sub Edit', desc: '', groups: TAG_GROUPS },
 ];
 
-let ordMode = false, notes = [], sec = ls.get('notesSec') || '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
+let base = {}, ordMode = false, notes = [], sec = ls.get('notesSec') || '', q = '', editing = null, dirty = false, saving = false, again = false, saveT = null, loaded = false;
 
 // приводим заметки старого формата к новому (блоки кода, группы тегов)
 function norm(n) {
@@ -257,6 +257,7 @@ function norm(n) {
 async function load() {
   try { const r = await fetch('notes.json?' + Date.now(), { cache: 'no-store' }); if (r.ok) { notes = (await r.json()).notes || []; loaded = true; } } catch {}
   if (!loaded) { notes = JSON.parse(JSON.stringify(SEED)); dirty = true; }
+  notes.forEach(n => { base[n.id] = JSON.stringify(n); });
   if (notes.map(norm).some(Boolean)) dirty = true; // старый формат заметок переводим в новый
   $('nosave').hidden = !!(ls.get('ghRepo') && ls.get('ghToken'));
   const want = new URLSearchParams(location.search).get('note'), wn = want && notes.find(x => x.id === want);
@@ -274,11 +275,17 @@ async function save() {
   saving = true; again = false;
   try {
     const url = `https://api.github.com/repos/${repo}/contents/notes.json`, h = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' };
-    const cur = await fetch(url, { headers: h }); const sha = cur.ok ? (await cur.json()).sha : undefined;
+    const cur = await fetch(url, { headers: h }); const curJ = cur.ok ? await cur.json() : null, sha = curJ ? curJ.sha : undefined;
+    // чужие изменения (с другого устройства или от меня) не затираем: нетронутые здесь заметки берём из репозитория
+    if (curJ && curJ.content) { try {
+      const remote = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(curJ.content.replace(/\n/g, '')), c => c.charCodeAt(0)))).notes || [], rm = {}; remote.forEach(n => { rm[n.id] = n; });
+      const merged = notes.map(n => (base[n.id] !== undefined && JSON.stringify(n) === base[n.id] && rm[n.id]) ? rm[n.id] : n);
+      remote.forEach(n => { if (base[n.id] === undefined && !merged.some(m => m.id === n.id)) merged.push(n); });
+      notes = merged; } catch {} }
     const text = JSON.stringify({ notes }, null, 2); let bin = ''; new TextEncoder().encode(text).forEach(b => bin += String.fromCharCode(b));
     const r = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({ message: 'Обновлены заметки', sha, content: btoa(bin) }) });
     if (!r.ok) throw new Error((await r.json()).message || r.status);
-    dirty = false; toast('Сохранено', 'ok', 2200);
+    notes.forEach(n => { base[n.id] = JSON.stringify(n); }); dirty = false; toast('Сохранено', 'ok', 2200); render();
   } catch (e) { toast('Не удалось сохранить: ' + e.message, 'bad', 6000); }
   finally { saving = false; if (again && dirty) scheduleSave(600); }
 }

@@ -50,9 +50,10 @@ function matches(urlName, showSlug) {
 }
 
 // Страница сериала /tv/название-год/: проверяем, создана ли она (год в адресе заранее неизвестен)
-async function findShowPage(sl) {
+// hints — точные адреса из ленты свежих серий (gun-shot-2026): у сайта бывает старый одноимённый сериал, и страница без года принадлежит ему
+async function findShowPage(sl, hints = []) {
   const y = new Date().getFullYear();
-  const cands = /-(?:19|20)\d{2}$/.test(sl) ? [sl] : [sl, ...[y, y + 1, y - 1].map(n => `${sl}-${n}`)];
+  const cands = [...new Set([...hints, ...(/-(?:19|20)\d{2}$/.test(sl) ? [sl] : [sl, ...[y, y + 1, y - 1].map(n => `${sl}-${n}`)])])];
   for (const c of cands) {
     try {
       const url = new URL(`/tv/${c}/`, SITE).href;
@@ -181,7 +182,7 @@ async function main() {
   state.shows = state.shows || {}; state.eps = state.eps || {};
   const info = {};
   for (const t of tracked.filter(t => t.slug)) {
-    const f = await findShowPage(t.slug);
+    const f = await findShowPage(t.slug, [...new Set(mine.filter(e => matches(e.name, t.slug)).map(e => e.name))]);
     info[t.s.id] = f ? { on: true, url: f.url, ...parseShowPage(f.html, t.slug) } : { on: false };
   }
   state.countries = state.countries || {}; state.links = state.links || {};

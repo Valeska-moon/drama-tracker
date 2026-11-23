@@ -83,9 +83,9 @@
   .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
   .tgroups:has(.tgroup:only-child) { grid-template-columns:1fr; }
-  .cgrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
-  .cgrid:not(.open) .tg:nth-child(n+5) { display:none; }
-  @media (max-width:640px) { .cgrid { grid-template-columns:1fr; } .cgrid:not(.open) .tg:nth-child(n+3) { display:none; } }
+  .cgrid { display:grid; grid-template-columns:1fr; gap:6px; }
+  .cgrid:not(.open) .tg:nth-child(n+3) { display:none; }
+  .gr2 > .note.cast { align-self:start; height:auto; }
   .cmore { align-self:flex-start; background:none; border:1px dashed var(--pink); color:var(--pink); border-radius:999px; padding:5px 14px; font:inherit; font-size:13px; cursor:pointer; }
   .tgroup { min-width:0; display:flex; flex-direction:column; gap:6px; }
   .gt { font-size:16px; font-weight:700; color:var(--bone); margin:0 0 4px 2px; }
@@ -364,7 +364,7 @@ function genHtml(n, editBtn) {
     <button type="button" class="btn main gcopy" data-gcopy="${n.id}">Скопировать готовую команду</button></article>`;
 }
 function genRefresh(id) { const n = notes.find(x => x.id === id), el = document.querySelector(`[data-gout="${id}"]`); if (n && el) el.textContent = genOut(n).text; }
-const openCast = new Set(), CCUT = 4;
+const openCast = new Set(), CCUT = 2;
 function capSplit(t) { const i = t.indexOf('\n\n'); return i < 0 ? [t, ''] : [t.slice(0, i), t.slice(i + 2)]; }
 function isCap(n) { return /\|\s*Русские субтитры/.test((n.body || '').split('\n')[0]) && (n.body || '').includes('\n\n'); }
 function noteHtml(n0) {
@@ -394,7 +394,7 @@ function render() {
     else html += `<div class="gr2">${seg.map(noteHtml).join('')}</div>`;
     seg = []; };
   const mixed = list.some(n => n.kind === 'code' || n.kind === 'gen');
-  list.forEach(n => { if (n.kind === 'pairs' || n.kind === 'cast') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' && !mixed ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
+  list.forEach(n => { if (n.kind === 'pairs') { flush(); html += noteHtml(n); kind = ''; } else { const k = n.kind === 'text' && !mixed ? 'text' : 'code'; if (k !== kind) flush(); kind = k; seg.push(n); } }); flush();
   $('grid').innerHTML = html;
 }
 matchMedia('(min-width: 861px)').addEventListener('change', render);

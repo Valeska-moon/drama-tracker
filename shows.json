@@ -189,7 +189,11 @@
       "overrides": {},
       "cover": "covers/smwqp9ciq.jpg",
       "coverV": 1795283191970,
-      "translated": []
+      "translated": [
+        1,
+        2,
+        3
+      ]
     }
   ]
 }

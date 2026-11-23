@@ -54,7 +54,12 @@
     },
     {
       "id": "smwqonc4m",
+      "country": "",
+      "mkvUrl": "",
+      "matvUrl": "",
       "title": "Gun Shot",
+      "ruTitle": "Выстрел",
+      "ruMain": true,
       "siteName": "",
       "startDate": "2026-11-23",
       "time": "16:30",

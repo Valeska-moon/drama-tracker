@@ -184,7 +184,7 @@
 <dialog id="dlg"><form id="f" class="dlg">
   <div class="dlghead"><h2 id="ft">Новая заметка</h2><button type="button" class="ib" id="fx" aria-label="Закрыть">✕</button></div>
   <div class="dlgbody">
-    <label>Название</label><input type="text" id="nTitle" required>
+    <label>Название</label><input type="text" id="nTitle" required autocomplete="off"><datalist id="nTitleList"></datalist>
     <div class="two">
       <div><label>Раздел</label><select id="nSec" required></select><input type="text" id="nSecNew" placeholder="Название нового раздела" style="margin-top:8px" hidden></div>
       <div><label>Тип</label><select id="nKind"><option value="text">Текст</option><option value="code">Команда или код</option><option value="pairs">Теги с пояснением</option><option value="cast">Сериал: персонажи и обращения</option><option value="gen">Генератор команды</option></select></div>
@@ -439,6 +439,7 @@ function secOptions(selected) {
 }
 $('nSec').onchange = () => { const nw = $('nSec').value === '__new'; $('nSecNew').hidden = !nw; if (nw) $('nSecNew').focus(); };
 function applyKind() {
+  { const k0 = $('nKind').value; if (k0 === 'cast') { $('nTitle').setAttribute('list', 'nTitleList'); $('nTitleList').innerHTML = [...new Set(shows.flatMap(x => [x.ruTitle, showName(x), x.title]).filter(Boolean))].map(t => `<option value="${esc(t)}">`).join(''); } else $('nTitle').removeAttribute('list'); }
   const k = $('nKind').value; $('bodyBox').hidden = k !== 'text' && k !== 'gen'; $('bodyLbl').textContent = k === 'gen' ? 'Шаблон команды' : 'Текст'; $('bodyHint').hidden = k !== 'gen'; $('codeBox').hidden = k !== 'code'; $('pairBox').hidden = k !== 'pairs' && k !== 'cast';
   if (k === 'code' && !$('blkRows').children.length) $('blkRows').appendChild(blkRow());
   if ((k === 'pairs' || k === 'cast') && !$('grpRows').children.length) $('grpRows').appendChild(grpRow());

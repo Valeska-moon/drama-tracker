@@ -342,7 +342,7 @@ function genValues(n) {
   const st = genSt(n), sh = shows.find(x => x.id === st.series) || shows[0], v = {};
   genVars(n.body).forEach(({ k, d }) => {
     if (k === 'name' && sh) v[k] = sh.title.replace(/[’'`]/g, '').replace(/[^A-Za-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '') + '.E' + pad2(st.ep);
-    else if (k === 'series' && sh) v[k] = (sh.ruTitle || sh.title).replace(/[\/\\:"`$]+/g, ' ').replace(/\s+/g, ' ').trim();
+    else if (k === 'series' && sh) v[k] = sh.title.replace(/’/g, "'").replace(/[\/\\:"`$]+/g, ' ').replace(/\s+/g, ' ').trim();
     else if (k === 'title' && sh) v[k] = (sh.ruTitle || sh.title) + ' - S01E' + pad2(st.ep);
     else v[k] = (st.v[k] ?? d.split('|')[0] ?? '').trim();
   });

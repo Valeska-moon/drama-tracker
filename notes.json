@@ -1,6 +1,24 @@
 {
   "notes": [
     {
+      "id": "nmwt95kg4ton",
+      "section": "Сериалы",
+      "kind": "cast",
+      "title": "Аромат кармы",
+      "desc": "",
+      "groups": [
+        {
+          "title": "Персонажи",
+          "pairs": [
+            [
+              "Юй Чэн",
+              "главный герой, лидер бойз-бэнда RT"
+            ]
+          ]
+        }
+      ]
+    },
+    {
       "id": "nmwt8afrwodt",
       "section": "Подписи",
       "kind": "text",

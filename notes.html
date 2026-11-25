@@ -477,8 +477,14 @@ const typeText = (c) => c === 'TH' ? 'тайский лакорн / дорама
 let shows = [], autoC = {};
 $('gType').innerHTML = Object.keys(ADJ).map(k => `<option value="${k}">${typeText(k)}</option>`).join('');
 (async () => {
-  try { const r = await fetch('shows.json?' + Date.now()); if (r.ok) shows = (await r.json()).shows || []; } catch {}
-  try { const r = await fetch('state.json?' + Date.now()); if (r.ok) autoC = (await r.json()).countries || {}; } catch {}
+  // Pages обновляется с задержкой 1–3 мин: только что добавленный сериал виден только в самом репозитории, поэтому читаем оттуда, если есть токен
+  const rawGet = async (f) => {
+    const repo = ls.get('ghRepo'), token = ls.get('ghToken');
+    if (repo && token) { try { const r = await fetch(`https://api.github.com/repos/${repo}/contents/${f}?t=${Date.now()}`, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' }); if (r.ok) return await r.json(); } catch {} }
+    const r = await fetch(f + '?' + Date.now()); return r.ok ? await r.json() : {};
+  };
+  try { shows = (await rawGet('shows.json')).shows || []; } catch {}
+  try { autoC = (await rawGet('state.json')).countries || {}; } catch {}
   if (notes.length) render();
   $('gShow').innerHTML = '<option value="">Выбери сериал</option>' + shows.map(s => `<option value="${esc(s.id)}">${esc(s.ruMain && s.ruTitle ? s.ruTitle : s.title)}</option>`).join('') + '<option value="__manual">Другой (вписать вручную)</option>';
 })();

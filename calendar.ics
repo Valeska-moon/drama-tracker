@@ -1132,10 +1132,11 @@ UID:smwwf2ibc-ep1@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261125T120000Z
 DTEND:20261125T130000Z
-SUMMARY:Double Shuffle — серия 1/12
+SUMMARY:Двойное перемешивание — серия 1/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 1
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 1
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1144,10 +1145,11 @@ UID:smwwf2ibc-ep2@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261125T120000Z
 DTEND:20261125T130000Z
-SUMMARY:Double Shuffle — серия 2/12
+SUMMARY:Двойное перемешивание — серия 2/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 2
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 2
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1156,10 +1158,11 @@ UID:smwwf2ibc-ep3@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261202T120000Z
 DTEND:20261202T130000Z
-SUMMARY:Double Shuffle — серия 3/12
+SUMMARY:Двойное перемешивание — серия 3/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 3
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 3
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1168,10 +1171,11 @@ UID:smwwf2ibc-ep4@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261209T120000Z
 DTEND:20261209T130000Z
-SUMMARY:Double Shuffle — серия 4/12
+SUMMARY:Двойное перемешивание — серия 4/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 4
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 4
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1180,10 +1184,11 @@ UID:smwwf2ibc-ep5@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261216T120000Z
 DTEND:20261216T130000Z
-SUMMARY:Double Shuffle — серия 5/12
+SUMMARY:Двойное перемешивание — серия 5/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 5
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 5
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1192,10 +1197,11 @@ UID:smwwf2ibc-ep6@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261223T120000Z
 DTEND:20261223T130000Z
-SUMMARY:Double Shuffle — серия 6/12
+SUMMARY:Двойное перемешивание — серия 6/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 6
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 6
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1204,10 +1210,11 @@ UID:smwwf2ibc-ep7@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20261230T120000Z
 DTEND:20261230T130000Z
-SUMMARY:Double Shuffle — серия 7/12
+SUMMARY:Двойное перемешивание — серия 7/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 7
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 7
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1216,10 +1223,11 @@ UID:smwwf2ibc-ep8@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20270106T120000Z
 DTEND:20270106T130000Z
-SUMMARY:Double Shuffle — серия 8/12
+SUMMARY:Двойное перемешивание — серия 8/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 8
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 8
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1228,10 +1236,11 @@ UID:smwwf2ibc-ep9@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20270113T120000Z
 DTEND:20270113T130000Z
-SUMMARY:Double Shuffle — серия 9/12
+SUMMARY:Двойное перемешивание — серия 9/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 9
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 9
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1240,10 +1249,11 @@ UID:smwwf2ibc-ep10@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20270120T120000Z
 DTEND:20270120T130000Z
-SUMMARY:Double Shuffle — серия 10/12
+SUMMARY:Двойное перемешивание — серия 10/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 10
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 10
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1252,10 +1262,11 @@ UID:smwwf2ibc-ep11@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20270127T120000Z
 DTEND:20270127T130000Z
-SUMMARY:Double Shuffle — серия 11/12
+SUMMARY:Двойное перемешивание — серия 11/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 11
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 11
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT
@@ -1264,10 +1275,11 @@ UID:smwwf2ibc-ep12@drama-tracker
 DTSTAMP:20261125T090000Z
 DTSTART:20270203T120000Z
 DTEND:20270203T130000Z
-SUMMARY:Double Shuffle — серия 12/12
+SUMMARY:Двойное перемешивание — серия 12/12
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:Через час: Double Shuffle\, серия 12
+DESCRIPTION:Через час: Двойное перемешивание\,
+  серия 12
 TRIGGER:-PT60M
 END:VALARM
 END:VEVENT

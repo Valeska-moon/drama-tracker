@@ -202,6 +202,29 @@
         2,
         3
       ]
+    },
+    {
+      "id": "smwwf2ibc",
+      "country": "CN",
+      "mkvUrl": "https://mkvdrama.net/double-shuffle-uugjo77h",
+      "matvUrl": "",
+      "title": "Double Shuffle",
+      "ruTitle": "",
+      "ruMain": false,
+      "siteName": "",
+      "startDate": "2026-11-25",
+      "time": "15:00",
+      "totalEpisodes": 12,
+      "weekdays": [
+        3
+      ],
+      "premiereBatch": 2,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "translated": [],
+      "cover": "covers/smwwf2ibc.jpg",
+      "coverV": 1795628873784
     }
   ]
 }

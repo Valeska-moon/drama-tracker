@@ -192,7 +192,7 @@ async function main() {
       try {
         const r = await fetch(i.nextUrl[n], { headers: { 'user-agent': 'Mozilla/5.0 (compatible; drama-tracker)' }, signal: AbortSignal.timeout(15000) });
         const ph = r.ok ? await r.text() : '';
-        const rel = /is released|You can now watch/i.test(ph) && !/Coming Episode[^<]{0,40}\bEpisode\s*0*${n}\b/i.test(ph);
+        const rel = /is released|You can now watch/i.test(ph);
         console.log(`${t.s.title}: серия ${n} в списке «NEXT», страница серии: ${r.status}, вышла: ${rel}`);
         if (rel) { i.sub[n] = { url: i.nextUrl[n], date: i.next[n] }; delete i.next[n]; }
       } catch (e) { console.log('страница серии не открылась:', e.message); }

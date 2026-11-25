@@ -133,7 +133,7 @@ const COUNTRY = { thai: 'Таиланд', korean: 'Корея', chinese: 'Кит
 const CCODE = { 'Таиланд': 'TH', 'Корея': 'KR', 'Китай': 'CN', 'Япония': 'JP', 'Тайвань': 'TW', 'Гонконг': 'HK' };
 // Страница сериала: серии с плашкой SUB уже вышли с английскими субтитрами, с плашкой NEXT только анонсированы (видео ещё нет).
 function parseShowPage(html, sl) {
-  const sub = {}, next = {};
+  const sub = {}, next = {}, nextUrl = {};
   for (const m of html.matchAll(/<a\b[^>]*?href=(?:"([^"]*\/ep\/([^"\/?#]+)[^"]*)"|'([^']*\/ep\/([^'\/?#]+)[^']*)')[^>]*>([\s\S]*?)<\/a>/gi)) {
     m[1] = m[1] || m[3]; m[2] = m[2] || m[4]; m[3] = m[5]; // сайт пишет и "..." и '...'
     const nm = m[2].match(/^(.*?)-episode-\d+/);
@@ -141,11 +141,11 @@ function parseShowPage(html, sl) {
     const text = m[3].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const n = text.match(/Episode\s+(\d+)/i); if (!n) continue;
     const date = (text.match(/[A-Z][a-z]{2}\.? \d{1,2}, \d{4}/) || [''])[0];
-    if (/^NEXT\b/i.test(text)) next[n[1]] = date;
+    if (/^NEXT\b/i.test(text)) { next[n[1]] = date; nextUrl[n[1]] = new URL(m[1], SITE).href; }
     else if (/^SUB\b/i.test(text)) sub[n[1]] = { url: new URL(m[1], SITE).href, date };
   }
   const c = (html.match(/<title>[^<]*?\b(Thai|Korean|Chinese|Japanese|Taiwanese|Hong Kong)\s+Drama/i) || [])[1];
-  return { sub, next, country: c ? COUNTRY[c.toLowerCase()] : '' };
+  return { sub, next, nextUrl, country: c ? COUNTRY[c.toLowerCase()] : '' };
 }
 
 async function main() {
@@ -184,6 +184,19 @@ async function main() {
   for (const t of tracked.filter(t => t.slug)) {
     const f = await findShowPage(t.slug, [...new Set(mine.filter(e => matches(e.name, t.slug)).map(e => e.name))]);
     info[t.s.id] = f ? { on: true, url: f.url, ...parseShowPage(f.html, t.slug) } : { on: false };
+    // Плашка NEXT на странице сериала обновляется с опозданием: серия уже вышла, а там всё ещё анонс. Смотрим на саму страницу серии.
+    const i = info[t.s.id];
+    for (const n of Object.keys(i.next || {})) {
+      const when = Date.parse(String(i.next[n]).replace('.', '') + ' 00:00 UTC');
+      if (!(when <= Date.now() + 12 * 3600e3) || !i.nextUrl[n]) continue;
+      try {
+        const r = await fetch(i.nextUrl[n], { headers: { 'user-agent': 'Mozilla/5.0 (compatible; drama-tracker)' }, signal: AbortSignal.timeout(15000) });
+        const ph = r.ok ? await r.text() : '';
+        const rel = /is released|You can now watch/i.test(ph) && !/Coming Episode[^<]{0,40}\bEpisode\s*0*${n}\b/i.test(ph);
+        console.log(`${t.s.title}: серия ${n} в списке «NEXT», страница серии: ${r.status}, вышла: ${rel}`);
+        if (rel) { i.sub[n] = { url: i.nextUrl[n], date: i.next[n] }; delete i.next[n]; }
+      } catch (e) { console.log('страница серии не открылась:', e.message); }
+    }
   }
   state.countries = state.countries || {}; state.links = state.links || {};
   for (const t of tracked) { const i = info[t.s.id]; if (i && i.on && i.url) state.links[t.s.id] = i.url; }

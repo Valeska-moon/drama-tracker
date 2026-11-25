@@ -209,8 +209,8 @@
       "mkvUrl": "https://mkvdrama.net/double-shuffle-uugjo77h",
       "matvUrl": "",
       "title": "Double Shuffle",
-      "ruTitle": "",
-      "ruMain": false,
+      "ruTitle": "Двойное перемешивание",
+      "ruMain": true,
       "siteName": "",
       "startDate": "2026-11-25",
       "time": "15:00",
@@ -222,9 +222,9 @@
       "perDay": 1,
       "skipDates": [],
       "overrides": {},
-      "translated": [],
       "cover": "covers/smwwf2ibc.jpg",
-      "coverV": 1795628873784
+      "coverV": 1795628873784,
+      "translated": []
     }
   ]
 }

@@ -27,7 +27,8 @@
         3,
         4,
         5,
-        6
+        6,
+        7
       ]
     },
     {
@@ -225,7 +226,10 @@
       "overrides": {},
       "cover": "covers/smwwf2ibc.jpg",
       "coverV": 1795628873784,
-      "translated": []
+      "translated": [
+        1,
+        2
+      ]
     }
   ]
 }

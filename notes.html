@@ -83,8 +83,12 @@
   .txt { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
   .tgroups { display:grid; grid-template-columns:1fr 1fr; gap:18px 20px; margin-top:12px; }
   .tgroups:has(.tgroup:only-child) { grid-template-columns:1fr; }
-  .ncv { flex:0 0 auto; width:38px; height:54px; border-radius:8px; background:#222 center/cover no-repeat; margin-right:10px; box-shadow:0 2px 8px rgba(0,0,0,.4); }
-  .nh:has(.ncv) h3 { flex:1; min-width:0; }
+  .code.cap.ttl { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .code.cap.clamp:not(.open) { max-height:3.3em; }
+  .note.capc { display:flex; padding:0; overflow:hidden; }
+  .ncv { flex:0 0 92px; background:#222 center/cover no-repeat; }
+  .cin { flex:1; min-width:0; padding:16px 18px; }
+  @media (max-width:640px) { .ncv { flex-basis:68px; } .cin { padding:14px; } }
   .cgrid { display:grid; grid-template-columns:1fr; gap:6px; }
   .cgrid:not(.open) .tg:nth-child(n+3) { display:none; }
   .gr2 > .note.cast { align-self:start; height:auto; }
@@ -376,7 +380,7 @@ function noteHtml(n0) {
   const n = n0, o = orig(n0);
   const editBtn = `<button type="button" class="ib" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button>`;
   if (n.kind === 'gen') return genHtml(n, editBtn);
-  if (n.kind === 'text' && isCap(n)) return `<article class="note" data-id="${n.id}"><div class="nh">${covHtml(n)}<h3>${hl(n.title)}</h3><div class="nact">${editBtn}</div></div><div class="cbl">${capSplit(n.body).map((t, k) => `<div class="cblock"><div class="cwrap"><pre class="code${k ? ' clamp' : ''}">${hl(t)}</pre><button type="button" class="ib sm cp" data-cpt="${n.id}|${k}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`).join('')}</div></article>`;
+  if (n.kind === 'text' && isCap(n)) return `<article class="note${covHtml(n) ? ' capc' : ''}" data-id="${n.id}">${covHtml(n)}<div class="cin"><div class="nh"><h3>${hl(n.title)}</h3><div class="nact">${editBtn}</div></div><div class="cbl">${capSplit(n.body).map((t, k) => `<div class="cblock"><div class="cwrap"><pre class="code cap${k ? ' clamp' : ' ttl'}">${hl(t)}</pre><button type="button" class="ib sm cp" data-cpt="${n.id}|${k}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button></div></div>`).join('')}</div></div></article>`;
   if (n.kind === 'text') return `<article class="tile" data-tile="${n.id}" title="Нажмите, чтобы скопировать"><div class="th"><h3>${hl(n.title)}</h3><div class="nact"><button type="button" class="ib sm" data-copy="${n.id}" aria-label="Копировать" title="Копировать">${ICON_COPY}</button><button type="button" class="ib sm" data-edit="${n.id}" aria-label="Изменить" title="Изменить">${ICON_EDIT}</button></div></div>${n.desc ? `<div class="pv2">${hl(n.desc)}</div>` : `<div class="pv2">${hl(n.body)}</div>`}</article>`;
   let body = '';
   const ro = ordMode && !words().length, arrows = (k, v) => ro ? `<span class="mvs"><button type="button" class="ib xs" data-${k}="${v}|-1" aria-label="Выше">↑</button><button type="button" class="ib xs" data-${k}="${v}|1" aria-label="Ниже">↓</button></span>` : '';

@@ -182,7 +182,7 @@
     <a class="btn" href="./">← Сериалы</a>
   </div>
   <div class="head"><h2>Заметки</h2>
-    <div class="acts"><button class="ib lg" id="qBtn" type="button" aria-label="Поиск" title="Поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="btn small" id="genBtn" type="button">Подпись к видео</button><button class="btn main small" id="addBtn" type="button">+ Заметка</button></div></div>
+    </div>
   <div id="nosave" class="warn" hidden>Заметки сохраняются так же, как сериалы. Сначала впишите ключ GitHub в «Настройки сохранения» внизу <a href="./">главной страницы</a>.</div>
   <input class="search" id="q" type="search" placeholder="Найти по названию, команде или тегу" autocomplete="off" enterkeyhint="search" hidden>
   <div class="chips" id="chips"></div>
@@ -397,7 +397,7 @@ function render() {
   const secs = sections(), ws = words(), searching = ws.length > 0;
   if (!secs.includes(sec)) sec = secs[0] || '';
   $('chips').classList.toggle('srch', searching);
-  $('chips').innerHTML = secs.map(s => `<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>`).join('') + (!searching && sec ? `<button type="button" class="chip add" id="secAdd" title="Добавить заметку в раздел «${esc(sec)}»">+ Заметка</button><button type="button" class="chip add rord ${ordMode ? 'on' : ''}" id="secOrd" title="Менять порядок заметок">⇅ Порядок</button><button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '');
+  $('chips').innerHTML = secs.map((s, i) => `${ordMode && sec === s && !searching && i > 0 ? '<button type="button" class="ib sm" data-smv="-1" title="Раздел левее">‹</button>' : ''}<button class="chip ${sec === s ? 'on' : ''}" data-sec="${esc(s)}">${esc(s)}<b>${notes.filter(n => n.section === s).length}</b></button>${ordMode && sec === s && !searching && i < secs.length - 1 ? '<button type="button" class="ib sm" data-smv="1" title="Раздел правее">›</button>' : ''}`).join('') + (!searching && sec ? `<button type="button" class="chip add" id="secAdd" title="Добавить заметку в раздел «${esc(sec)}»">+ Заметка</button><button type="button" class="chip add rord ${ordMode ? 'on' : ''}" id="secOrd" title="Менять порядок заметок">⇅ Порядок</button><button type="button" class="ib" id="secEdit" aria-label="Переименовать раздел" title="Переименовать раздел «${esc(sec)}»">${ICON_EDIT}</button>` : '') + `<button type="button" class="chip add" id="secNew" title="Новый раздел">+ Раздел</button><button type="button" class="ib" id="qBtn" aria-label="Поиск" title="Поиск" style="margin-left:auto"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>`;
   const base = searching ? notes : notes.filter(n => n.section === sec);
   const list = base.map(filterNote).filter(Boolean);
   if (!list.length) { $('grid').innerHTML = `<div class="empty">${notes.length ? (searching ? 'Ничего не найдено.' : 'В этом разделе пока пусто.') : 'Заметок пока нет. Нажмите «+ Заметка».'}</div>`; return; }
@@ -414,8 +414,12 @@ matchMedia('(min-width: 861px)').addEventListener('change', render);
 $('grid').addEventListener('input', (e) => { const t = e.target; if (t.dataset.gep) { gState[t.dataset.gep].ep = Math.max(1, +t.value || 1); genRefresh(t.dataset.gep); } else if (t.dataset.gin) { const [id, k] = t.dataset.gin.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); } });
 $('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gopt) { const [id, k] = t.dataset.gopt.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); return; } if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
-$('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd') && sec === capSec()) { openGen(); return; } if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+
+$('chips').addEventListener('click', (e) => {
+  if (e.target.closest('#qBtn')) { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } return; }
+  if (e.target.closest('#secNew')) { openEdit(null, { section: '', kind: 'text' }); return; }
+  const mv = e.target.closest('[data-smv]'); if (mv) { const secs = sections(), i = secs.indexOf(sec), j = i + +mv.dataset.smv; if (i < 0 || j < 0 || j >= secs.length) return; [secs[i], secs[j]] = [secs[j], secs[i]]; const all = secs.flatMap(x => notes.filter(n => n.section === x)); notes.splice(0, notes.length, ...all); dirty = true; scheduleSave(); render(); return; }
+  if (e.target.closest('#secAdd') && sec === capSec()) { openGen(); return; } if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
   const gc = e.target.closest('[data-gcopy]');
   if (gc) { const n = notes.find(x => x.id === gc.dataset.gcopy), o = genOut(n); if (o.miss.length) { toast('Заполни: ' + o.miss.join(', '), 'bad', 2500); return; } copy(o.text); return; }
@@ -467,7 +471,6 @@ function openEdit(id, pre) {
   $('grpRows').innerHTML = ''; (n && n.groups || []).forEach(g => $('grpRows').appendChild(grpRow(g)));
   $('nDel').hidden = !n; applyKind(); $('dlg').showModal(); if (!n) $('nTitle').focus();
 }
-$('addBtn').onclick = () => openEdit(null);
 $('nCancel').onclick = $('fx').onclick = () => $('dlg').close();
 $('dlg').addEventListener('click', (e) => { if (e.target === $('dlg')) $('dlg').close(); });
 $('nDel').onclick = () => { if (!confirm('Удалить заметку?')) return; notes = notes.filter(x => x.id !== editing); $('dlg').close(); render(); scheduleSave(); };
@@ -529,7 +532,6 @@ const openGen = () => {
   if (fresh && !$('gShow').value) { $('gShow').value = fresh.id; $('gShow').onchange(); }
   $('gDesc').value = ''; gLoadCustom(); gLastEp = $('gEp').value || '1'; prev(); $('gdlg').showModal(); setTimeout(() => $('gDesc').focus(), 60);
 };
-$('genBtn').onclick = openGen;
 $('sx').onclick = () => $('sdlg').close(); $('sdlg').addEventListener('click', (e) => { if (e.target === $('sdlg')) $('sdlg').close(); });
 const renameSec = () => { const nv = $('sName').value.trim(); if (!nv || nv === sec) { $('sdlg').close(); return; } notes.forEach(n => { if (n.section === sec) n.section = nv; }); sec = nv; ls.set('notesSec', sec); dirty = true; scheduleSave(); $('sdlg').close(); render(); };
 $('sOk').onclick = renameSec; $('sName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); renameSec(); } });

@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#0a0809">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="dark">
-<meta name="build" content="20261126-1230">
+<meta name="build" content="20261126-1245">
 <title>Lumera Subs · график серий</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -226,7 +226,8 @@
   .acard .btn.small { flex: 0 0 auto; padding: 6px 14px; font-size: 12px; white-space: nowrap; }
   .trn { color: var(--pink); font-family: var(--text); font-weight: 600; font-size: .8em; margin-left: 6px; }
   .qd { font-family: var(--text); font-weight: 500; font-size: 14px; color: var(--ash); }
-  .row.q .t { gap: 0; }
+  .row.q .t { gap: 12px; }
+  .row.q .t .te { font-weight: 700; }
   .bar { position: relative; }
   .bar i { position: absolute; left: 0; top: 0; bottom: 0; }
   .bar i.a { background: rgba(255,138,196,.38); }
@@ -662,8 +663,8 @@ function renderQueue() {
   q.sort((a, b) => a.ms - b.ms);
   $('trSec').hidden = !q.length; $('trN').textContent = q.length ? '· ' + q.length : '';
   $('trq').innerHTML = q.map(x => `<div class="row q">${thumb(x.s, x.e.n)}
-    <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}<small>серия ${x.e.n}</small>${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span>
-    <span class="t"><span class="qd">${relDay(x.e.date)}</span></span><span class="ra"><button type="button" class="btn small main" data-trd="${x.s.id}|${x.e.n}" title="Отметить как переведённое">Готово</button></span></div>`).join('');
+    <span class="n"><b>${cname(x.s) ? flagSvg(countryOf(x.s), 16, 'sm') : ''}${esc(mainName(x.s))}</b>${subName(x.s) ? `<small class="sn">${esc(subName(x.s))}</small>` : ''}${linkBtns(x.s) ? `<span class="alinks">${linkBtns(x.s)}</span>` : ''}</span>
+    <span class="t"><span class="qd">${relDay(x.e.date)}</span><i class="tsep"></i><b class="te">серия ${x.e.n}</b></span><span class="ra"><button type="button" class="btn small main" data-trd="${x.s.id}|${x.e.n}" title="Отметить как переведённое">Готово</button></span></div>`).join('');
 }
 $('trq').addEventListener('click', (ev) => { const b = ev.target.closest('[data-trd]'); if (b) { const [id, n] = b.dataset.trd.split('|'); markTranslated(id, n); } });
 

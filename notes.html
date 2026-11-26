@@ -171,6 +171,8 @@
     .head .acts { width:100%; } .head .acts .btn { flex:1; }
   }
 
+.linkb{background:none;border:0;color:var(--pink);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
+#gPrev{font-family:inherit;line-height:1.45}
 </style>
 </head>
 <body>
@@ -224,8 +226,9 @@
         <div><label>Год</label><input type="number" id="gYear" value="2026" inputmode="numeric"></div>
       </div>
     </details>
-    <div class="prev" id="gPrev"></div>
-    <p class="hint">«Копировать подпись» кладёт текст в буфер обмена. «Сохранить в «Подписи»» добавляет заметку; если подпись этого сериала уже есть, обновляет её.</p>
+    <label>Текст подписи <span class="hint" id="gCust" hidden>· свой текст для этого сериала <button type="button" class="linkb" id="gReset">сбросить к шаблону</button></span></label>
+    <textarea id="gPrev" rows="9"></textarea>
+    <p class="hint">Текст можно поправить руками: если изменишь, он запомнится как твой шаблон для этого сериала (номер серии подставится сам). «Сохранить в «Подписи»» добавляет заметку или обновляет подпись этого сериала.</p>
   </div>
   <div class="dlg-foot"><button class="btn main" type="button" id="gSave">Сохранить в «Подписи»</button></div>
 </form></dialog>
@@ -375,6 +378,7 @@ function capSplit(t) { const i = t.indexOf('\n\n'); return i < 0 ? [t, ''] : [t.
 const skey = (t) => String(t || '').toLowerCase().replace(/[^a-zа-яё0-9]+/g, '');
 function showOf(n) { const k = skey(n.title), b = skey(n.body); return shows.find(s => k && (k === skey(s.ruTitle) || k === skey(s.title))) || shows.find(s => s.title && b.includes(skey(s.title) + '20')); }
 const covHtml = (n) => { const s = showOf(n); return s && s.cover ? `<span class="ncv" style="background-image:url('${esc(s.cover)}?v=${esc(s.coverV || '')}')"></span>` : ''; };
+const capSec = () => { const c = notes.find(n => n.kind === 'text' && isCap(n)); return c ? c.section : (notes.find(n => /подпис/i.test(n.section)) || {}).section || 'Подписи'; };
 function isCap(n) { return /\|\s*Русские субтитры/.test((n.body || '').split('\n')[0]) && (n.body || '').includes('\n\n'); }
 function noteHtml(n0) {
   const n = n0, o = orig(n0);
@@ -411,7 +415,7 @@ $('grid').addEventListener('input', (e) => { const t = e.target; if (t.dataset.g
 $('grid').addEventListener('change', (e) => { const t = e.target; if (t.dataset.gopt) { const [id, k] = t.dataset.gopt.split('|'); genSt({ id }); gState[id].v[k] = t.value; genRefresh(id); return; } if (t.dataset.gsel) { const st = gState[t.dataset.gsel]; st.series = t.value; ls.set('gs_' + t.dataset.gsel, t.value); const sh = shows.find(x => x.id === t.value); st.ep = sh ? Math.max(0, ...(sh.translated || [0])) + 1 : 1; render(); } });
 $('q').addEventListener('input', (e) => { q = e.target.value; render(); });
 $('qBtn').onclick = () => { const on = $('q').hidden; $('q').hidden = !on; if (on) $('q').focus(); else { $('q').value = ''; q = ''; render(); } };
-$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd') && sec === 'Подписи') { openGen(); return; } if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
+$('chips').addEventListener('click', (e) => { if (e.target.closest('#secAdd') && sec === capSec()) { openGen(); return; } if (e.target.closest('#secOrd')) { ordMode = !ordMode; render(); return; } if (e.target.closest('#secAdd')) { const cnt = {}; notes.filter(n => n.section === sec).forEach(n => cnt[n.kind] = (cnt[n.kind] || 0) + 1); const kind = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'text'; openEdit(null, { section: sec, kind }); return; } if (e.target.closest('#secEdit')) { $('sName').value = sec; $('sdlg').showModal(); $('sName').select(); return; } const b = e.target.closest('[data-sec]'); if (b) { sec = b.dataset.sec; ls.set('notesSec', sec); if (q) { q = ''; $('q').value = ''; } render(); } });
 $('grid').addEventListener('click', (e) => {
   const gc = e.target.closest('[data-gcopy]');
   if (gc) { const n = notes.find(x => x.id === gc.dataset.gcopy), o = genOut(n); if (o.miss.length) { toast('Заполни: ' + o.miss.join(', '), 'bad', 2500); return; } copy(o.text); return; }
@@ -502,20 +506,28 @@ $('gShow').onchange = () => {
   const s = shows.find(x => x.id === $('gShow').value); if (!s) return;
   $('gEp').value = Math.max(0, ...(s.translated || [0])) + 1;
   $('gRu').value = s.ruTitle || ''; $('gOrig').value = s.title; $('gYear').value = (s.startDate || '').slice(0, 4) || 2026;
-  const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && ADJ[c]) $('gType').value = c; prev();
+  const c = s.country && s.country !== 'none' ? s.country : autoC[s.id]; if (c && ADJ[c]) $('gType').value = c; gLoadCustom(); gLastEp = $('gEp').value || '1'; prev();
 };
+let gCustom = null, gEdited = false, gLastEp = '1';
+const gKey = (t) => String(t || '').toLowerCase().replace(/[^a-zа-яё0-9]+/g, '');
 const caption = () => {
-  const ru = $('gRu').value.trim() || $('gOrig').value.trim(), orig = $('gOrig').value.trim() || ru, n = $('gEp').value || 1, d = $('gDesc').value.trim();
-  return `${ru} ${n} серия | Русские субтитры FSG Lumera\n\n${orig} (${$('gYear').value || ''}) — ${typeText($('gType').value)} с русскими субтитрами от LUMERA.${d ? '\n\n' + d : ''}`;
+  const n = $('gEp').value || 1;
+  if (gCustom) return gCustom.replace(/\{\{n\}\}/g, n);
+  const ru = $('gRu').value.trim() || $('gOrig').value.trim(), orig = $('gOrig').value.trim() || ru, d = $('gDesc').value.trim();
+  return `${ru} ${n} серия | Русские субтитры Lumera\n\n${orig} (${$('gYear').value || ''}) — ${typeText($('gType').value)} с русскими субтитрами от LUMERA.${d ? '\n\n' + d : ''}`;
 };
-const prev = () => { $('gPrev').textContent = caption(); };
-['gRu', 'gOrig', 'gYear', 'gEp', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
+const prev = () => { if (!gEdited) $('gPrev').value = caption(); $('gCust').hidden = !gCustom && !gEdited; };
+const gLoadCustom = () => { const ru = $('gRu').value.trim() || $('gOrig').value.trim(), ex = notes.find(n => n.section === capSec() && gKey(n.title) === gKey(ru)); gCustom = ex && ex.custom ? ex.custom : null; gEdited = false; };
+['gRu', 'gOrig', 'gYear', 'gDesc', 'gType'].forEach(i => $(i).addEventListener('input', prev));
+$('gEp').addEventListener('input', () => { const n = $('gEp').value || 1; if (gEdited) $('gPrev').value = $('gPrev').value.split(`${gLastEp} серия`).join(`${n} серия`); gLastEp = String(n); prev(); });
+$('gPrev').addEventListener('input', () => { gEdited = true; $('gCust').hidden = false; });
+$('gReset').onclick = () => { gCustom = null; gEdited = false; prev(); };
 const openGen = () => {
-  const have = new Set(notes.filter(n => n.section === 'Подписи').map(n => n.title.toLowerCase().replace(/[^a-zа-яё0-9]+/g, '')));
+  const have = new Set(notes.filter(n => n.section === capSec()).map(n => n.title.toLowerCase().replace(/[^a-zа-яё0-9]+/g, '')));
   const nm = (s) => (s.ruTitle || s.title).toLowerCase().replace(/[^a-zа-яё0-9]+/g, '');
   const fresh = shows.find(s => !have.has(nm(s))) || shows[0];
   if (fresh && !$('gShow').value) { $('gShow').value = fresh.id; $('gShow').onchange(); }
-  $('gDesc').value = ''; prev(); $('gdlg').showModal(); setTimeout(() => $('gDesc').focus(), 60);
+  $('gDesc').value = ''; gLoadCustom(); gLastEp = $('gEp').value || '1'; prev(); $('gdlg').showModal(); setTimeout(() => $('gDesc').focus(), 60);
 };
 $('genBtn').onclick = openGen;
 $('sx').onclick = () => $('sdlg').close(); $('sdlg').addEventListener('click', (e) => { if (e.target === $('sdlg')) $('sdlg').close(); });
@@ -524,9 +536,11 @@ $('sOk').onclick = renameSec; $('sName').addEventListener('keydown', (e) => { if
 $('gx').onclick = () => $('gdlg').close(); $('gdlg').addEventListener('click', (e) => { if (e.target === $('gdlg')) $('gdlg').close(); });
 $('gSave').onclick = () => {
   const ru = $('gRu').value.trim() || $('gOrig').value.trim(); if (!ru) { toast('Впишите название', 'bad', 2000); return; }
-  const key = (t) => t.toLowerCase().replace(/[^a-zа-яё0-9]+/g, ''), ex = notes.find(n => n.section === 'Подписи' && key(n.title) === key(ru));
-  if (ex) { ex.body = caption(); notes.splice(notes.indexOf(ex), 1); notes.unshift(ex); } else notes.unshift({ id: uid(), section: 'Подписи', kind: 'text', title: ru, desc: '', body: caption() });
-  sec = 'Подписи'; ls.set('notesSec', sec); $('gdlg').close(); render(); scheduleSave(); toast(ex ? 'Подпись обновлена' : 'Добавлено в «Подписи»', 'ok', 2000);
+  const key = (t) => t.toLowerCase().replace(/[^a-zа-яё0-9]+/g, ''), ex = notes.find(n => n.section === capSec() && key(n.title) === key(ru));
+  const text = $('gPrev').value.trim() || caption(), n0 = $('gEp').value || 1;
+  const custom = gEdited || gCustom ? text.split(`${n0} серия`).join('{{n}} серия') : null;
+  if (ex) { ex.body = text; if (custom) ex.custom = custom; else delete ex.custom; notes.splice(notes.indexOf(ex), 1); notes.unshift(ex); } else { const nn = { id: uid(), section: capSec(), kind: 'text', title: ru, desc: '', body: text }; if (custom) nn.custom = custom; notes.unshift(nn); }
+  sec = capSec(); ls.set('notesSec', sec); $('gdlg').close(); render(); scheduleSave(); toast(ex ? 'Подпись обновлена' : 'Добавлено в «' + sec + '»', 'ok', 2000);
 };
 load();
 </script>

@@ -272,6 +272,27 @@
       ],
       "cover": "covers/smwxclp5r.jpg",
       "coverV": 1795685196447
+    },
+    {
+      "id": "smwz52wsi",
+      "country": "",
+      "mkvUrl": "",
+      "matvUrl": "",
+      "title": "Lust",
+      "ruTitle": "Похоть",
+      "ruMain": true,
+      "siteName": "",
+      "startDate": "2026-12-17",
+      "time": "16:00",
+      "totalEpisodes": 12,
+      "weekdays": [],
+      "premiereBatch": 1,
+      "perDay": 1,
+      "skipDates": [],
+      "overrides": {},
+      "translated": [],
+      "cover": "covers/smwz52wsi.jpg",
+      "coverV": 1795793494915
     }
   ]
 }

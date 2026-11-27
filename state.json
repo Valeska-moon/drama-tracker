@@ -24,7 +24,8 @@
     "smwqp6vy0": true,
     "smwqp9ciq": true,
     "smwwf2ibc": true,
-    "smwxclp5r": true
+    "smwxclp5r": true,
+    "smwz52wsi": true
   },
   "mkv": {},
   "mkvDown": true,
@@ -121,6 +122,10 @@
         15
       ],
       "next": {}
+    },
+    "smwz52wsi": {
+      "sub": [],
+      "next": {}
     }
   },
   "countries": {
@@ -132,7 +137,8 @@
     "smwqp9ciq": "CN",
     "smwqp6vy0": "TH",
     "smwqonc4m": "TH",
-    "smwxclp5r": "TH"
+    "smwxclp5r": "TH",
+    "smwz52wsi": "CN"
   },
   "links": {
     "smwqoeznv": "https://ww19.myasiantv.es/tv/teach-me-touch-me/",
@@ -144,7 +150,8 @@
     "smwqp6vy0": "https://ww19.myasiantv.es/tv/the-grim-lover-2026/",
     "smwqonc4m": "https://ww19.myasiantv.es/tv/gun-shot/",
     "smwwf2ibc": "https://ww19.myasiantv.es/tv/double-shuffle/",
-    "smwxclp5r": "https://ww19.myasiantv.es/tv/fool-in-love-2026/"
+    "smwxclp5r": "https://ww19.myasiantv.es/tv/fool-in-love-2026/",
+    "smwz52wsi": "https://ww19.myasiantv.es/tv/lust/"
   },
   "down": false
 }
